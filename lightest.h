@@ -13,8 +13,9 @@ class Logger {
         void Msg(const char* str) { std::cout << " [Message] " << str << std::endl; }
         void Fail(const char* str) { std::cout << " [Fail] " << str << std::endl; this->failed = true; }
         ~Logger() {
-            std::cout << " [End] " << this->name
-            << " ==========" <<std::endl; }
+            std::cout << " [End] " << this->name;
+            if(this->failed) std::cout << " [Failed] ";
+            std::cout << " ==========" <<std::endl; }
     private:
         const char* name;
         bool failed;
