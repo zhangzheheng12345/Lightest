@@ -3,7 +3,7 @@
 
 int main() {
     DEFTEST(hello) {
-        logger.Msg("hello");
+        logger.Fail("hello");
     };
     RUNTEST(hello);
     return 0;
