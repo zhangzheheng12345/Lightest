@@ -22,3 +22,4 @@ class Logger {
 };
 
 #define MSG(str) logger.Msg((str))
+#define FAIL(str) logger.Fail((str))
