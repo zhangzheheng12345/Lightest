@@ -1,10 +1,10 @@
 #include <iostream>
-#include “test.cpp”
+#include "lightest.h"
 
 int main() {
     DEFTEST(hello) {
-        logger.Msg(“hello”);
-    }
-    RUNTEST(hello)
+        logger.Msg("hello");
+    };
+    RUNTEST(hello);
     return 0;
 }
