@@ -35,7 +35,7 @@ class Logger {
         bool failed;
 };
 
-#define MSG(str) logger.Msg(__FILE__,__LINE__,(str))
-#define WARN(str) logger.Warn(__FILE__,__LINE__,(str))
-#define ERR(str) logger.Err(__FILE__,__LINE__,(str))
-#define FAIL(str) logger.Fail(__FILE__,__LINE__,(str))
+#define MSG(str) logger.Msg(__FILE__,__LINE__,(str));
+#define WARN(str) logger.Warn(__FILE__,__LINE__,(str));
+#define ERR(str) logger.Err(__FILE__,__LINE__,(str));
+#define FAIL(str) logger.Fail(__FILE__,__LINE__,(str));
