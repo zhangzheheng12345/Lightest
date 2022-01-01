@@ -27,7 +27,7 @@ class Logger {
         }
         ~Logger() {
             std::cout << " [End] " << this->name;
-            if(this->failed) std::cout << " [Failed] ";
+            if(this->failed) std::cout << " { Failed } ";
             std::cout << " ==========" <<std::endl;
         }
     private:
