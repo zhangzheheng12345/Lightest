@@ -14,8 +14,16 @@ class Logger {
         void Msg(const char* file,int line,const char* str) {
             std::cout << " [Message] " << file << ":" << line << ": " << str << std::endl;
         }
+        void Warn(const char* file,int line,const char* str) {
+            std::cout << " [Warn] " << file << ":" << line << ": " << str << std::endl;
+        }
+        void Err(const char* file,int line,const char* str) {
+            std::cout << " [Error] " << file << ":" << line << ": " << str << std::endl;
+            this->failed = true;
+        }
         void Fail(const char* file,int line,const char* str) {
-            std::cout << " [Fail] " << file << ":" << line << ": " << str << std::endl; this->failed = true;
+            std::cout << " [Fail] " << file << ":" << line << ": " << str << std::endl;
+            this->failed = true;
         }
         ~Logger() {
             std::cout << " [End] " << this->name;
@@ -28,4 +36,6 @@ class Logger {
 };
 
 #define MSG(str) logger.Msg(__FILE__,__LINE__,(str))
+#define WARN(str) logger.Warn(__FILE__,__LINE__,(str))
+#define ERR(str) logger.Err(__FILE__,__LINE__,(str))
 #define FAIL(str) logger.Fail(__FILE__,__LINE__,(str))
