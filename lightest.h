@@ -9,17 +9,23 @@ class Logger {
     public:
         Logger(const char* name) {
             std::cout << " [Begin] " << name << " ==========" << std::endl;
-            this->name = name, this->failed = false; }
-        void Msg(const char* str) { std::cout << " [Message] " << str << std::endl; }
-        void Fail(const char* str) { std::cout << " [Fail] " << str << std::endl; this->failed = true; }
+            this->name = name, this->failed = false;
+        }
+        void Msg(const char* file,int line,const char* str) {
+            std::cout << " [Message] " << file << ":" << line << ": " << str << std::endl;
+        }
+        void Fail(const char* file,int line,const char* str) {
+            std::cout << " [Fail] " << file << ":" << line << ": " << str << std::endl; this->failed = true;
+        }
         ~Logger() {
             std::cout << " [End] " << this->name;
             if(this->failed) std::cout << " [Failed] ";
-            std::cout << " ==========" <<std::endl; }
+            std::cout << " ==========" <<std::endl;
+        }
     private:
         const char* name;
         bool failed;
 };
 
-#define MSG(str) logger.Msg((str))
-#define FAIL(str) logger.Fail((str))
+#define MSG(str) logger.Msg(__FILE__,__LINE__,(str))
+#define FAIL(str) logger.Fail(__FILE__,__LINE__,(str))
