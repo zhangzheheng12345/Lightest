@@ -7,6 +7,7 @@ int main() {
         WARN("warn")
         ERR("err")
         FAIL("fail")
+        REQUIRE(1<=2)
     };
     RUNTEST(hello);
     return 0;
