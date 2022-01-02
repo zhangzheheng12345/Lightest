@@ -39,3 +39,6 @@ class Logger {
 #define WARN(str) logger.Warn(__FILE__,__LINE__,(str));
 #define ERR(str) logger.Err(__FILE__,__LINE__,(str));
 #define FAIL(str) logger.Fail(__FILE__,__LINE__,(str));
+
+#define REQUIRE(condition) if(condition) MSG(" [Require] pass " #condition); \
+                           else FAIL(" [Require] didn't pass " #condition);
