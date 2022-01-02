@@ -2,12 +2,12 @@
 
 #include <iostream>
 
-#define DEFTEST(name) void (*name)(Logger&&) = [] (Logger&& logger) 
-#define RUNTEST(name) (*name)(Logger( #name ));
+#define DEFTEST(name) void (*name)(Testing&&) = [] (Testing&& testing) 
+#define RUNTEST(name) (*name)(Testing( #name ));
 
-class Logger {
+class Testing {
     public:
-        Logger(const char* name) {
+        Testing(const char* name) {
             std::cout << " [Begin] " << name << " ==========" << std::endl;
             this->name = name, this->failed = false;
         }
@@ -25,7 +25,7 @@ class Logger {
             std::cout << " [Fail] " << file << ":" << line << ": " << str << std::endl;
             this->failed = true;
         }
-        ~Logger() {
+        ~Testing() {
             std::cout << " [End] " << this->name;
             if(this->failed) std::cout << " { Failed } ";
             std::cout << " ==========" <<std::endl;
@@ -35,10 +35,10 @@ class Logger {
         bool failed;
 };
 
-#define MSG(str) logger.Msg(__FILE__,__LINE__,(str));
-#define WARN(str) logger.Warn(__FILE__,__LINE__,(str));
-#define ERR(str) logger.Err(__FILE__,__LINE__,(str));
-#define FAIL(str) logger.Fail(__FILE__,__LINE__,(str));
+#define MSG(str) testing.Msg(__FILE__,__LINE__,(str))
+#define WARN(str) testing.Warn(__FILE__,__LINE__,(str))
+#define ERR(str) testing.Err(__FILE__,__LINE__,(str))
+#define FAIL(str) testing.Fail(__FILE__,__LINE__,(str))
 
-#define REQUIRE(condition) if(condition) MSG(" [Require] pass " #condition) \
+#define REQUIRE(condition) if(condition) MSG(" [Require] pass " #condition); \
                            else FAIL(" [Require] didn't pass " #condition)
