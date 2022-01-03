@@ -5,7 +5,7 @@
 
 #define DEFTEST(name) void (*name)(Testing&&) = [] (Testing&& testing) 
 #define RUNTEST(name) (*name)(Testing( __FILE__, #name ))
-#define REPORTTEST() Testing.Report()
+#define REPORTTEST() Testing::Report()
 
 class Testing {
     public:
@@ -15,29 +15,29 @@ class Testing {
             test.failureCount = 0, test.failed = false;
         }
         void Msg(int line,const char* str) {
-            std::cout << " [Message] " << test.file << " : " << line << " :  " << str << std::endl;
+            std::cout << " [Message] " << test.file << ":" << line << ": " << str << std::endl;
         }
         void Warn(int line,const char* str) {
-            std::cout << " [Warn] " << test.file << " : " << line << " :  " << str << std::endl;
+            std::cout << " [Warn] " << test.file << ":" << line << ": " << str << std::endl;
         }
         void Err(int line,const char* str) {
-            std::cout << " [Error] " << test.file << " : " << line << ":  " << str << std::endl;
+            std::cout << " [Error] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
         }
         void Fail(int line,const char* str) {
-            std::cout << " [Fail] " << test.file << " : " << line << " :  " << str << std::endl;
+            std::cout << " [Fail] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
         }
         ~Testing() {
-            std::cout << " [End] " << this->name;
-            if(this->failed) std::cout << " { " << this->failureCount << " Failure } ";
-            std::cout << " ==========" <<std::endl;
-            test.push_back(test);
+            std::cout << " [End] " << test.name;
+            if(test.failed) std::cout << " { " << test.failureCount << " Failure } ";
+            std::cout << " ==========" << std::endl;
+            tests.push_back(test);
         }
         static void Report() {
             std::cout << "[Report] ==========" << std::endl;
             for(Test item : tests) {
-                std::cout << "| " << item.file << " : " << item.name << " :  " <<
+                std::cout << "| " << item.file << ":" << item.name << ": "
                           << item.failureCount << " failure " << std::endl;
             }
             std::cout << "[Report] ==========" << std::endl;
@@ -53,6 +53,8 @@ class Testing {
         Test test;
         static std::vector<Test> tests;
 };
+
+std::vector<Testing::Test> Testing::tests(0);
 
 #define MSG(str) testing.Msg(__LINE__,(str))
 #define WARN(str) testing.Warn(__LINE__,(str))

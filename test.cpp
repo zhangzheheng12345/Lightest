@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "lightest.h"
 
 int main() {
@@ -13,5 +14,6 @@ int main() {
         REQUIRE(3>4);
     };
     RUNTEST(hello);
+    REPORTTEST();
     return 0;
 }
