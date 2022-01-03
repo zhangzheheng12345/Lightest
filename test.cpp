@@ -7,6 +7,8 @@ int main() {
         WARN("warn");
         ERR("err");
         FAIL("fail");
+        CHECK(1<=2);
+        CHECK(3>4);
         REQUIRE(1<=2);
         REQUIRE(3>4);
     };
