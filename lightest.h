@@ -10,7 +10,8 @@ class Testing {
     public:
         Testing(const char* file,const char* name) {
             std::cout << " [Begin] " << name << " ==========" << std::endl;
-            this->name = name, this->file = file, this->failed = false;
+            this->name = name, this->file = file;
+            this->failureCount = 0, this->failed = false;
         }
         void Msg(int line,const char* str) {
             std::cout << " [Message] " << file << ":" << line << ": " << str << std::endl;
@@ -43,6 +44,6 @@ class Testing {
 #define ERR(str) testing.Err(__LINE__,(str))
 #define FAIL(str) testing.Fail(__LINE__,(str))
 
-#define REQUIRE(condition) if(!(condition)) FAIL(" {Require} Didn't pass " #condition)
-#define CHECK(condition) if(condition) MSG(" {Check} Pass " #condition); \
-                           else FAIL(" {Check} Didn't pass " #condition)
+#define REQUIRE(condition) if(!(condition)) FAIL(" { Require } Didn't pass " #condition)
+#define CHECK(condition) if(condition) MSG(" { Check } Pass " #condition); \
+                           else FAIL(" { Check } Didn't pass " #condition)
