@@ -3,8 +3,8 @@
 #include <iostream>
 #include <vector>
 
-#define DEFTEST(name) void (*name)(Testing&&) = [=] (Testing&& testing) 
-#define RUNTEST(name) (*name)(Testing( __FILE__, #name ))
+#define DEFTEST(name) auto name = [&] (Testing&& testing) 
+#define RUNTEST(name) name(Testing( __FILE__, #name ))
 #define REPORTTEST() Testing::Report()
 
 class Testing {
@@ -27,6 +27,9 @@ class Testing {
         void Fail(int line,const char* str) {
             std::cout << " [Fail] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
+        }
+        void Log(int line,const char* varname) {
+            std::cout << " [Log] " << test.file << ":" << line << ": " << varname << " = ";
         }
         ~Testing() {
             std::cout << " [End] " << test.name;
@@ -62,12 +65,12 @@ std::vector<Testing::Test> Testing::tests(0);
 #define FAIL(str) testing.Fail(__LINE__,(str))
 #define LOG(varname) do { testing.Log(__LINE__,#varname); std::cout << varname <<std::endl; } while(0)
 
-#define REQUIRE(condition) ( [] () { \
+#define REQUIRE(condition) ( ! [&] () { \
                                 if(!(condition)) \
                                     FAIL(" { Require } Didn't pass " #condition); \
                                 return (condition); \
                              } () )
-#define CHECK(condition) ( [] () { \
+#define CHECK(condition) ( ! [&] () { \
                               if(condition) MSG(" { Check } Pass " #condition); \
                               else FAIL(" { Check } Didn't pass " #condition); \
                               return (condition); \

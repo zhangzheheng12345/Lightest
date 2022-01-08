@@ -8,7 +8,7 @@ int main() {
         WARN("warn");
         ERR("err");
         FAIL("fail");
-        int a = 2
+        int a = 2;
         if(CHECK(1<=a)) LOG(a);
         if(CHECK(4<a)) LOG(a);
         if(REQUIRE(1<=a)) LOG(a);
