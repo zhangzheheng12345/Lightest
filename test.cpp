@@ -8,10 +8,11 @@ int main() {
         WARN("warn");
         ERR("err");
         FAIL("fail");
-        CHECK(1<=2);
-        CHECK(3>4);
-        REQUIRE(1<=2);
-        REQUIRE(3>4);
+        int a = 2
+        if(CHECK(1<=a)) LOG(a);
+        if(CHECK(4<a)) LOG(a);
+        if(REQUIRE(1<=a)) LOG(a);
+        if(REQUIRE(4<a)) LOG(a);
     };
     RUNTEST(hello);
     REPORTTEST();
