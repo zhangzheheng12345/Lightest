@@ -65,13 +65,13 @@ std::vector<Testing::Test> Testing::tests(0);
 #define FAIL(str) testing.Fail(__LINE__,(str))
 #define LOG(varname) do { testing.Log(__LINE__,#varname); std::cout << varname <<std::endl; } while(0)
 
-#define REQUIRE(condition) ( ! [&] () { \
+#define REQUIRE(condition) ( [&] () { \
                                 if(!(condition)) \
                                     FAIL(" { Require } Didn't pass " #condition); \
-                                return (condition); \
+                                return !(condition); \
                              } () )
-#define CHECK(condition) ( ! [&] () { \
+#define CHECK(condition) ( [&] () { \
                               if(condition) MSG(" { Check } Pass " #condition); \
                               else FAIL(" { Check } Didn't pass " #condition); \
-                              return (condition); \
+                              return !(condition); \
                            } () )
