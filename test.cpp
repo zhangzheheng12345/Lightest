@@ -4,20 +4,23 @@
 
 int main() {
     DEFCASE(case1) {
-        DEFTEST(hello) {
+        DEFTEST(loggings) {
             MSG("msg");
             WARN("warn");
             ERR("err");
             FAIL("fail");
+        };
+        RUNTEST(loggings);
+        DEFTEST(assertions) {
             int a = 2;
             if(CHECK(1<=a)) LOG(a);
             if(CHECK(4<a)) LOG(a);
             if(REQUIRE(1<=a)) LOG(a);
             if(REQUIRE(4<a)) LOG(a);
         };
-        RUNTEST(hello);
+        RUNTEST(assertions);
+        REPORTTEST();
     };
     RUNCASE(case1);
-    REPORTTEST();
     return 0;
 }

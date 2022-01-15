@@ -5,16 +5,16 @@
 
 /* ========== Testcase ========== */
 #define DEFCASE(name) auto name = [&] (Testcase&& testing)
-#define RUNCASE(name) auto name = name(Testcase(#name))
+#define RUNCASE(name) name(Testcase(#name))
 
 class Testcase {
     public:
         Testcase(const char* name) {
-            std::cout << " [Begin] " << name << " >>>>>>>>>>" << std::endl;
+            std::cout << " [Begin] " << name << " >>>>>>>>>>>>>>>>>>>>" << std::endl;
             this->name = name;
         }
         ~Testcase() {
-            std::cout << " [End] " << test.name << " <<<<<<<<<<" << std::endl;
+            std::cout << " [End] " << name << " <<<<<<<<<<<<<<<<<<<<" << std::endl;
         }
     private:
         const char* name;
@@ -62,6 +62,7 @@ class Testing {
                           << item.failureCount << " failure " << std::endl;
             }
             std::cout << "[Report] ==========" << std::endl;
+            tests.clear();
         }
     private:
         class Test {
