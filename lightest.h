@@ -3,6 +3,24 @@
 #include <iostream>
 #include <vector>
 
+/* ========== Testcase ========== */
+#define DEFCASE(name) auto name = [&] (Testcase&& testing)
+#define RUNCASE(name) auto name = name(Testcase(#name))
+
+class Testcase {
+    public:
+        Testcase(const char* name) {
+            std::cout << " [Begin] " << name << " >>>>>>>>>>" << std::endl;
+            this->name = name;
+        }
+        ~Testcase() {
+            std::cout << " [End] " << test.name << " <<<<<<<<<<" << std::endl;
+        }
+    private:
+        const char* name;
+};
+
+/* ========== Testing ========== */
 #define DEFTEST(name) auto name = [&] (Testing&& testing) 
 #define RUNTEST(name) name(Testing( __FILE__, #name ))
 #define REPORTTEST() Testing::Report()
@@ -59,12 +77,14 @@ class Testing {
 
 std::vector<Testing::Test> Testing::tests(0);
 
+/* ========== Logging Macros ========== */
 #define MSG(str) testing.Msg(__LINE__,(str))
 #define WARN(str) testing.Warn(__LINE__,(str))
 #define ERR(str) testing.Err(__LINE__,(str))
 #define FAIL(str) testing.Fail(__LINE__,(str))
 #define LOG(varname) do { testing.Log(__LINE__,#varname); std::cout << varname <<std::endl; } while(0)
 
+/* ========== Assertion Macros ========== */
 #define REQUIRE(condition) ( [&] () { \
                                 if(!(condition)) \
                                     FAIL(" { Require } Didn't pass " #condition); \
