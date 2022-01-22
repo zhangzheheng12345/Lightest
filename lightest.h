@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <time>
 #include <vector>
 
 /* ========== Testcase ========== */
@@ -12,12 +13,14 @@ class Testcase {
         Testcase(const char* name) {
             std::cout << " [Begin] " << name << " >>>>>>>>>>>>>>>>>>>>" << std::endl;
             this->name = name;
+            this->start = clock();
         }
         ~Testcase() {
-            std::cout << " [End] " << name << " <<<<<<<<<<<<<<<<<<<<" << std::endl;
+            std::cout << " [End] " << name << clock() - start << "ms <<<<<<<<<<<<<<<<<<<<" << std::endl;
         }
     private:
         const char* name;
+        clock_t start;
 };
 
 /* ========== Testing ========== */
@@ -31,6 +34,7 @@ class Testing {
             std::cout << " [Begin] " << name << " ==========" << std::endl;
             test.name = name, test.file = file;
             test.failureCount = 0, test.failed = false;
+            start = clock();
         }
         void Msg(int line,const char* str) {
             std::cout << " [Message] " << test.file << ":" << line << ": " << str << std::endl;
@@ -50,16 +54,18 @@ class Testing {
             std::cout << " [Log] " << test.file << ":" << line << ": " << varname << " = ";
         }
         ~Testing() {
+            clock_t duration = clock() - start;
             std::cout << " [End] " << test.name;
             if(test.failed) std::cout << " { " << test.failureCount << " Failure } ";
-            std::cout << " ==========" << std::endl;
+            std::cout << duration << "ms ==========" << std::endl;
+            test.duration = duration;
             tests.push_back(test);
         }
         static void Report() {
             std::cout << "[Report] ==========" << std::endl;
             for(Test item : tests) {
                 std::cout << "* " << item.file << ":" << item.name << ": "
-                          << item.failureCount << " failure " << std::endl;
+                          << item.failureCount << " failure " << item.duration << "ms"<< std::endl;
             }
             std::cout << "[Report] ==========" << std::endl;
             tests.clear();
@@ -71,8 +77,10 @@ class Testing {
                 const char* name;
                 unsigned int failureCount;
                 bool failed;
+                clock_t duration;
         };
         Test test;
+        clock_t start; // No need to report.
         static std::vector<Test> tests;
 };
 
