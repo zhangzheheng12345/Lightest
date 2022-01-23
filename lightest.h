@@ -16,7 +16,7 @@ class Testcase {
             this->start = clock();
         }
         ~Testcase() {
-            std::cout << " [End] " << name << clock() - start << "ms <<<<<<<<<<<<<<<<<<<<" << std::endl;
+            std::cout << " [End  ] " << name << clock() - start << "ms <<<<<<<<<<<<<<<<<<<<" << std::endl;
         }
     private:
         const char* name;
@@ -37,25 +37,25 @@ class Testing {
             start = clock();
         }
         void Msg(int line,const char* str) {
-            std::cout << " [Message] " << test.file << ":" << line << ": " << str << std::endl;
+            std::cout << " [Msg  ] " << test.file << ":" << line << ": " << str << std::endl;
         }
         void Warn(int line,const char* str) {
-            std::cout << " [Warn] " << test.file << ":" << line << ": " << str << std::endl;
+            std::cout << " [Warn ] " << test.file << ":" << line << ": " << str << std::endl;
         }
         void Err(int line,const char* str) {
             std::cout << " [Error] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
         }
         void Fail(int line,const char* str) {
-            std::cout << " [Fail] " << test.file << ":" << line << ": " << str << std::endl;
+            std::cout << " [Fail ] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
         }
         void Log(int line,const char* varname) {
-            std::cout << " [Log] " << test.file << ":" << line << ": " << varname << " = ";
+            std::cout << " [Log  ] " << test.file << ":" << line << ": " << varname << " = ";
         }
         ~Testing() {
             clock_t duration = clock() - start;
-            std::cout << " [End] " << test.name;
+            std::cout << " [End  ] " << test.name;
             if(test.failed) std::cout << " { " << test.failureCount << " Failure } ";
             std::cout << duration << "ms ==========" << std::endl;
             test.duration = duration;
