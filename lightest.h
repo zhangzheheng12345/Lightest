@@ -11,7 +11,7 @@
 class Testcase {
     public:
         Testcase(const char* name) {
-            std::cout << " [Begin] " << name << " >>>>>>>>>>>>>>>>>>>>" << std::endl;
+            std::cout << " [Begin] " << name << " >>>>>>>>>>>>>>>>>>>>"<< std::endl;
             this->name = name;
             this->start = clock();
         }
@@ -31,7 +31,8 @@ class Testcase {
 class Testing {
     public:
         Testing(const char* file,const char* name) {
-            std::cout << " [Begin] " << name << " ==========" << std::endl;
+            std::cout << " ==================== " << std::endl;
+            std::cout << " [Begin] " << name << std::endl;
             test.name = name, test.file = file;
             test.failureCount = 0, test.failed = false;
             start = clock();
@@ -57,17 +58,18 @@ class Testing {
             clock_t duration = clock() - start;
             std::cout << " [End  ] " << test.name;
             if(test.failed) std::cout << " { " << test.failureCount << " Failure } ";
-            std::cout << duration << "ms ==========" << std::endl;
+            std::cout << duration << "ms" << std::endl;
+            std::cout << " ==================== " << std::endl;
             test.duration = duration;
             tests.push_back(test);
         }
         static void Report() {
-            std::cout << "[Report] ==========" << std::endl;
+            std::cout << " [Report] ==========" << std::endl;
             for(Test item : tests) {
-                std::cout << "* " << item.file << ":" << item.name << ": "
+                std::cout << " * " << item.file << ":" << item.name << ": "
                           << item.failureCount << " failure " << item.duration << "ms"<< std::endl;
             }
-            std::cout << "[Report] ==========" << std::endl;
+            std::cout << " [Report] ==========" << std::endl;
             tests.clear();
         }
     private:
