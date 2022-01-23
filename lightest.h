@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include <time>
+#include <ctime>
 #include <vector>
 
 /* ========== Testcase ========== */
@@ -16,7 +16,7 @@ class Testcase {
             this->start = clock();
         }
         ~Testcase() {
-            std::cout << " [End  ] " << name << clock() - start << "ms <<<<<<<<<<<<<<<<<<<<" << std::endl;
+            std::cout << " [End  ] " << name << " " << clock() - start << "ms <<<<<<<<<<<<<<<<<<<<" << std::endl;
         }
     private:
         const char* name;
