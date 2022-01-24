@@ -11,12 +11,12 @@
 class Testcase {
     public:
         Testcase(const char* name) {
-            std::cout << " [Begin] " << "vvvvvvvvvvvvvvvvvvvv " << name << std::endl;
+            std::cout << "[Begin] " << "-------------------- " << name << std::endl;
             this->name = name;
             this->start = clock();
         }
         ~Testcase() {
-            std::cout << " [End  ] " << "^^^^^^^^^^^^^^^^^^^^ " << name << " " << clock() - start << "ms" << std::endl;
+            std::cout << "[End  ] " << "-------------------- " << name << " " << clock() - start << "ms" << std::endl;
         }
     private:
         const char* name;
@@ -32,31 +32,31 @@ class Testing {
     public:
         Testing(const char* file,const char* name) {
             std::cout << " ==================== " << std::endl;
-            std::cout << " [Begin] " << name << std::endl;
+            std::cout << "  [Begin] " << name << std::endl;
             test.name = name, test.file = file;
             test.failureCount = 0, test.failed = false;
             start = clock();
         }
         void Msg(int line,const char* str) {
-            std::cout << " [Msg  ] " << test.file << ":" << line << ": " << str << std::endl;
+            std::cout << "  [Msg  ] " << test.file << ":" << line << ": " << str << std::endl;
         }
         void Warn(int line,const char* str) {
-            std::cout << " [Warn ] " << test.file << ":" << line << ": " << str << std::endl;
+            std::cout << "  [Warn ] " << test.file << ":" << line << ": " << str << std::endl;
         }
         void Err(int line,const char* str) {
-            std::cout << " [Error] " << test.file << ":" << line << ": " << str << std::endl;
+            std::cout << "  [Error] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
         }
         void Fail(int line,const char* str) {
-            std::cout << " [Fail ] " << test.file << ":" << line << ": " << str << std::endl;
+            std::cout << "  [Fail ] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
         }
         void Log(int line,const char* varname) {
-            std::cout << " [Log  ] " << test.file << ":" << line << ": " << varname << " = ";
+            std::cout << "  [Log  ] " << test.file << ":" << line << ": " << varname << " = ";
         }
         ~Testing() {
             clock_t duration = clock() - start;
-            std::cout << " [End  ] " << test.name;
+            std::cout << "  [End  ] " << test.name;
             if(test.failed) std::cout << " { " << test.failureCount << " Failure } ";
             std::cout << duration << "ms" << std::endl;
             std::cout << " ==================== " << std::endl;
@@ -67,7 +67,7 @@ class Testing {
             std::cout << " [Report] ==========" << std::endl;
             for(Test item : tests) {
                 std::cout << " * " << item.file << ":" << item.name << ": "
-                          << item.failureCount << " failure " << item.duration << "ms"<< std::endl;
+                          << item.failureCount << " failure, " << item.duration << "ms"<< std::endl;
             }
             std::cout << " [Report] ==========" << std::endl;
             tests.clear();
