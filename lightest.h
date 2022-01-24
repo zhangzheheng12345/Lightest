@@ -11,12 +11,12 @@
 class Testcase {
     public:
         Testcase(const char* name) {
-            std::cout << " [Begin] " << name << " >>>>>>>>>>>>>>>>>>>>"<< std::endl;
+            std::cout << " [Begin] " << "vvvvvvvvvvvvvvvvvvvv " << name << std::endl;
             this->name = name;
             this->start = clock();
         }
         ~Testcase() {
-            std::cout << " [End  ] " << name << " " << clock() - start << "ms <<<<<<<<<<<<<<<<<<<<" << std::endl;
+            std::cout << " [End  ] " << "^^^^^^^^^^^^^^^^^^^^ " << name << " " << clock() - start << "ms" << std::endl;
         }
     private:
         const char* name;
