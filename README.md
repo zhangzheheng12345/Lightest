@@ -3,9 +3,9 @@ Lightest, the name of the project, means the project provides a lightest C++ uni
 ## Example 
 Have a look at test.cpp. It simply shows how to use test case, test, assertion macros, and logging macros. 
 ## Usage 
-You only need to add lightest.h to your project, and include it in test files. 
+You only need to add lightest.h to your project, and include it in testing files. 
  
-* Use macro DEFCASE(name) to dedine a test case named 'name', and use macro RUNCASE(name) to start the test case name. In the outputs, twenty '>'s and twenty '<'s wrap the test case.
+* Use macro DEFCASE(name) to dedine a test case named 'name', and use macro RUNCASE(name) to start the test case name. In the outputs, twenty '='s wrap the test case.
 * Use macro DEFTEST(name) to define a test named 'name', and use macro RUNTEST(name) to start the test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten '='s and ten '='s wrap the loggings from the test.
 * Use macro REPORTTEST() to output a test list, and the test list will be deleted after reporting, so you can send each report for each test case (if you have defined test cases). 
 * Use macro MSG(str), WARN(str), ERR(str) and FAIL(str) to output test information. ERR(str) and FAIL(str) will also set the test failed. 

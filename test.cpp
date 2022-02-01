@@ -19,8 +19,9 @@ int main() {
             if(REQUIRE(4<a)) LOG(a);
         };
         RUNTEST(assertions);
-        REPORTTEST();
+        
     };
     RUNCASE(case1);
+    REPORTTOTAL();
     return 0;
 }
