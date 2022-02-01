@@ -10,8 +10,8 @@ Have a look at `test.cpp`. It simply shows how to use test case, test, assertion
 
 You only need to add lightest.h to your project, and include it in test files.
 
-* Use macro `DEFCASE(name)` to dedine a test case named 'name', and use macro `RUNCASE(name)` to start the test case name. In the outputs, twenty `>`s and twenty `<`s wrap the test case.
-* Use macro `DEFTEST(name)` to define a test named 'name', and use macro `RUNTEST(name)` to start the test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten `=`s and ten `=`s wrap the loggings from the test. Here is an example showing how to use test and test case:
+* Use macro `DEFCASE(name)` to dedine a test case named 'name', and use macro `RUNCASE(name)` to start the test case name. In the outputs, twenty `=` wrap the test case. When a test case ends, it will give a test case report.
+* Use macro `DEFTEST(name)` to define a test named 'name', and use macro `RUNTEST(name)` to start the test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten `=`s and ten `-` wrap the loggings from the test. Here is an example showing how to use test and test case:
 
 ```C++
 DEFCASE(casename) {
@@ -25,7 +25,7 @@ DEFCASE(casename) {
 RUNCASE(casename); // Run the test case.
 ```
 
-* Use macro `REPORTTEST()` to output a test list, and the test list will be deleted after reporting, so you can send each report for each test case (if you have defined test cases).
+* Use macro `REPORTTOTAL()` to output a total test report if you want.
 * Use macro `MSG(str)`, `WARN(str)`, `ERR(str)` and `FAIL(str)` to output test information. `ERR(str)` and `FAIL(str)` will also set the test failed.
 * Use macro `LOG(varname)` to output a variable. The message will include both the variable's name and its value.
 * Use macro `REQUIRE(condition)` to check a condition. If the condition is failed, the macro will send a Fail, or it will do nothing. The macro will return the boolean value of the condition.
