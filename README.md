@@ -10,7 +10,7 @@ Have a look at `test.cpp`. It simply shows how to use test case, test, assertion
 
 You only need to add lightest.h to your project, and include it in test files.
 
-* Use macro `DEFCASE(name)` to dedine a test case named 'name', and use macro `RUNCASE(name)` to start the test case name. In the outputs, twenty `=` wrap the test case. When a test case ends, it will give a test case report.
+* Use macro `DEFCASE(name)` to define a test case named 'name', and use macro `RUNCASE(name)` to start the test case name. In the outputs, twenty `=` wrap the test case. When a test case ends, it will automatically give a test case report.
 * Use macro `DEFTEST(name)` to define a test named 'name', and use macro `RUNTEST(name)` to start the test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten `=`s and ten `-` wrap the loggings from the test. Here is an example showing how to use test and test case:
 
 ```C++
