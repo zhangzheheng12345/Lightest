@@ -120,3 +120,5 @@ class Testcase {
                               std::cout << "  |\t\t\t{ CHECK }" << std::endl; \
                               return !(condition); \
                            } () )
+#define REQ_LOG(varname, condition) do{ if(REQUIRE(condition)) LOG(varname); }while(0)
+#define CHK_LOG(varname, condition) do{ if(CHECK(condition)) LOG(varname); }while(0)

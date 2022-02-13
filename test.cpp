@@ -1,5 +1,4 @@
-#include <iostream>
-#include <vector>
+#include <iostream> // You MUST include iostream!
 #include "lightest.h"
 
 int main() {
@@ -17,9 +16,10 @@ int main() {
             if(CHECK(4<a)) LOG(a);
             if(REQUIRE(1<=a)) LOG(a);
             if(REQUIRE(4<a)) LOG(a);
+            REQ_LOG(a, 4<a); // Same as the first one
+            CHK_LOG(a, 4<a); // Same as the second one
         };
         RUNTEST(assertions);
-        
     };
     RUNCASE(case1);
     REPORTTOTAL();
