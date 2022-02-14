@@ -1,5 +1,4 @@
-#include <iostream> // You MUST include iostream!
-#include "lightest.h"
+#include "lightest.h" // Just include lightest.h
 
 int main() {
     DEFCASE(case1) {
@@ -9,7 +8,6 @@ int main() {
             ERR("err");
             FAIL("fail");
         };
-        RUNTEST(loggings);
         DEFTEST(assertions) {
             int a = 2;
             if(CHECK(1<=a)) LOG(a);
@@ -19,9 +17,6 @@ int main() {
             REQ_LOG(a, 4<a); // Same as the first one
             CHK_LOG(a, 4<a); // Same as the second one
         };
-        RUNTEST(assertions);
     };
-    RUNCASE(case1);
-    REPORTTOTAL();
     return 0;
 }

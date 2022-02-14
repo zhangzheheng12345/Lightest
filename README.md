@@ -10,9 +10,8 @@ Have a look at `test.cpp`. It simply shows how to use test case, test, assertion
 
 You only need to add lightest.h to your project, and include it in test files. No static library files or other complex things at all!
 
-* Your test file must include iostream.
-* Use macro `DEFCASE(name)` to define a test case named 'name', and use macro `RUNCASE(name)` to start the test case name. In the outputs, twenty `=` wrap the test case. When a test case ends, it will automatically give a test case report.
-* Use macro `DEFTEST(name)` to define a test named 'name', and use macro `RUNTEST(name)` to start the test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten `=`s and ten `-` wrap the loggings from the test. Here is an example showing how to use test and test case:
+* Use macro `DEFCASE(name)` to define a test case named 'name'. In the outputs, twenty `=` wrap the test case. When a test case ends, it will automatically give a test case report.
+* Use macro `DEFTEST(name)` to define a test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten `=`s and ten `-` wrap the loggings from the test. Here is an example showing how to use test and test case:
 
 ```C++
 DEFCASE(casename) {
@@ -21,12 +20,14 @@ DEFCASE(casename) {
         MSG("Hello from testname"); // Output a message.
         LOG(var); // Output the shared variable of var.
     };
-    RUNTEST(testname); // Run the test.
+    // Older version: RUNTEST(testname)
 };
-RUNCASE(casename); // Run the test case.
+// Older version: RUNCASE(casename)
 ```
 
-* Use macro `REPORTTOTAL()` to output a total test report if you want.
+* All the defined tests and test cases will be automatically run.
+  But in older versions, you need macros of `RUNTEST(name)` and `RUNCASE(name)` 
+* A total report will be automatically provided.
 * Use macro `MSG(str)`, `WARN(str)`, `ERR(str)` and `FAIL(str)` to output test information. `ERR(str)` and `FAIL(str)` will also set the test failed.
 * Use macro `LOG(varname)` to output a variable. The message will include both the variable's name and its value.
 * Use macro `REQUIRE(condition)` to check a condition. If the condition is failed, the macro will send a Fail, or it will do nothing. The macro will return the boolean value of the condition.
@@ -40,4 +41,3 @@ if(REQUIRE(1>a)) LOG(a); // LOG(a) will give you the atual value of a
 ```
 
 * You must add a semicolon after a **Lightest** macro.
-* You should define a test before start the test.

@@ -1,13 +1,14 @@
 #pragma once
 
 #include <iostream>
+#include <functional>
 #include <ctime>
 #include <vector>
 
 /* ========== Testing ========== */
-#define DEFTEST(name) auto name = [&] (Testing&& testing) 
-#define RUNTEST(name) name(Testing( __FILE__, #name ))
-#define REPORTTOTAL() Testing::ReportTotal()
+#define DEFTEST(name) std::function<void(Testing&&)>* name = new std::function<void(Testing&&)>; \
+                      testing.SignTest(__FILE__, #name, name); \
+                      *name = [&] (Testing&& testing) 
 
 class Testing {
     public:
@@ -81,8 +82,10 @@ std::vector<Testing::Test> Testing::testsInCase(0);
 std::vector<Testing::Test> Testing::testsTotal(0);
 
 /* ========== Testcase ========== */
-#define DEFCASE(name) auto name = [&] (Testcase&& testing)
-#define RUNCASE(name) name(Testcase(#name))
+
+#define DEFCASE(name) std::function<void(Testcase&&)>* name = new std::function<void(Testcase&&)>; \
+                      testing.SignCase(#name, name); \
+                      *name = [&] (Testcase&& testing) 
 
 class Testcase {
     public:
@@ -91,14 +94,68 @@ class Testcase {
             this->name = name;
             this->start = clock();
         }
+        void SignTest(const char* file, const char* name, std::function<void(Testing&&)>* func) {
+            signedTestList.push_back({file, name, func});
+        }
         ~Testcase() {
+            for(auto item : signedTestList) {
+                (*item.func)(Testing(item.file, item.name));
+                delete item.func;
+            }
             Testing::ReportInCase();
             std::cout << "[End     ] " << "==================== " << name << " " << clock() - start << "ms" << std::endl;
         }
     private:
         const char* name;
         clock_t start;
+        /* A signed case test list */
+        typedef struct {
+            const char* file;
+            const char* name;
+            std::function<void(Testing&&)>* func;
+        } signedTestWrapper;
+        std::vector<signedTestWrapper> signedTestList;
 };
+
+/* ========== Global Case Recorder ========== */
+
+class GlobalSigner {
+    public:
+        void SignTest(const char* file, const char* name, std::function<void(Testing&&)>* func) {
+            signedTestList.push_back({file, name, func});
+        }
+        void SignCase(const char* name, std::function<void(Testcase&&)>* func) {
+            signedCaseList.push_back({name, func});
+        }
+        ~GlobalSigner() {
+            for(auto item : signedTestList) {
+                (*item.func)(Testing(item.file, item.name));
+                delete item.func;
+            }
+            for(auto item : signedCaseList) {
+                (*item.func)(Testcase(item.name));
+                delete item.func;
+            }
+            std::cout << std::endl;
+            Testing::ReportTotal();
+        }
+    private:
+        /* A signed independence test list */
+        typedef struct {
+            const char* file;
+            const char* name;
+            std::function<void(Testing&&)>* func;
+        } signedTestWrapper;
+        std::vector<signedTestWrapper> signedTestList;
+        /* A signed test case list */
+        typedef struct {
+            const char* name;
+            std::function<void(Testcase&&)>* func;
+        } signedCaseWrapper;
+        std::vector<signedCaseWrapper> signedCaseList;
+};
+
+GlobalSigner testing;
 
 /* ========== Logging Macros ========== */
 #define MSG(str) testing.Msg(__LINE__,(str))
