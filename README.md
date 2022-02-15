@@ -40,4 +40,8 @@ int a = 2;
 if(REQUIRE(1>a)) LOG(a); // LOG(a) will give you the atual value of a
 ```
 
+## Caution
+
 * You must add a semicolon after a **Lightest** macro.
+* There are some variable names you cannot use after include `lightest.h`:
+  `testing`, user defined test cases' names and tests' names.
