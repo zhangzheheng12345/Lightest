@@ -128,12 +128,12 @@ class GlobalSigner {
             signedCaseList.push_back({name, func});
         }
         ~GlobalSigner() {
-            for(auto item : signedTestList) {
-                (*item.func)(Testing(item.file, item.name));
-                delete item.func;
-            }
             for(auto item : signedCaseList) {
                 (*item.func)(Testcase(item.name));
+                delete item.func;
+            }
+            for(auto item : signedTestList) {
+                (*item.func)(Testing(item.file, item.name));
                 delete item.func;
             }
             std::cout << std::endl;
