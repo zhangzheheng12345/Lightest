@@ -10,10 +10,8 @@ int main() {
         };
         DEFTEST(assertions) {
             int a = 2;
-            if(CHECK(1<=a)) LOG(a);
-            if(CHECK(4<a)) LOG(a);
-            if(REQUIRE(1<=a)) LOG(a);
-            if(REQUIRE(4<a)) LOG(a);
+            REQUIRE(1<=a);
+            CHECK(4<a);
             REQ_LOG(a, 4<a); // Same as the first one
             CHK_LOG(a, 4<a); // Same as the second one
         };

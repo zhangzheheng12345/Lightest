@@ -166,16 +166,24 @@ GlobalSigner testing;
 
 /* ========== Assertion Macros ========== */
 #define REQUIRE(condition) ( [&] () { \
-                                if(!(condition)) \
+                                bool res = !(condition); \
+                                if(condition) { \
                                     FAIL("Didn't pass " #condition); \
-                                std::cout << "  |\t\t\t{ REQUIRE }" << std::endl; \
-                                return !(condition); \
+                                    std::cout << "  |\t\t\t{ REQUIRE }" << std::endl; }\
+                                return res; \
                              } () )
 #define CHECK(condition) ( [&] () { \
-                              if(condition) MSG("Pass " #condition); \
+                              bool res = condition; \
+                              if(res) MSG("Pass " #condition); \
                               else FAIL("Didn't pass " #condition); \
                               std::cout << "  |\t\t\t{ CHECK }" << std::endl; \
-                              return !(condition); \
+                              return !(res); \
                            } () )
-#define REQ_LOG(varname, condition) do{ if(REQUIRE(condition)) LOG(varname); }while(0)
-#define CHK_LOG(varname, condition) do{ if(CHECK(condition)) LOG(varname); }while(0)
+#define REQ_LOG(varname, condition) do{ \
+                                        if(REQUIRE(condition)) \
+                                        std::cout << "  |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
+                                    }while(0)
+#define CHK_LOG(varname, condition) do{ \
+                                        if(CHECK(condition)) \
+                                        std::cout << "  |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
+                                    }while(0)
