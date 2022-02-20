@@ -32,8 +32,9 @@ class Testing {
             std::cout << "  | [Fail ] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
         }
-        void Log(int line,const char* varname) {
-            std::cout << "  | [Log  ] " << test.file << ":" << line << ": " << varname << " = ";
+        template<typename T> void Log(int line,const char* varname,T value) {
+            std::cout << "  | [Log  ] " << test.file << ":" << line << ": "
+                      << varname << " = " << value << std::endl;
         }
         ~Testing() {
             clock_t duration = clock() - start;
@@ -162,7 +163,7 @@ GlobalSigner testing;
 #define WARN(str) testing.Warn(__LINE__,(str))
 #define ERR(str) testing.Err(__LINE__,(str))
 #define FAIL(str) testing.Fail(__LINE__,(str))
-#define LOG(varname) do { testing.Log(__LINE__,#varname); std::cout << varname <<std::endl; } while(0)
+#define LOG(varname) testing.Log(__LINE__,#varname,(varname))
 
 /* ========== Assertion Macros ========== */
 #define REQUIRE(condition) ( [&] () { \

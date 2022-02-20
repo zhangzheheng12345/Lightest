@@ -7,6 +7,8 @@ int main() {
             WARN("warn");
             ERR("err");
             FAIL("fail");
+            int var = 12345;
+            LOG(var);
         };
         DEFTEST(assertions) {
             int a = 2;
