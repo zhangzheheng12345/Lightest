@@ -12,37 +12,41 @@
 
 class Testing {
     public:
-        Testing(const char* file,const char* name) {
-            std::cout << " [Begin] -------------------- " << name << std::endl;
+        Testing(const char* file,const char* name,const bool global) {
+            foreSpace = global ? "" : " ";
+            std::cout << foreSpace << "[Begin] -------------------- " << name << std::endl;
             test.name = name, test.file = file;
             test.failureCount = 0, test.failed = false;
             start = clock();
         }
+        const char* getForeSpace() const {
+            return foreSpace;
+        }
         void Msg(int line,const char* str) {
-            std::cout << "  | [Msg  ] " << test.file << ":" << line << ": " << str << std::endl;
+            std::cout << foreSpace << " | [Msg  ] " << test.file << ":" << line << ": " << str << std::endl;
         }
         void Warn(int line,const char* str) {
-            std::cout << "  | [Warn ] " << test.file << ":" << line << ": " << str << std::endl;
+            std::cout << foreSpace << " | [Warn ] " << test.file << ":" << line << ": " << str << std::endl;
         }
         void Err(int line,const char* str) {
-            std::cout << "  | [Error] " << test.file << ":" << line << ": " << str << std::endl;
+            std::cout << foreSpace << " | [Error] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
         }
         void Fail(int line,const char* str) {
-            std::cout << "  | [Fail ] " << test.file << ":" << line << ": " << str << std::endl;
+            std::cout << foreSpace << " | [Fail ] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
         }
         template<typename T> void Log(int line,const char* varname,T value) {
-            std::cout << "  | [Log  ] " << test.file << ":" << line << ": "
+            std::cout << foreSpace << " | [Log  ] " << test.file << ":" << line << ": "
                       << varname << " = " << value << std::endl;
         }
         ~Testing() {
             clock_t duration = clock() - start;
-            std::cout << " [End   ] -------------------- " << test.name;
+            std::cout << foreSpace << "[End   ] -------------------- " << test.name;
             if(test.failed) std::cout << " FAIL" << std::endl;
             else std::cout << " PASS" << std::endl;
-            std::cout << "  FAILURE: " << test.failureCount << std::endl;
-            std::cout << "  TIME: " << duration << "ms" << std::endl;
+            std::cout << foreSpace << " FAILURE: " << test.failureCount << std::endl;
+            std::cout << foreSpace << " TIME: " << duration << "ms" << std::endl;
             test.duration = duration;
             testsInCase.push_back(test);
             testsTotal.push_back(test);
@@ -75,6 +79,7 @@ class Testing {
         };
         Test test;
         clock_t start; // No need to report.
+        const char* foreSpace;
         static std::vector<Test> testsInCase;
         static std::vector<Test> testsTotal;
 };
@@ -100,7 +105,7 @@ class Testcase {
         }
         ~Testcase() {
             for(auto item : signedTestList) {
-                (*item.func)(Testing(item.file, item.name));
+                (*item.func)(Testing(item.file, item.name, false)); /* These aren't global tests */
                 delete item.func;
             }
             Testing::ReportInCase();
@@ -134,10 +139,9 @@ class GlobalSigner {
                 delete item.func;
             }
             for(auto item : signedTestList) {
-                (*item.func)(Testing(item.file, item.name));
+                (*item.func)(Testing(item.file, item.name, true)); /* These are global tests */
                 delete item.func;
             }
-            std::cout << std::endl;
             Testing::ReportTotal();
         }
     private:
@@ -170,21 +174,25 @@ GlobalSigner testing;
                                 bool res = !(condition); \
                                 if(condition) { \
                                     FAIL("Didn't pass " #condition); \
-                                    std::cout << "  |\t\t\t{ REQUIRE }" << std::endl; }\
+                                    std::cout << testing.getForeSpace() << \
+                                      " |\t\t\t{ REQUIRE }" << std::endl; } \
                                 return res; \
                              } () )
 #define CHECK(condition) ( [&] () { \
                               bool res = condition; \
                               if(res) MSG("Pass " #condition); \
                               else FAIL("Didn't pass " #condition); \
-                              std::cout << "  |\t\t\t{ CHECK }" << std::endl; \
+                              std::cout << testing.getForeSpace() << \
+                                " |\t\t\t{ CHECK }" << std::endl; \
                               return !(res); \
                            } () )
 #define REQ_LOG(varname, condition) do{ \
                                         if(REQUIRE(condition)) \
-                                        std::cout << "  |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
+                                        std::cout << testing.getForeSpace() << \
+                                          " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
                                     }while(0)
 #define CHK_LOG(varname, condition) do{ \
                                         if(CHECK(condition)) \
-                                        std::cout << "  |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
+                                        std::cout << testing.getForeSpace() << \
+                                          " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
                                     }while(0)

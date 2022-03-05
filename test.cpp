@@ -18,5 +18,10 @@ int main() {
             CHK_LOG(a, 4<a); // Same as the second one
         };
     };
+    DEFTEST(independent_test) {
+        MSG("A message from an independent test!");
+        int a = 0;
+        CHK_LOG(a, a != 0);
+    };
     return 0;
 }
