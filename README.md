@@ -1,6 +1,6 @@
 # Lightest
 
-**Lightest**, the name of the project, means the project provides a lightest C++ unit test framework. It's header only. The framework is based on lambda expression, so your compiler have to support C++11.
+**Lightest**, the name of the project, means the project provides a lightest C++ unit test framework. It's header only. The framework is based on lambda expression, so your compiler has to support C++11.
 
 ## Example
 
@@ -8,7 +8,7 @@ Have a look at `test.cpp`. It simply shows how to use test case, test, assertion
 
 ## Usage
 
-You only need to add lightest.h to your project, and include it in test files. No static library files or other complex things at all!
+You only need to add lightest.h to your project, and include it in test files. No static library files or other complex things needed at all!
 
 * Use macro `DEFCASE(name)` to define a test case named 'name'. In the outputs, twenty `=` wrap the test case. When a test case ends, it will automatically give a test case report.
 * Use macro `DEFTEST(name)` to define a test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten `=`s and ten `-` wrap the loggings from the test. Here is an example showing how to use test and test case:
@@ -20,9 +20,9 @@ DEFCASE(casename) {
         MSG("Hello from testname"); // Output a message.
         LOG(var); // Output the shared variable of var.
     };
-    // Older version: RUNTEST(testname)
+    // Older version: RUNTEST(testname);
 };
-// Older version: RUNCASE(casename)
+// Older version: RUNCASE(casename);
 ```
 
 * All the defined tests and test cases will be automatically run.
@@ -37,7 +37,8 @@ DEFCASE(casename) {
 
 ```C++
 int a = 2;
-if(REQUIRE(1>a)) LOG(a); // LOG(a) will give you the atual value of a
+REQ_LOG(1>a) // Newer version: REQ_LOG(varname, condition) and CHK_LOG(varname, condition) supported
+if(REQUIRE(1>a)) LOG(a); // Older version: LOG(a) will give you the atual value of a
 ```
 
 ## Caution

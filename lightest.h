@@ -3,6 +3,7 @@
 #include <iostream>
 #include <functional>
 #include <ctime>
+#include <cstring>
 #include <vector>
 
 /* ========== Testing ========== */
@@ -12,31 +13,31 @@
 
 class Testing {
     public:
-        Testing(const char* file,const char* name,const bool global) {
+        Testing(const char* casename, const char* file, const char* name, const bool global) {
             foreSpace = global ? "" : " ";
             std::cout << foreSpace << "[Begin] -------------------- " << name << std::endl;
-            test.name = name, test.file = file;
+            test.casename = casename, test.name = name, test.file = file;
             test.failureCount = 0, test.failed = false;
             start = clock();
         }
         const char* getForeSpace() const {
             return foreSpace;
         }
-        void Msg(int line,const char* str) {
+        void Msg(int line, const char* str) {
             std::cout << foreSpace << " | [Msg  ] " << test.file << ":" << line << ": " << str << std::endl;
         }
-        void Warn(int line,const char* str) {
+        void Warn(int line, const char* str) {
             std::cout << foreSpace << " | [Warn ] " << test.file << ":" << line << ": " << str << std::endl;
         }
-        void Err(int line,const char* str) {
+        void Err(int line, const char* str) {
             std::cout << foreSpace << " | [Error] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
         }
-        void Fail(int line,const char* str) {
+        void Fail(int line, const char* str) {
             std::cout << foreSpace << " | [Fail ] " << test.file << ":" << line << ": " << str << std::endl;
             test.failed = true, test.failureCount++;
         }
-        template<typename T> void Log(int line,const char* varname,T value) {
+        template<typename T> void Log(int line, const char* varname, T value) {
             std::cout << foreSpace << " | [Log  ] " << test.file << ":" << line << ": "
                       << varname << " = " << value << std::endl;
         }
@@ -63,14 +64,16 @@ class Testing {
         static void ReportTotal() {
             std::cout << "[Report] -------------------- TOTAL" << std::endl;
             for(Test item : testsTotal) {
-                std::cout << " * " << item.file << ":" << item.name << ": "
-                          << item.failureCount << " failure, " << item.duration << "ms"<< std::endl;
+                std::cout << " * " << item.casename << "." << item.name << ": "
+                          << item.failureCount << " failure, " << item.duration << "ms  "
+                          << "( " << item.file << " )" << std::endl;
             }
             std::cout << "[Report] -------------------- TOTAL" << std::endl;
         }
     private:
         class Test {
             public:
+                const char* casename;
                 const char* file;
                 const char* name;
                 unsigned int failureCount;
@@ -105,7 +108,7 @@ class Testcase {
         }
         ~Testcase() {
             for(auto item : signedTestList) {
-                (*item.func)(Testing(item.file, item.name, false)); /* These aren't global tests */
+                (*item.func)(Testing(name, item.file, item.name, false)); /* These aren't global tests */
                 delete item.func;
             }
             Testing::ReportInCase();
@@ -139,7 +142,7 @@ class GlobalSigner {
                 delete item.func;
             }
             for(auto item : signedTestList) {
-                (*item.func)(Testing(item.file, item.name, true)); /* These are global tests */
+                (*item.func)(Testing("global", item.file, item.name, true)); /* These are global tests */
                 delete item.func;
             }
             Testing::ReportTotal();
