@@ -1,27 +1,33 @@
 #include "lightest.h" // Just include lightest.h
+// #include <vector> is not needed actually, for lightest.h has already included it.
+
+double avg(std::vector<int>);
+double avg_wrong(std::vector<int>);
 
 int main() {
-    DEFCASE(case1) {
-        DEFTEST(loggings) {
-            MSG("msg");
-            WARN("warn");
-            ERR("err");
-            FAIL("fail");
-            int var = 12345;
-            LOG(var);
+    DEFCASE(AvgCase) {
+        double expected = 2;
+        DEFTEST(AvgRight) {
+            // FIXME: vectors cannot be put out of tests
+            std::vector<int> dataSet{1,2,3};
+            CHK_LOG(avg(dataSet), avg(dataSet) == expected);
         };
-        DEFTEST(assertions) {
-            int a = 2;
-            REQUIRE(1<=a);
-            CHECK(4<a);
-            REQ_LOG(a, 4<a); // Same as the first one
-            CHK_LOG(a, 4<a); // Same as the second one
+        DEFTEST(AvgWrong) {
+            std::vector<int> dataSet{1,2,3};
+            CHK_LOG(avg_wrong(dataSet), avg_wrong(dataSet) == expected);
         };
-    };
-    DEFTEST(independent_test) {
-        MSG("A message from an independent test!");
-        int a = 0;
-        CHK_LOG(a, a != 0);
     };
     return 0;
+}
+
+double avg(std::vector<int> li) {
+    int sum = 0;
+    for(auto item : li) sum += item;
+    return sum / li.size();
+}
+
+double avg_wrong(std::vector<int> li) {
+    double res = 0;
+    for(auto item : li) res = ( res + item ) / 2;
+    return res;
 }

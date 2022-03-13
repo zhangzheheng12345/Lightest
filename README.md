@@ -10,10 +10,12 @@ Have a look at `test.cpp`. It simply shows how to use test case, test, assertion
 
 You only need to add lightest.h to your project, and include it in test files. No static library files or other complex things needed at all!
 
-* Use macro `DEFCASE(name)` to define a test case named 'name'. In the outputs, twenty `=` wrap the test case. When a test case ends, it will automatically give a test case report.
-* Use macro `DEFTEST(name)` to define a test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten `=`s and ten `-` wrap the loggings from the test. Here is an example showing how to use test and test case:
+* Use macro `DEFCASE(name)` to define a test case named 'name'. In the outputs, twenty `=` wrap the test case. When a test case ends, it will automatically give a test case report. `DEFCASE(name)` must be written in functions.
+* Use macro `DEFTEST(name)` to define a test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten `=`s and ten `-` wrap the loggings from the test. `DEFTEST(name)` must be written in functions.
+* Here is an example showing how to use test and test case:
 
 ```C++
+// int main() {
 DEFCASE(casename) {
     int var = 123456; // This is a shared variable for the tests in this test case.
     DEFTEST(testname) {
@@ -23,6 +25,7 @@ DEFCASE(casename) {
     // Older version: RUNTEST(testname);
 };
 // Older version: RUNCASE(casename);
+// return 0; }
 ```
 
 * All the defined tests and test cases will be automatically run.
