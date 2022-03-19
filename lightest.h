@@ -53,11 +53,15 @@ class Testing {
             testsTotal.push_back(test);
         }
         static void ReportInCase() {
+            int failedTestCount = 0;
             std::cout << " [Report] -------------------- CASE" << std::endl;
             for(Test item : testsInCase) {
                 std::cout << "   * " << item.file << ":" << item.name << ": "
                           << item.failureCount << " failure, " << item.duration << "ms"<< std::endl;
+                if(item.failed) failedTestCount++;
             }
+            std::cout << "   # " << failedTestCount << " failed tests." << std::endl;
+            totalFailedTestCount += failedTestCount;
             std::cout << " [Report] -------------------- CASE" << std::endl;
             testsInCase.clear();
         }
@@ -68,6 +72,7 @@ class Testing {
                           << item.failureCount << " failure, " << item.duration << "ms  "
                           << "( " << item.file << " )" << std::endl;
             }
+            std::cout << " # " << totalFailedTestCount << " failed tests." << std::endl;
             std::cout << "[Report] -------------------- TOTAL" << std::endl;
         }
     private:
@@ -85,10 +90,12 @@ class Testing {
         const char* foreSpace;
         static std::vector<Test> testsInCase;
         static std::vector<Test> testsTotal;
+        static int totalFailedTestCount;
 };
 
 std::vector<Testing::Test> Testing::testsInCase(0);
 std::vector<Testing::Test> Testing::testsTotal(0);
+int Testing::totalFailedTestCount = 0;
 
 /* ========== Testcase ========== */
 
@@ -136,7 +143,7 @@ class GlobalSigner {
         void SignCase(const char* name, std::function<void(Testcase&&)>* func) {
             signedCaseList.push_back({name, func});
         }
-        ~GlobalSigner() {
+        void TestAll() {
             for(auto item : signedCaseList) {
                 (*item.func)(Testcase(item.name));
                 delete item.func;
@@ -145,6 +152,10 @@ class GlobalSigner {
                 (*item.func)(Testing("global", item.file, item.name, true)); /* These are global tests */
                 delete item.func;
             }
+            signedCaseList.clear(); signedTestList.clear();
+        }
+        ~GlobalSigner() {
+            TestAll();
             Testing::ReportTotal();
         }
     private:

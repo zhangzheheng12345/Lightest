@@ -29,7 +29,10 @@ DEFCASE(casename) {
 ```
 
 * All the defined tests and test cases will be automatically run.
-  But in older versions, you need macros of `RUNTEST(name)` and `RUNCASE(name)` 
+
+  You can also call `testing.TestAll()` out of tests and test cases.`testing.TestAll()` will run the signed tests and test cases, clear the signing list, but without giving a total report.
+
+  ( *In older versions, you need macros of `RUNTEST(name)` and `RUNCASE(name)`* )
 * A total report will be automatically provided.
 * Use macro `MSG(str)`, `WARN(str)`, `ERR(str)` and `FAIL(str)` to output test information. `ERR(str)` and `FAIL(str)` will also set the test failed.
 * Use macro `LOG(varname)` to output a variable. The message will include both the variable's name and its value.
@@ -48,4 +51,5 @@ if(REQUIRE(1>a)) LOG(a); // Older version: LOG(a) will give you the atual value 
 
 * You must add a semicolon after a **Lightest** macro.
 * There are some variable names you cannot use after include `lightest.h`:
-  `testing`, user defined test cases' names and tests' names.
+
+  They includes `testing`, user defined test cases' names and tests' names.
