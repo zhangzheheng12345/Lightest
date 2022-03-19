@@ -15,7 +15,7 @@ class Testing {
     public:
         Testing(const char* casename, const char* file, const char* name, const bool global) {
             foreSpace = global ? "" : " ";
-            std::cout << foreSpace << "[Begin] -------------------- " << name << std::endl;
+            std::cout << foreSpace << "[Begin ] -------------------- " << name << std::endl;
             test.casename = casename, test.name = name, test.file = file;
             test.failureCount = 0, test.failed = false;
             start = clock();
@@ -66,14 +66,14 @@ class Testing {
             testsInCase.clear();
         }
         static void ReportTotal() {
-            std::cout << "[Report] -------------------- TOTAL" << std::endl;
+            std::cout << "[Report  ] -------------------- TOTAL" << std::endl;
             for(Test item : testsTotal) {
                 std::cout << " * " << item.casename << "." << item.name << ": "
                           << item.failureCount << " failure, " << item.duration << "ms  "
                           << "( " << item.file << " )" << std::endl;
             }
             std::cout << " # " << totalFailedTestCount << " failed tests." << std::endl;
-            std::cout << "[Report] -------------------- TOTAL" << std::endl;
+            std::cout << "[Report  ] -------------------- TOTAL" << std::endl;
         }
     private:
         class Test {
