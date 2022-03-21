@@ -46,8 +46,8 @@ class Testing {
             std::cout << foreSpace << "[End   ] -------------------- " << test.name;
             if(test.failed) std::cout << " FAIL" << std::endl;
             else std::cout << " PASS" << std::endl;
-            std::cout << foreSpace << " FAILURE: " << test.failureCount << std::endl;
-            std::cout << foreSpace << " TIME: " << duration << "ms" << std::endl;
+            std::cout << foreSpace << "  >> FAILURE: " << test.failureCount << std::endl;
+            std::cout << foreSpace << "  >> TIME: " << duration << "ms" << std::endl;
             test.duration = duration;
             testsInCase.push_back(test);
             testsTotal.push_back(test);
@@ -184,29 +184,33 @@ GlobalSigner testing;
 #define LOG(varname) testing.Log(__LINE__,#varname,(varname))
 
 /* ========== Assertion Macros ========== */
-#define REQUIRE(condition) ( [&] () { \
-                                bool res = !(condition); \
-                                if(condition) { \
-                                    FAIL("Didn't pass " #condition); \
-                                    std::cout << testing.getForeSpace() << \
-                                      " |\t\t\t{ REQUIRE }" << std::endl; } \
-                                return res; \
-                             } () )
-#define CHECK(condition) ( [&] () { \
-                              bool res = condition; \
-                              if(res) MSG("Pass " #condition); \
-                              else FAIL("Didn't pass " #condition); \
-                              std::cout << testing.getForeSpace() << \
-                                " |\t\t\t{ CHECK }" << std::endl; \
-                              return !(res); \
-                           } () )
-#define REQ_LOG(varname, condition) do{ \
-                                        if(REQUIRE(condition)) \
-                                        std::cout << testing.getForeSpace() << \
-                                          " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
-                                    }while(0)
-#define CHK_LOG(varname, condition) do{ \
-                                        if(CHECK(condition)) \
-                                        std::cout << testing.getForeSpace() << \
-                                          " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
-                                    }while(0)
+#define REQUIRE(condition) \
+    ( [&] () { \
+        bool res = !(condition); \
+        if(condition) { \
+        FAIL("Didn't pass (" #condition ")" ); \
+        std::cout << testing.getForeSpace() \
+                  << " |\t\t\t{ REQUIRE }" << std::endl; \
+        } return res; \
+    } () )
+#define CHECK(condition) \
+    ( [&] () { \
+        bool res = condition; \
+        if(res) MSG("Pass (" #condition ")" ); \
+        else FAIL("Didn't pass (" #condition ")" ); \
+        std::cout << testing.getForeSpace() << \
+            " |\t\t\t{ CHECK }" << std::endl; \
+        return !(res); \
+    } () )
+#define REQ_LOG(varname, condition) \
+    do { \
+        if(REQUIRE(condition)) \
+            std::cout << testing.getForeSpace() \
+                      << " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
+    } while(0)
+#define CHK_LOG(varname, condition) \
+    do { \
+        if(CHECK(condition)) \
+            std::cout << testing.getForeSpace() \
+                      << " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
+    } while(0)

@@ -2,6 +2,8 @@
 
 **Lightest**, the name of the project, means the project provides a lightest C++ unit test framework. It's header only. The framework is based on lambda expression, so your compiler has to support C++11.
 
+( *The project has only been tested on clang++ & Ubuntu.* )
+
 ## Example
 
 Have a look at `test.cpp`. It simply shows how to use test case, test, assertion macros, and logging macros.
