@@ -1,15 +1,16 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <functional>
 #include <ctime>
-#include <cstring>
 #include <vector>
+#include <string>
 
 /* ========== Testing ========== */
 #define DEFTEST(name) std::function<void(Testing&&)>* name = new std::function<void(Testing&&)>; \
                       testing.SignTest(__FILE__, #name, name); \
-                      *name = [&] (Testing&& testing) 
+                      *name = [&] (Testing&& testing)
 
 class Testing {
     public:
@@ -54,15 +55,17 @@ class Testing {
         }
         static void ReportInCase() {
             int failedTestCount = 0;
-            std::cout << " [Report] -------------------- CASE" << std::endl;
+            #define CHK_THEN_PUT if(doCaseReport) std::cout
+            CHK_THEN_PUT << " [Report] -------------------- CASE" << std::endl;
             for(Test item : testsInCase) {
-                std::cout << "   * " << item.file << ":" << item.name << ": "
-                          << item.failureCount << " failure, " << item.duration << "ms"<< std::endl;
+                CHK_THEN_PUT << "   * " << item.file << ":" << item.name << ": "
+                    << item.failureCount << " failure, " << item.duration << "ms"<< std::endl;
                 if(item.failed) failedTestCount++;
             }
-            std::cout << "   # " << failedTestCount << " failed tests." << std::endl;
+            CHK_THEN_PUT << "   # " << failedTestCount << " failed tests." << std::endl;
             totalFailedTestCount += failedTestCount;
-            std::cout << " [Report] -------------------- CASE" << std::endl;
+            CHK_THEN_PUT << " [Report] -------------------- CASE" << std::endl;
+            #undef CHK_THEN_PUT
             testsInCase.clear();
         }
         static void ReportTotal() {
@@ -75,6 +78,7 @@ class Testing {
             std::cout << " # " << totalFailedTestCount << " failed tests." << std::endl;
             std::cout << "[Report  ] -------------------- TOTAL" << std::endl;
         }
+        static void DoCaseReport() { doCaseReport = true; }
     private:
         class Test {
             public:
@@ -91,11 +95,13 @@ class Testing {
         static std::vector<Test> testsInCase;
         static std::vector<Test> testsTotal;
         static int totalFailedTestCount;
+        static bool doCaseReport;
 };
 
 std::vector<Testing::Test> Testing::testsInCase(0);
 std::vector<Testing::Test> Testing::testsTotal(0);
 int Testing::totalFailedTestCount = 0;
+bool Testing::doCaseReport = false;
 
 /* ========== Testcase ========== */
 
@@ -153,6 +159,32 @@ class GlobalSigner {
                 delete item.func;
             }
             signedCaseList.clear(); signedTestList.clear();
+        }
+        void SetOption(const std::string& k, const std::string& v) {
+            if(k == "case_report" && v == "true") Testing::DoCaseReport();
+        }
+        GlobalSigner() {
+            std::string str;
+            std::ifstream file("lightest.config");
+            if(file.is_open()) {
+                while(!file.eof()) {
+                    file >> str;
+                    if(!str.length()) break;
+                    else if(str[0] == '[') {
+                        /* TODO: section parser */
+                    } else { /* TODO: support comment */
+                        unsigned int i = str.find("=");
+                        std::string key, value;
+                        if(i < str.length()) {
+                            key = str.substr(0, i);
+                            value = str.substr(i+1, str.length() - i);
+                            SetOption(key, value);
+                        } else {
+                            /* TODO: spaces between key, '=', and value */
+                        }
+                    }
+                }
+            }
         }
         ~GlobalSigner() {
             TestAll();
