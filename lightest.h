@@ -164,6 +164,7 @@ class GlobalSigner {
             if(k == "case_report" && v == "true") Testing::DoCaseReport();
         }
         GlobalSigner() {
+            /* Load configurations from lightest.config */
             std::string str;
             std::ifstream file("lightest.config");
             if(file.is_open()) {
@@ -177,13 +178,17 @@ class GlobalSigner {
                         while(file.get() != '\n' && !file.eof()) continue;
                     } else {
                         unsigned int i = str.find("=");
-                        std::string key, value;
-                        if(i < str.length()) {
-                            key = str.substr(0, i);
-                            value = str.substr(i+1, str.length() - i);
-                            SetOption(key, value);
+                        if(i < str.length() - 1) {
+                            SetOption(str.substr(0, i), str.substr(i+1, str.length() - i));
+                        } else if(i == str.length() - 1) {
+                            std::string key = str.substr(0, str.length() - 1);
+                            file >> str;
+                            SetOption(key, str);
                         } else {
-                            /* TODO: spaces between key, '=', and value */
+                            std::string key = str; file >> str;
+                            if(str == "=") file >> str;
+                            else if(str[0] == '=') str = str.substr(1, str.length() - 1);
+                            SetOption(key, str);
                         }
                     }
                 }
@@ -192,6 +197,7 @@ class GlobalSigner {
         ~GlobalSigner() {
             TestAll();
             Testing::ReportTotal();
+            std::cout << "Done. " << clock() << "ms used." << std::endl;
         }
     private:
         /* A signed independence test list */
@@ -217,6 +223,14 @@ GlobalSigner testing;
 #define ERR(str) testing.Err(__LINE__,(str))
 #define FAIL(str) testing.Fail(__LINE__,(str))
 #define LOG(varname) testing.Log(__LINE__,#varname,(varname))
+
+/* ========= Timer Macros =========== */
+#define TIMER(sentence) \
+    ( [&] () { \
+        clock_t start = clock(); \
+        (sentence); \
+        return clock() - start; \
+    } () )
 
 /* ========== Assertion Macros ========== */
 #define REQUIRE(condition) \

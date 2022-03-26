@@ -11,10 +11,12 @@ int main() {
             // FIXME: vectors cannot be put out of tests
             std::vector<int> dataSet{1,2,3,4,5,6,7,8,9};
             CHK_LOG(avg(dataSet), avg(dataSet) == expected);
+            LOG(TIMER(avg(dataSet)));
         };
         DEFTEST(AvgWrong) {
             std::vector<int> dataSet{1,2,3,4,5,6,7,8,9};
             CHK_LOG(avg_wrong(dataSet), avg_wrong(dataSet) == expected);
+            LOG(TIMER(avg(dataSet)));
         };
     };
     return 0;
