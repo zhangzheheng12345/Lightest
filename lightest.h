@@ -231,6 +231,16 @@ GlobalSigner testing;
         (sentence); \
         return clock() - start; \
     } () )
+#define AVG_TIMER(sentence, times) \
+    ( [&] () { \
+        clock_t sum = 0, start; \
+        for(unsigned int index = 1; index <= times; index++) { \
+            start = clock(); \
+            (sentence); \
+            sum += clock() - start; \
+        } \
+        return double(sum) / times; \
+    } () )
 
 /* ========== Assertion Macros ========== */
 #define REQUIRE(condition) \

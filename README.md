@@ -66,8 +66,8 @@ if(REQUIRE(1>a)) LOG(a); // Older version: LOG(a) will give you the atual value 
 
 ### Timer macros
 
-At present there's only one timer macro, that is, `TIMER(sentence)`.
-It run the sentence provided, and returns how long did the sentence spend running. (*Returns type `clock_t`, ms*)
+* `TIMER(sentence)` runs the sentence provided, and returns how long did the sentence spend running. (*It returns type `clock_t`, ms*)
+* `AVG_TIMER(sentence, times)` runs the sentence provided `times` times, and then returns the average time.
 
 ### Testing configurations
 
@@ -81,5 +81,6 @@ Add `case_report = true` in `lightest.config` so that lightest will give a case 
 
 * You must add a semicolon after a **Lightest** macro.
 * There are some variable names you cannot use after include `lightest.h`:
-
+  
   They includes `testing`, user defined test cases' names and tests' names.
+* Outputing macros and assertion macros must be used inside tests, but you can use timer macros any where.
