@@ -171,8 +171,11 @@ class GlobalSigner {
                     file >> str;
                     if(!str.length()) break;
                     else if(str[0] == '[') {
-                        /* TODO: section parser */
-                    } else { /* TODO: support comment */
+                        std::cout << file.get();
+                        while(str.find("]") >= str.length()) file >> str;  /* Ignore section label */
+                    } else if(str[0] == ';') {
+                        while(file.get() != '\n' && !file.eof()) continue;
+                    } else {
                         unsigned int i = str.find("=");
                         std::string key, value;
                         if(i < str.length()) {
