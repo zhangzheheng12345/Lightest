@@ -50,23 +50,7 @@ class Testing {
             std::cout << foreSpace << "  >> FAILURE: " << test.failureCount << std::endl;
             std::cout << foreSpace << "  >> TIME: " << duration << "ms" << std::endl;
             test.duration = duration;
-            testsInCase.push_back(test);
             testsTotal.push_back(test);
-        }
-        static void ReportInCase() {
-            int failedTestCount = 0;
-            #define CHK_THEN_PUT if(doCaseReport) std::cout
-            CHK_THEN_PUT << " [Report] -------------------- CASE" << std::endl;
-            for(Test item : testsInCase) {
-                CHK_THEN_PUT << "   * " << item.file << ":" << item.name << ": "
-                    << item.failureCount << " failure, " << item.duration << "ms"<< std::endl;
-                if(item.failed) failedTestCount++;
-            }
-            CHK_THEN_PUT << "   # " << failedTestCount << " failed tests." << std::endl;
-            totalFailedTestCount += failedTestCount;
-            CHK_THEN_PUT << " [Report] -------------------- CASE" << std::endl;
-            #undef CHK_THEN_PUT
-            testsInCase.clear();
         }
         static void ReportTotal() {
             std::cout << "[Report  ] -------------------- TOTAL" << std::endl;
@@ -78,7 +62,6 @@ class Testing {
             std::cout << " # " << totalFailedTestCount << " failed tests." << std::endl;
             std::cout << "[Report  ] -------------------- TOTAL" << std::endl;
         }
-        static void DoCaseReport() { doCaseReport = true; }
     private:
         class Test {
             public:
@@ -92,13 +75,11 @@ class Testing {
         Test test;
         clock_t start; // No need to report.
         const char* foreSpace;
-        static std::vector<Test> testsInCase;
         static std::vector<Test> testsTotal;
         static int totalFailedTestCount;
         static bool doCaseReport;
 };
 
-std::vector<Testing::Test> Testing::testsInCase(0);
 std::vector<Testing::Test> Testing::testsTotal(0);
 int Testing::totalFailedTestCount = 0;
 bool Testing::doCaseReport = false;
@@ -124,7 +105,6 @@ class Testcase {
                 (*item.func)(Testing(name, item.file, item.name, false)); /* These aren't global tests */
                 delete item.func;
             }
-            Testing::ReportInCase();
             std::cout << "[End     ] " << "==================== " << name << " " << clock() - start << "ms" << std::endl;
         }
     private:
@@ -159,40 +139,6 @@ class GlobalSigner {
                 delete item.func;
             }
             signedCaseList.clear(); signedTestList.clear();
-        }
-        void SetOption(const std::string& k, const std::string& v) {
-            if(k == "case_report" && v == "true") Testing::DoCaseReport();
-        }
-        GlobalSigner() {
-            /* Load configurations from lightest.config */
-            std::string str;
-            std::ifstream file("lightest.config");
-            if(file.is_open()) {
-                while(!file.eof()) {
-                    file >> str;
-                    if(!str.length()) break;
-                    else if(str[0] == '[') {
-                        std::cout << file.get();
-                        while(str.find("]") >= str.length()) file >> str;  /* Ignore section label */
-                    } else if(str[0] == ';') {
-                        while(file.get() != '\n' && !file.eof()) continue;
-                    } else {
-                        unsigned int i = str.find("=");
-                        if(i < str.length() - 1) {
-                            SetOption(str.substr(0, i), str.substr(i+1, str.length() - i));
-                        } else if(i == str.length() - 1) {
-                            std::string key = str.substr(0, str.length() - 1);
-                            file >> str;
-                            SetOption(key, str);
-                        } else {
-                            std::string key = str; file >> str;
-                            if(str == "=") file >> str;
-                            else if(str[0] == '=') str = str.substr(1, str.length() - 1);
-                            SetOption(key, str);
-                        }
-                    }
-                }
-            }
         }
         ~GlobalSigner() {
             TestAll();
