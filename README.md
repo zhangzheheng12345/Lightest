@@ -1,4 +1,4 @@
-# Lightest
+# ![Lightest!](lightest.png)
 
 **Lightest**, the name of the project, means the project provides a lightest C++ unit test framework. It's header only. The framework is based on lambda expression, so your compiler has to support C++11.
 
