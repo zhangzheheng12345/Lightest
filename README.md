@@ -1,5 +1,8 @@
 # ![Lightest!](lightest.png)
 
+![](https://img.shields.io/badge/build-passing-green.svg)
+![](https://img.shields.io/badge/license-MIT-blue.svg)
+
 **Lightest**, the name of the project, means the project provides a lightest C++ unit test framework. It's header only. The framework is based on lambda expression, so your compiler has to support C++11.
 
 ( *The project has only been tested on clang++ & Ubuntu.* )
@@ -9,10 +12,12 @@
 Have a look at `test.cpp`. It simply shows how to use test case, test, assertion macros, and logging macros. 
 
 Please type:
+
 ```bash
 $ clang++ test.cpp -o example
 $ ./example
 ```
+
 to run this example.
 
 ## Usage
@@ -23,7 +28,7 @@ You only need to add lightest.h to your project, and include it in test files. N
 
 * Use macro `DEFCASE(name)` to define a test case named 'name'. In the outputs, twenty `=` wrap the test case. When a test case ends, it will automatically give a test case report. `DEFCASE(name)` must be written in functions.
 * Use macro `DEFTEST(name)` to define a test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten `=`s and ten `-` wrap the loggings from the test. `DEFTEST(name)` must be written in functions.
-* Here is an example showing how to use test and test case:
+* Here is an example showing how to use tests and test cases:
 
 ```C++
 // int main() {
@@ -68,14 +73,6 @@ if(REQUIRE(1>a)) LOG(a); // Older version: LOG(a) will give you the atual value 
 
 * `TIMER(sentence)` runs the sentence provided, and returns how long did the sentence spend running. (*It returns type `clock_t`, ms*)
 * `AVG_TIMER(sentence, times)` runs the sentence provided `times` times, and then returns the average time.
-
-### Testing configurations
-
-Create a file called `lightest.config` in which director the binary file placed.
-Lightest will automatically parse this file as an INI file, but actually section labels are not needed.
-
-At present, there is only one property supported.
-Add `case_report = true` in `lightest.config` so that lightest will give a case report in each case, or there will be no case reports provided.
 
 ## Caution
 
