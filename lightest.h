@@ -5,7 +5,6 @@
 #include <functional>
 #include <ctime>
 #include <vector>
-#include <string>
 
 /* ========== Testing ========== */
 #define DEFTEST(name) std::function<void(Testing&&)>* name = new std::function<void(Testing&&)>; \

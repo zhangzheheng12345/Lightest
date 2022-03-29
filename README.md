@@ -1,9 +1,13 @@
 # ![Lightest!](lightest.png)
 
 ![](https://img.shields.io/badge/build-passing-green.svg)
+
 ![](https://img.shields.io/badge/license-MIT-blue.svg)
 
-**Lightest**, the name of the project, means the project provides a lightest C++ unit test framework. It's header only. The framework is based on lambda expression, so your compiler has to support C++11.
+**Lightest**, the name of the project, means it provides a lightest C++ unit test framework.
+
+It's header only ( really, only a header file, without any binary files required ). If you suddenly want to do some small experiments, or decide to write a pretty light project ( probably like this one ), **Lightest** will be a excellent choice.
+The framework is based on lambda expression, so your compiler has to support C++11.
 
 ( *The project has only been tested on clang++ & Ubuntu.* )
 
@@ -22,13 +26,13 @@ to run this example.
 
 ## Usage
 
-You only need to add lightest.h to your project, and include it in test files. No static library files or other complex things needed at all!
+You only need to add `lightest.h` to your project, and include it in test files. No static library files or other complex things needed at all!
 
 ### To add tests & test cases
 
 * Use macro `DEFCASE(name)` to define a test case named 'name'. In the outputs, twenty `=` wrap the test case. When a test case ends, it will automatically give a test case report. `DEFCASE(name)` must be written in functions.
 * Use macro `DEFTEST(name)` to define a test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten `=`s and ten `-` wrap the loggings from the test. `DEFTEST(name)` must be written in functions.
-* Here is an example showing how to use tests and test cases:
+* Here is an example showing how to add tests and test cases:
 
 ```C++
 // int main() {
@@ -81,3 +85,9 @@ if(REQUIRE(1>a)) LOG(a); // Older version: LOG(a) will give you the atual value 
   
   They includes `testing`, user defined test cases' names and tests' names.
 * Outputing macros and assertion macros must be used inside tests, but you can use timer macros any where.
+
+## Future 
+
+* Async outputing
+* Write loggings to files
+* Special output formats when writing to files
