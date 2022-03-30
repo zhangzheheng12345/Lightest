@@ -6,10 +6,12 @@
 #include <ctime>
 #include <vector>
 
+namespace lightest {
 /* ========== Testing ========== */
-#define DEFTEST(name) std::function<void(Testing&&)>* name = new std::function<void(Testing&&)>; \
-                      testing.SignTest(__FILE__, #name, name); \
-                      *name = [&] (Testing&& testing)
+#define DEFTEST(name) \
+    std::function<void(lightest::Testing&&)>* name = new std::function<void(lightest::Testing&&)>; \
+    testing.SignTest(__FILE__, #name, name); \
+    *name = [&] (lightest::Testing&& testing)
 
 class Testing {
     public:
@@ -85,9 +87,10 @@ bool Testing::doCaseReport = false;
 
 /* ========== Testcase ========== */
 
-#define DEFCASE(name) std::function<void(Testcase&&)>* name = new std::function<void(Testcase&&)>; \
-                      testing.SignCase(#name, name); \
-                      *name = [&] (Testcase&& testing) 
+#define DEFCASE(name) \
+    std::function<void(lightest::Testcase&&)>* name = new std::function<void(lightest::Testcase&&)>; \
+    testing.SignCase(#name, name); \
+    *name = [&] (lightest::Testcase&& testing) 
 
 class Testcase {
     public:
@@ -159,8 +162,9 @@ class GlobalSigner {
         } signedCaseWrapper;
         std::vector<signedCaseWrapper> signedCaseList;
 };
+}; /* namespace ending */
 
-GlobalSigner testing;
+lightest::GlobalSigner testing;
 
 /* ========== Logging Macros ========== */
 #define MSG(str) testing.Msg(__LINE__,(str))
