@@ -1,7 +1,6 @@
 # ![Lightest!](lightest.png)
 
 ![](https://img.shields.io/badge/build-passing-green.svg)
-
 ![](https://img.shields.io/badge/license-MIT-blue.svg)
 
 **Lightest**, the name of the project, means it provides a lightest C++ unit test framework.
@@ -82,7 +81,6 @@ if(REQUIRE(1>a)) LOG(a); // Older version: LOG(a) will give you the atual value 
 
 * You must add a semicolon after a **Lightest** macro.
 * There are some variable names you cannot use after include `lightest.h`:
-  
   They includes `testing`, user defined test cases' names and tests' names.
 * Outputing macros and assertion macros must be used inside tests, but you can use timer macros any where.
 
