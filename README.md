@@ -23,6 +23,34 @@ $ ./example
 
 to run this example.
 
+The output format should be like this below:
+
+```
+[Begin   ] ==================== AvgCase
+ [Begin ] -------------------- AvgRight
+  | [Msg  ] test.cpp:13: Pass (avg(dataSet) == expected)
+  |                     { CHECK }
+  | [Log  ] test.cpp:14: AVG_TIMER(avg(dataSet), 200) = 0.005
+ [End   ] -------------------- AvgRight PASS
+   >> FAILURE: 0
+   >> TIME: 1ms
+ [Begin ] -------------------- AvgWrong
+  | [Fail ] test.cpp:18: Didn't pass (avg_wrong(dataSet) == expected)
+  |                     { CHECK }
+  |                     #ACTUAL: avg_wrong(dataSet) = 15
+  | [Log  ] test.cpp:19: AVG_TIMER(avg(dataSet), 200) = 0.005
+ [End   ] -------------------- AvgWrong FAIL
+   >> FAILURE: 1
+   >> TIME: 1ms
+[End     ] ==================== AvgCase 2ms
+[Report  ] -------------------- TOTAL
+ * AvgCase.AvgRight: 0 failure, 1ms  ( test.cpp )
+ * AvgCase.AvgWrong: 1 failure, 1ms  ( test.cpp )
+ # 0 failed tests.
+[Report  ] -------------------- TOTAL
+Done. 2ms used.
+```
+
 ## Usage
 
 You only need to add `lightest.h` to your project, and include it in test files. No static library files or other complex things needed at all!
@@ -48,10 +76,11 @@ DEFCASE(casename) {
 ```
 
 * All the defined tests and test cases will be automatically run.
-
+  
   You can also call `testing.TestAll()` out of tests and test cases.`testing.TestAll()` will run the signed tests and test cases, clear the signing list, but without giving a total report.
-
+  
   ( *In older versions, you need macros of `RUNTEST(name)` and `RUNCASE(name)`* )
+
 * A total report will be automatically provided.
 
 ### Ouputing macros
@@ -84,7 +113,7 @@ if(REQUIRE(1>a)) LOG(a); // Older version: LOG(a) will give you the atual value 
   They includes `testing`, user defined test cases' names and tests' names.
 * Outputing macros and assertion macros must be used inside tests, but you can use timer macros any where.
 
-## Future 
+## Future
 
 * Async outputing
 * Write loggings to files
