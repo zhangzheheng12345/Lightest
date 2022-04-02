@@ -7,6 +7,8 @@
 #include <vector>
 
 namespace lightest {
+using namespace std;
+
 /* ========== Testing ========== */
 #define DEFTEST(name) \
     std::function<void(lightest::Testing&&)>* name = new std::function<void(lightest::Testing&&)>; \
@@ -17,7 +19,7 @@ class Testing {
     public:
         Testing(const char* casename, const char* file, const char* name, const bool global) {
             foreSpace = global ? "" : " ";
-            std::cout << foreSpace << "[Begin ] -------------------- " << name << std::endl;
+            cout << foreSpace << "[Begin ] -------------------- " << name << endl;
             test.casename = casename, test.name = name, test.file = file;
             test.failureCount = 0, test.failed = false;
             start = clock();
@@ -26,42 +28,42 @@ class Testing {
             return foreSpace;
         }
         void Msg(int line, const char* str) {
-            std::cout << foreSpace << " | [Msg  ] " << test.file << ":" << line << ": " << str << std::endl;
+            cout << foreSpace << " | [Msg  ] " << test.file << ":" << line << ": " << str << endl;
         }
         void Warn(int line, const char* str) {
-            std::cout << foreSpace << " | [Warn ] " << test.file << ":" << line << ": " << str << std::endl;
+            cout << foreSpace << " | [Warn ] " << test.file << ":" << line << ": " << str << endl;
         }
         void Err(int line, const char* str) {
-            std::cout << foreSpace << " | [Error] " << test.file << ":" << line << ": " << str << std::endl;
+            cout << foreSpace << " | [Error] " << test.file << ":" << line << ": " << str << endl;
             test.failed = true, test.failureCount++;
         }
         void Fail(int line, const char* str) {
-            std::cout << foreSpace << " | [Fail ] " << test.file << ":" << line << ": " << str << std::endl;
+            cout << foreSpace << " | [Fail ] " << test.file << ":" << line << ": " << str << endl;
             test.failed = true, test.failureCount++;
         }
         template<typename T> void Log(int line, const char* varname, T value) {
-            std::cout << foreSpace << " | [Log  ] " << test.file << ":" << line << ": "
-                      << varname << " = " << value << std::endl;
+            cout << foreSpace << " | [Log  ] " << test.file << ":" << line << ": "
+                      << varname << " = " << value << endl;
         }
         ~Testing() {
             clock_t duration = clock() - start;
-            std::cout << foreSpace << "[End   ] -------------------- " << test.name;
-            if(test.failed) std::cout << " FAIL" << std::endl;
-            else std::cout << " PASS" << std::endl;
-            std::cout << foreSpace << "  >> FAILURE: " << test.failureCount << std::endl;
-            std::cout << foreSpace << "  >> TIME: " << duration << "ms" << std::endl;
+            cout << foreSpace << "[End   ] -------------------- " << test.name;
+            if(test.failed) cout << " FAIL" << endl;
+            else cout << " PASS" << endl;
+            cout << foreSpace << "  >> FAILURE: " << test.failureCount << endl;
+            cout << foreSpace << "  >> TIME: " << duration << "ms" << endl;
             test.duration = duration;
             testsTotal.push_back(test);
         }
         static void ReportTotal() {
-            std::cout << "[Report  ] -------------------- TOTAL" << std::endl;
+            cout << "[Report  ] -------------------- TOTAL" << endl;
             for(Test item : testsTotal) {
-                std::cout << " * " << item.casename << "." << item.name << ": "
+                cout << " * " << item.casename << "." << item.name << ": "
                           << item.failureCount << " failure, " << item.duration << "ms  "
-                          << "( " << item.file << " )" << std::endl;
+                          << "( " << item.file << " )" << endl;
             }
-            std::cout << " # " << totalFailedTestCount << " failed tests." << std::endl;
-            std::cout << "[Report  ] -------------------- TOTAL" << std::endl;
+            cout << " # " << totalFailedTestCount << " failed tests." << endl;
+            cout << "[Report  ] -------------------- TOTAL" << endl;
         }
     private:
         class Test {
@@ -76,12 +78,12 @@ class Testing {
         Test test;
         clock_t start; // No need to report.
         const char* foreSpace;
-        static std::vector<Test> testsTotal;
+        static vector<Test> testsTotal;
         static int totalFailedTestCount;
         static bool doCaseReport;
 };
 
-std::vector<Testing::Test> Testing::testsTotal(0);
+vector<Testing::Test> Testing::testsTotal(0);
 int Testing::totalFailedTestCount = 0;
 bool Testing::doCaseReport = false;
 
@@ -95,11 +97,11 @@ bool Testing::doCaseReport = false;
 class Testcase {
     public:
         Testcase(const char* name) {
-            std::cout << "[Begin   ] " << "==================== " << name << std::endl;
+            cout << "[Begin   ] " << "==================== " << name << endl;
             this->name = name;
             this->start = clock();
         }
-        void SignTest(const char* file, const char* name, std::function<void(Testing&&)>* func) {
+        void SignTest(const char* file, const char* name, function<void(Testing&&)>* func) {
             signedTestList.push_back({file, name, func});
         }
         ~Testcase() {
@@ -107,7 +109,7 @@ class Testcase {
                 (*item.func)(Testing(name, item.file, item.name, false)); /* These aren't global tests */
                 delete item.func;
             }
-            std::cout << "[End     ] " << "==================== " << name << " " << clock() - start << "ms" << std::endl;
+            cout << "[End     ] " << "==================== " << name << " " << clock() - start << "ms" << endl;
         }
     private:
         const char* name;
@@ -116,19 +118,19 @@ class Testcase {
         typedef struct {
             const char* file;
             const char* name;
-            std::function<void(Testing&&)>* func;
+            function<void(Testing&&)>* func;
         } signedTestWrapper;
-        std::vector<signedTestWrapper> signedTestList;
+        vector<signedTestWrapper> signedTestList;
 };
 
 /* ========== Global Case Recorder ========== */
 
 class GlobalSigner {
     public:
-        void SignTest(const char* file, const char* name, std::function<void(Testing&&)>* func) {
+        void SignTest(const char* file, const char* name, function<void(Testing&&)>* func) {
             signedTestList.push_back({file, name, func});
         }
-        void SignCase(const char* name, std::function<void(Testcase&&)>* func) {
+        void SignCase(const char* name, function<void(Testcase&&)>* func) {
             signedCaseList.push_back({name, func});
         }
         void TestAll() {
@@ -145,22 +147,22 @@ class GlobalSigner {
         ~GlobalSigner() {
             TestAll();
             Testing::ReportTotal();
-            std::cout << "Done. " << clock() << "ms used." << std::endl;
+            cout << "Done. " << clock() << "ms used." << endl;
         }
     private:
         /* A signed independence test list */
         typedef struct {
             const char* file;
             const char* name;
-            std::function<void(Testing&&)>* func;
+            function<void(Testing&&)>* func;
         } signedTestWrapper;
-        std::vector<signedTestWrapper> signedTestList;
+        vector<signedTestWrapper> signedTestList;
         /* A signed test case list */
         typedef struct {
             const char* name;
-            std::function<void(Testcase&&)>* func;
+            function<void(Testcase&&)>* func;
         } signedCaseWrapper;
-        std::vector<signedCaseWrapper> signedCaseList;
+        vector<signedCaseWrapper> signedCaseList;
 };
 }; /* namespace ending */
 

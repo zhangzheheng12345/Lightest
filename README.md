@@ -8,22 +8,31 @@
 It's header only ( really, only a header file, without any binary files required ). If you suddenly want to do some small experiments, or decide to write a pretty light project ( probably like this one ), **Lightest** will be a excellent choice.
 The framework is based on lambda expression, so your compiler has to support C++11.
 
-( *The project has only been tested on clang++ & Ubuntu.* )
+( *The project has only been tested on clang++ & Ubuntu, and g++(MinGW) & Windows 10* )
 
 ## Example
 
 Have a look at `test.cpp`. It simply shows how to use test case, test, assertion macros, and logging macros. 
 
-Please type:
+If you use GCC, please type:
 
 ```bash
-$ clang++ test.cpp -o example
-$ ./example
+$ ./gccbuild.sh
+$ ./test.out
 ```
 
-to run this example.
+to build & run this example.
 
-The output format should be like this below:
+If you use clang, please type:
+
+```batch
+$ ./clangbuild.sh
+$ ./test.out
+```
+
+Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are **merely for building the example**. **No binary library files** should be built or required actually.
+
+The output of the example should be like this below:
 
 ```
 [Begin   ] ==================== AvgCase
@@ -115,6 +124,5 @@ if(REQUIRE(1>a)) LOG(a); // Older version: LOG(a) will give you the atual value 
 
 ## Future
 
-* Async outputing
 * Write loggings to files
 * Special output formats when writing to files
