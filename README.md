@@ -124,5 +124,7 @@ if(REQUIRE(1>a)) LOG(a); // Older version: LOG(a) will give you the atual value 
 
 ## Future
 
+* Lighter, lighter, and lighter. I found this framework is becoming heavier, gradually running off course.
+  Writing one single test needs a lot of codes, which make me decide to make it lighter & lighter. 
 * Write loggings to files
 * Special output formats when writing to files
