@@ -45,7 +45,7 @@ class Testing {
             cout << "[End   ] -------------------- " << test.name;
             if(test.failed) cout << " FAIL" << endl;
             else cout << " PASS" << endl;
-            cout << "  >> FAILURE: " << test.failureCount << endl;
+            if(test.failed) cout << "  >> FAILURE: " << test.failureCount << endl;
             cout << "  >> TIME: " << duration << "ms" << endl;
             test.duration = duration;
             testsTotal.push_back(test);

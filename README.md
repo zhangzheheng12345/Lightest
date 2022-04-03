@@ -35,23 +35,20 @@ Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are **merely fo
 The output of the example should be like this below:
 
 ```
-[Begin   ] ==================== AvgCase
- [Begin ] -------------------- AvgRight
-  | [Msg  ] test.cpp:13: Pass (avg(dataSet) == expected)
-  |                     { CHECK }
-  | [Log  ] test.cpp:14: AVG_TIMER(avg(dataSet), 200) = 0.005
- [End   ] -------------------- AvgRight PASS
-   >> FAILURE: 0
-   >> TIME: 1ms
- [Begin ] -------------------- AvgWrong
-  | [Fail ] test.cpp:18: Didn't pass (avg_wrong(dataSet) == expected)
-  |                     { CHECK }
-  |                     #ACTUAL: avg_wrong(dataSet) = 15
-  | [Log  ] test.cpp:19: AVG_TIMER(avg(dataSet), 200) = 0.005
- [End   ] -------------------- AvgWrong FAIL
-   >> FAILURE: 1
-   >> TIME: 1ms
-[End     ] ==================== AvgCase 2ms
+[Begin ] -------------------- AvgRight
+ | [Msg  ] test.cpp:13: Pass (avg(dataSet) == expected)
+ |                     { CHECK }
+ | [Log  ] test.cpp:14: AVG_TIMER(avg(dataSet), 200) = 0.005
+[End   ] -------------------- AvgRight PASS
+  >> TIME: 1ms
+[Begin ] -------------------- AvgWrong
+ | [Fail ] test.cpp:18: Didn't pass (avg_wrong(dataSet) == expected)
+ |                     { CHECK }
+ |                     #ACTUAL: avg_wrong(dataSet) = 15
+ | [Log  ] test.cpp:19: AVG_TIMER(avg(dataSet), 200) = 0.005
+[End   ] -------------------- AvgWrong FAIL
+  >> FAILURE: 1
+  >> TIME: 1ms
 [Report  ] -------------------- TOTAL
  * AvgCase.AvgRight: 0 failure, 1ms  ( test.cpp )
  * AvgCase.AvgWrong: 1 failure, 1ms  ( test.cpp )
@@ -66,31 +63,22 @@ You only need to add `lightest.h` to your project, and include it in test files.
 
 ### To add tests & test cases
 
-* Use macro `DEFCASE(name)` to define a test case named 'name'. In the outputs, twenty `=` wrap the test case. When a test case ends, it will automatically give a test case report. `DEFCASE(name)` must be written in functions.
-* Use macro `DEFTEST(name)` to define a test named 'name'. A test can be wrapped in a test case or run inpendently. In the outputs, ten `=`s and ten `-` wrap the loggings from the test. `DEFTEST(name)` must be written in functions.
-* Here is an example showing how to add tests and test cases:
+* Use macro `DEFTEST(name)` to define a test named 'name'. In the outputs, ten `-` wrap the loggings from the test. `DEFTEST(name)` must be written in functions.
+* Here is an example showing how to add tests:
 
 ```C++
-// int main() {
-DEFCASE(casename) {
-    int var = 123456; // This is a shared variable for the tests in this test case.
-    DEFTEST(testname) {
-        MSG("Hello from testname"); // Output a message.
-        LOG(var); // Output the shared variable of var.
-    };
-    // Older version: RUNTEST(testname);
+DEFTEST(testname) {
+    int var = 123456;
+    MSG("Hello from testname"); // Output a message.
+    LOG(var); // Output the shared variable of var.
 };
-// Older version: RUNCASE(casename);
-// return 0; }
 ```
 
-* All the defined tests and test cases will be automatically run.
+* All the defined tests will be automatically run.
   
-  You can also call `testing.TestAll()` out of tests and test cases.`testing.TestAll()` will run the signed tests and test cases, clear the signing list, but without giving a total report.
-  
-  ( *In older versions, you need macros of `RUNTEST(name)` and `RUNCASE(name)`* )
+  You can also call `testing.TestAll()` out of tests and test cases.`testing.TestAll()` will run the signed tests clear the signing list without giving a total report.
 
-* A total report will be automatically provided.
+* A total report will be automatically provided in the end.
 
 ### Ouputing macros
 
@@ -107,7 +95,6 @@ DEFCASE(casename) {
 ```C++
 int a = 2;
 REQ_LOG(1>a) // Newer version: REQ_LOG(varname, condition) and CHK_LOG(varname, condition) supported
-if(REQUIRE(1>a)) LOG(a); // Older version: LOG(a) will give you the atual value of a
 ```
 
 ### Timer macros
@@ -118,9 +105,8 @@ if(REQUIRE(1>a)) LOG(a); // Older version: LOG(a) will give you the atual value 
 ## Caution
 
 * You must add a semicolon after a **Lightest** macro.
-* There are some variable names you cannot use after include `lightest.h`:
-  They includes `testing`, user defined test cases' names and tests' names.
 * Outputing macros and assertion macros must be used inside tests, but you can use timer macros any where.
+* If you meet any issue, please have a look at the source code or put forward an issue.
 
 ## Future
 
