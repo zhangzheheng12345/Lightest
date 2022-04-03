@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <fstream>
 #include <functional>
 #include <ctime>
 #include <vector>
@@ -17,48 +16,44 @@ using namespace std;
 
 class Testing {
     public:
-        Testing(const char* casename, const char* file, const char* name, const bool global) {
-            foreSpace = global ? "" : " ";
-            cout << foreSpace << "[Begin ] -------------------- " << name << endl;
-            test.casename = casename, test.name = name, test.file = file;
+        Testing(const char* file, const char* name) {
+            cout << "[Begin ] -------------------- " << name << endl;
+            test.name = name, test.file = file;
             test.failureCount = 0, test.failed = false;
             start = clock();
         }
-        const char* getForeSpace() const {
-            return foreSpace;
-        }
         void Msg(int line, const char* str) {
-            cout << foreSpace << " | [Msg  ] " << test.file << ":" << line << ": " << str << endl;
+            cout << " | [Msg  ] " << test.file << ":" << line << ": " << str << endl;
         }
         void Warn(int line, const char* str) {
-            cout << foreSpace << " | [Warn ] " << test.file << ":" << line << ": " << str << endl;
+            cout << " | [Warn ] " << test.file << ":" << line << ": " << str << endl;
         }
         void Err(int line, const char* str) {
-            cout << foreSpace << " | [Error] " << test.file << ":" << line << ": " << str << endl;
+            cout << " | [Error] " << test.file << ":" << line << ": " << str << endl;
             test.failed = true, test.failureCount++;
         }
         void Fail(int line, const char* str) {
-            cout << foreSpace << " | [Fail ] " << test.file << ":" << line << ": " << str << endl;
+            cout << " | [Fail ] " << test.file << ":" << line << ": " << str << endl;
             test.failed = true, test.failureCount++;
         }
         template<typename T> void Log(int line, const char* varname, T value) {
-            cout << foreSpace << " | [Log  ] " << test.file << ":" << line << ": "
+            cout << " | [Log  ] " << test.file << ":" << line << ": "
                       << varname << " = " << value << endl;
         }
         ~Testing() {
             clock_t duration = clock() - start;
-            cout << foreSpace << "[End   ] -------------------- " << test.name;
+            cout << "[End   ] -------------------- " << test.name;
             if(test.failed) cout << " FAIL" << endl;
             else cout << " PASS" << endl;
-            cout << foreSpace << "  >> FAILURE: " << test.failureCount << endl;
-            cout << foreSpace << "  >> TIME: " << duration << "ms" << endl;
+            cout << "  >> FAILURE: " << test.failureCount << endl;
+            cout << "  >> TIME: " << duration << "ms" << endl;
             test.duration = duration;
             testsTotal.push_back(test);
         }
         static void ReportTotal() {
             cout << "[Report  ] -------------------- TOTAL" << endl;
             for(Test item : testsTotal) {
-                cout << " * " << item.casename << "." << item.name << ": "
+                cout << " * " << item.name << ": "
                           << item.failureCount << " failure, " << item.duration << "ms  "
                           << "( " << item.file << " )" << endl;
             }
@@ -68,7 +63,6 @@ class Testing {
     private:
         class Test {
             public:
-                const char* casename;
                 const char* file;
                 const char* name;
                 unsigned int failureCount;
@@ -77,51 +71,12 @@ class Testing {
         };
         Test test;
         clock_t start; // No need to report.
-        const char* foreSpace;
         static vector<Test> testsTotal;
         static int totalFailedTestCount;
-        static bool doCaseReport;
 };
 
 vector<Testing::Test> Testing::testsTotal(0);
 int Testing::totalFailedTestCount = 0;
-bool Testing::doCaseReport = false;
-
-/* ========== Testcase ========== */
-
-#define DEFCASE(name) \
-    std::function<void(lightest::Testcase&&)>* name = new std::function<void(lightest::Testcase&&)>; \
-    testing.SignCase(#name, name); \
-    *name = [&] (lightest::Testcase&& testing) 
-
-class Testcase {
-    public:
-        Testcase(const char* name) {
-            cout << "[Begin   ] " << "==================== " << name << endl;
-            this->name = name;
-            this->start = clock();
-        }
-        void SignTest(const char* file, const char* name, function<void(Testing&&)>* func) {
-            signedTestList.push_back({file, name, func});
-        }
-        ~Testcase() {
-            for(auto item : signedTestList) {
-                (*item.func)(Testing(name, item.file, item.name, false)); /* These aren't global tests */
-                delete item.func;
-            }
-            cout << "[End     ] " << "==================== " << name << " " << clock() - start << "ms" << endl;
-        }
-    private:
-        const char* name;
-        clock_t start;
-        /* A signed case test list */
-        typedef struct {
-            const char* file;
-            const char* name;
-            function<void(Testing&&)>* func;
-        } signedTestWrapper;
-        vector<signedTestWrapper> signedTestList;
-};
 
 /* ========== Global Case Recorder ========== */
 
@@ -130,19 +85,12 @@ class GlobalSigner {
         void SignTest(const char* file, const char* name, function<void(Testing&&)>* func) {
             signedTestList.push_back({file, name, func});
         }
-        void SignCase(const char* name, function<void(Testcase&&)>* func) {
-            signedCaseList.push_back({name, func});
-        }
         void TestAll() {
-            for(auto item : signedCaseList) {
-                (*item.func)(Testcase(item.name));
-                delete item.func;
-            }
             for(auto item : signedTestList) {
-                (*item.func)(Testing("global", item.file, item.name, true)); /* These are global tests */
+                (*item.func)(Testing(item.file, item.name));
                 delete item.func;
             }
-            signedCaseList.clear(); signedTestList.clear();
+            signedTestList.clear();
         }
         ~GlobalSigner() {
             TestAll();
@@ -157,12 +105,6 @@ class GlobalSigner {
             function<void(Testing&&)>* func;
         } signedTestWrapper;
         vector<signedTestWrapper> signedTestList;
-        /* A signed test case list */
-        typedef struct {
-            const char* name;
-            function<void(Testcase&&)>* func;
-        } signedCaseWrapper;
-        vector<signedCaseWrapper> signedCaseList;
 };
 }; /* namespace ending */
 
@@ -199,8 +141,7 @@ lightest::GlobalSigner testing;
         bool res = !(condition); \
         if(condition) { \
         FAIL("Didn't pass (" #condition ")" ); \
-        std::cout << testing.getForeSpace() \
-                  << " |\t\t\t{ REQUIRE }" << std::endl; \
+        std::cout << " |\t\t\t{ REQUIRE }" << std::endl; \
         } return res; \
     } () )
 #define CHECK(condition) \
@@ -208,19 +149,16 @@ lightest::GlobalSigner testing;
         bool res = condition; \
         if(res) MSG("Pass (" #condition ")" ); \
         else FAIL("Didn't pass (" #condition ")" ); \
-        std::cout << testing.getForeSpace() << \
-            " |\t\t\t{ CHECK }" << std::endl; \
+        std::cout << " |\t\t\t{ CHECK }" << std::endl; \
         return !(res); \
     } () )
 #define REQ_LOG(varname, condition) \
     do { \
         if(REQUIRE(condition)) \
-            std::cout << testing.getForeSpace() \
-                      << " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
+            std::cout << " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
     } while(0)
 #define CHK_LOG(varname, condition) \
     do { \
         if(CHECK(condition)) \
-            std::cout << testing.getForeSpace() \
-                      << " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
+            std::cout << " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
     } while(0)
