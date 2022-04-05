@@ -2,8 +2,16 @@
 
 MAIN // Use default main function
 
-double avg(std::vector<int>);
-double avg_wrong(std::vector<int>); // A wrong realization of average calculation.
+double avg(const std::vector<int> li) {
+    int sum = 0;
+    for(auto item : li) sum += item;
+    return double(sum) / li.size();
+}
+double avg_wrong(const std::vector<int> li) { // a wrong realization of avg calculation
+    double res = 0;
+    for(auto item : li) res = ( res + item ) / 2;
+    return res;
+}
 
 DEFTEST(AvgRight) {
     double expected = 8.5;
@@ -17,15 +25,3 @@ DEFTEST(AvgWrong) {
     CHK_LOG(avg_wrong(dataSet), avg_wrong(dataSet) == expected);
     LOG(AVG_TIMER(avg(dataSet), 200));
 };
-
-double avg(const std::vector<int> li) {
-    int sum = 0;
-    for(auto item : li) sum += item;
-    return double(sum) / li.size();
-}
-
-double avg_wrong(const std::vector<int> li) {
-    double res = 0;
-    for(auto item : li) res = ( res + item ) / 2;
-    return res;
-}

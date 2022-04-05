@@ -100,6 +100,7 @@ class Signer {
         static vector<signedTestWrapper> signedTestList;
 };
 vector<Signer::signedTestWrapper> Signer::signedTestList(0);
+
 }; /* namespace ending */
 
 /* ========== Default main function ========== */
@@ -107,8 +108,7 @@ vector<Signer::signedTestWrapper> Signer::signedTestList(0);
 #define MAIN \
     int main() { \
         lightest::Signer::TestAll(); lightest::Testing::ReportTotal(); \
-        return 0; \
-}
+        return 0; }
 
 /* ========== Logging Macros ========== */
 #define MSG(str) testing.Msg(__LINE__,(str))
