@@ -10,9 +10,9 @@ using namespace std;
 
 /* ========== Testing ========== */
 #define DEFTEST(name) \
-    std::function<void(lightest::Testing&&)>* name = new std::function<void(lightest::Testing&&)>; \
-    testing.SignTest(__FILE__, #name, name); \
-    *name = [&] (lightest::Testing&& testing)
+    void name(lightest::Testing&& testing); \
+    lightest::Signer signer_ ## name(__FILE__, #name, name); \
+    void name(lightest::Testing&& testing)
 
 class Testing {
     public:
@@ -78,37 +78,37 @@ class Testing {
 vector<Testing::Test> Testing::testsTotal(0);
 int Testing::totalFailedTestCount = 0;
 
-/* ========== Global Case Recorder ========== */
+/* ========== Signer ========== */
 
-class GlobalSigner {
+class Signer {
     public:
-        void SignTest(const char* file, const char* name, function<void(Testing&&)>* func) {
+        Signer(const char* file, const char* name, void (*func)(Testing&&)) {
             signedTestList.push_back({file, name, func});
         }
-        void TestAll() {
+        static void TestAll() {
             for(auto item : signedTestList) {
                 (*item.func)(Testing(item.file, item.name));
-                delete item.func;
             }
             signedTestList.clear();
         }
-        ~GlobalSigner() {
-            TestAll();
-            Testing::ReportTotal();
-            cout << "Done. " << clock() << "ms used." << endl;
-        }
-    private:
         /* A signed independence test list */
         typedef struct {
             const char* file;
             const char* name;
-            function<void(Testing&&)>* func;
+            void (*func)(Testing&&);
         } signedTestWrapper;
-        vector<signedTestWrapper> signedTestList;
+        static vector<signedTestWrapper> signedTestList;
 };
+vector<Signer::signedTestWrapper> Signer::signedTestList(0);
 }; /* namespace ending */
 
-lightest::GlobalSigner testing;
+/* ========== Default main function ========== */
+
+#define MAIN \
+    int main() { \
+        lightest::Signer::TestAll(); lightest::Testing::ReportTotal(); \
+        return 0; \
+}
 
 /* ========== Logging Macros ========== */
 #define MSG(str) testing.Msg(__LINE__,(str))
