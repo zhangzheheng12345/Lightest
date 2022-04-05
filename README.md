@@ -61,7 +61,7 @@ Done. 2ms used.
 
 You only need to add `lightest.h` to your project, and include it in test files. No static library files or other complex things needed at all!
 
-### To add tests & test cases
+### To add tests
 
 * Use macro `DEFTEST(name)` to define a test named 'name'. In the outputs, ten `-` wrap the loggings from the test. `DEFTEST(name)` must be written in functions.
 * Here is an example showing how to add tests:
@@ -79,6 +79,7 @@ DEFTEST(testname) {
   You can also call `testing.TestAll()` out of tests and test cases.`testing.TestAll()` will run the signed tests clear the signing list without giving a total report.
 
 * A total report will be automatically provided in the end.
+(*The test case feature is removed*)
 
 ### Ouputing macros
 
