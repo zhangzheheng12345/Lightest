@@ -1,36 +1,37 @@
 # ![Lightest!](lightest.png)
 
-![](https://img.shields.io/badge/build-passing-green.svg)
-![](https://img.shields.io/badge/license-MIT-blue.svg)
+![build_pass](https://img.shields.io/badge/build-passing-green.svg)
+![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
 **Lightest**, the name of the project, means it provides a lightest C++ unit test framework.
 
-It's header only ( really, only a header file, without any binary files required ). If you suddenly want to do some small experiments, or decide to write a pretty light project ( probably like this one ), **Lightest** will be a excellent choice.
-The framework is based on lambda expression, so your compiler has to support C++11.
+It's header only ( really, only a header file, without any binary files required ). If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be a excellent choice.
+**Your compiler has to support C++11 if you want to use this library.**
 
 ( *The project has only been tested on clang++ & Ubuntu, and g++(MinGW) & Windows 10* )
 
 ## Example
 
-Have a look at `test.cpp`. It simply shows how to use test case, test, assertion macros, and logging macros. 
+Have a look at `test.cpp`. It simply shows how to use test case, test, assertion macros, and logging macros.
 
 If you use GCC, please type:
 
 ```bash
-$ ./gccbuild.sh
-$ ./test.out
+./gccbuild.sh
+./test.out
 ```
 
 to build & run this example.
 
 If you use clang, please type:
 
-```batch
-$ ./clangbuild.sh
-$ ./test.out
+```bash
+./clangbuild.sh
+./test.out
 ```
 
-Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are **merely for building the example**. **No binary library files** should be built or required actually.
+Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are **merely for building the example**.
+**No binary library files** should be built or required actually.
 
 The output of the example should be like this below:
 
@@ -63,7 +64,7 @@ You only need to add `lightest.h` to your project, and include it in test files.
 
 ### To add tests
 
-* Use macro `DEFTEST(name)` to define a test named 'name'. In the outputs, ten `-` wrap the loggings from the test. `DEFTEST(name)` must be written in functions.
+* Use macro `DEFTEST(name)` to define a test named 'name'. In the outputs, ten `-` wrap the loggings from the test. `DEFTEST(name)` must be written outside functions.
 * Here is an example showing how to add tests:
 
 ```C++
@@ -71,12 +72,11 @@ DEFTEST(testname) {
     int var = 123456;
     MSG("Hello from testname"); // Output a message.
     LOG(var); // Output the shared variable of var.
-};
+}
 ```
 
-* All the defined tests will be automatically run.
-  
-  You can also call `testing.TestAll()` out of tests and test cases.`testing.TestAll()` will run the signed tests clear the signing list without giving a total report.
+* All the defined tests will be automatically run if you add a macro `MAIN`.
+It provides a default main function which calls `lightest::Signer::TestAll()` and `lightest::Testing::ReportTotal()` to run the tests & report.
 
 * A total report will be automatically provided in the end.
 (*The test case feature is removed*)
@@ -91,12 +91,6 @@ DEFTEST(testname) {
 * Use macro `REQUIRE(condition)` to check a condition. If the condition is failed, the macro will send a Fail, or it will do nothing. The macro will return the boolean value of the condition.
 * Use macro `CHECK(condition)` to check a condition. If the condition is true, the macro will send a Msg, or if will send a Fail. The macro will return the boolean value of the condition.
 * The assertion macros will not output the expected value and the actual value. If you want to learn what exact value the tested expression is, use macro `REQ_LOG(varname, condition)`and `CHK_LOG(varname, condition)`. `varname` is the variable you want to log and `condition` is the condition you want to test.
-  In old versions, write like below to get the same result:
-
-```C++
-int a = 2;
-REQ_LOG(1>a) // Newer version: REQ_LOG(varname, condition) and CHK_LOG(varname, condition) supported
-```
 
 ### Timer macros
 
@@ -112,6 +106,6 @@ REQ_LOG(1>a) // Newer version: REQ_LOG(varname, condition) and CHK_LOG(varname, 
 ## Future
 
 * Lighter, lighter, and lighter. I found this framework is becoming heavier, gradually running off course.
-  Writing one single test needs a lot of codes, which make me decide to make it lighter & lighter. 
+  Writing one single test needs a lot of codes, which make me decide to make it lighter & lighter.
 * Write loggings to files
 * Special output formats when writing to files

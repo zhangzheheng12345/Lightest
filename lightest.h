@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <functional>
 #include <ctime>
 #include <vector>
 
@@ -58,7 +57,8 @@ class Testing {
                           << "( " << item.file << " )" << endl;
             }
             cout << " # " << totalFailedTestCount << " failed tests." << endl;
-            cout << "[Report  ] -------------------- TOTAL" << endl;
+            cout << "[Report  ] -------------------- TOTAL" << endl
+                << "Done. " << clock() << "ms used." << endl;
         }
     private:
         class Test {
