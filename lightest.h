@@ -13,6 +13,7 @@ namespace lightest {
 using namespace std;
 
 /* ========== Testing ========== */
+
 #define DEFTEST(name) \
     void name(lightest::Testing&& testing); \
     lightest::Signer signer_ ## name(__FILE__, #name, name); \
@@ -124,6 +125,7 @@ vector<Signer::signedTestWrapper> Signer::signedTestList(0);
         return 0; }
 
 /* ========== Logging Macros ========== */
+
 #define MSG(str) testing.Msg(__LINE__,(str))
 #define WARN(str) testing.Warn(__LINE__,(str))
 #define ERR(str) testing.Err(__LINE__,(str))
@@ -131,6 +133,7 @@ vector<Signer::signedTestWrapper> Signer::signedTestList(0);
 #define LOG(varname) testing.Log(__LINE__,#varname,(varname))
 
 /* ========= Timer Macros =========== */
+
 #define TIMER(sentence) \
     ( [&] () { \
         clock_t start = clock(); \
@@ -149,6 +152,7 @@ vector<Signer::signedTestWrapper> Signer::signedTestList(0);
     } () )
 
 /* ========== Assertion Macros ========== */
+
 #define REQUIRE(condition) \
     ( [&] () { \
         bool res = !(condition); \
