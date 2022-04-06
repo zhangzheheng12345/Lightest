@@ -8,6 +8,7 @@ MIT licensed.
 #include <iostream>
 #include <ctime>
 #include <vector>
+#include <exception>
 
 namespace lightest {
 using namespace std;
@@ -15,9 +16,9 @@ using namespace std;
 /* ========== Testing ========== */
 
 #define DEFTEST(name) \
-    void name(lightest::Testing&& testing); \
+    void name(lightest::Testing& testing); \
     lightest::Signer signer_ ## name(__FILE__, #name, name); \
-    void name(lightest::Testing&& testing)
+    void name(lightest::Testing& testing)
 
 class Testing {
     public:
@@ -65,10 +66,10 @@ class Testing {
         }
         static void ReportTotal() {
             cout << "[Report  ] -------------------- TOTAL" << endl;
-            for(Test item : testsTotal) {
-                cout << " * " << item.name << ": "
-                          << item.failureCount << " failure, " << item.duration << "ms  "
-                          << "( " << item.file << " )" << endl;
+            for(vector<Test>::iterator item = testsTotal.begin(); item < testsTotal.end(); item++) {
+                cout << " * " << item->name << ": "
+                          << item->failureCount << " failure, " << item->duration << "ms  "
+                          << "( " << item->file << " )" << endl;
             }
             if(failedTestCount > 0) cout << " # " << failedTestCount << " failed tests." << endl;
             cout << "[Report  ] -------------------- TOTAL" << endl
@@ -96,12 +97,21 @@ int Testing::failedTestCount = 0;
 
 class Signer {
     public:
-        Signer(const char* file, const char* name, void (*func)(Testing&&)) {
+        Signer(const char* file, const char* name, void (*func)(Testing&)) {
             signedTestList.push_back({file, name, func});
         }
         static void TestAll() {
-            for(auto item : signedTestList) {
-                (*item.func)(Testing(item.file, item.name));
+            for(vector<signedTestWrapper>::iterator item = signedTestList.begin(); item < signedTestList.end(); item++) {
+                Testing testing = Testing(item->file, item->name);
+                try {
+                    (*item->func)(testing);
+                } catch(exception& err) {
+                    testing.Err(-1, err.what());
+                    cout << " |  !!! UNCAUGHT ERROR" << endl;
+                } catch(const char* err) {
+                    testing.Err(-1, err);
+                    cout << " |  !!! UNCAUGHT ERROR" << endl;
+                }
             }
             signedTestList.clear();
         }
@@ -109,7 +119,7 @@ class Signer {
         typedef struct {
             const char* file;
             const char* name;
-            void (*func)(Testing&&);
+            void (*func)(Testing&);
         } signedTestWrapper;
         static vector<signedTestWrapper> signedTestList;
 };
