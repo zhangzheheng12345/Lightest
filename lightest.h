@@ -1,3 +1,8 @@
+/*
+This is the core file of this library, which provides a lightest unit test framework.
+MIT licensed.
+*/
+
 #pragma once
 
 #include <iostream>
@@ -30,14 +35,22 @@ class Testing {
         void Err(int line, const char* str) {
             cout << " | [Error] " << test.file << ":" << line << ": " << str << endl;
             test.failed = true, test.failureCount++;
+            failedTestCount++;
         }
         void Fail(int line, const char* str) {
             cout << " | [Fail ] " << test.file << ":" << line << ": " << str << endl;
             test.failed = true, test.failureCount++;
+            failedTestCount++;
         }
         template<typename T> void Log(int line, const char* varname, T value) {
             cout << " | [Log  ] " << test.file << ":" << line << ": "
                       << varname << " = " << value << endl;
+        }
+        template<typename T> void Actual(const char* varname, T value) {
+            cout << " |  -> ACTUAL: " << varname << " = " << value << endl;
+        }
+        template<typename T> void Expected(const char* varname, T value) {
+            cout << " |  -> EXPECTED: " << varname << " = " << value << endl;
         }
         ~Testing() {
             clock_t duration = clock() - start;
@@ -56,7 +69,7 @@ class Testing {
                           << item.failureCount << " failure, " << item.duration << "ms  "
                           << "( " << item.file << " )" << endl;
             }
-            cout << " # " << totalFailedTestCount << " failed tests." << endl;
+            if(failedTestCount > 0) cout << " # " << failedTestCount << " failed tests." << endl;
             cout << "[Report  ] -------------------- TOTAL" << endl
                 << "Done. " << clock() << "ms used." << endl;
         }
@@ -72,11 +85,11 @@ class Testing {
         Test test;
         clock_t start; // No need to report.
         static vector<Test> testsTotal;
-        static int totalFailedTestCount;
+        static int failedTestCount;
 };
 
 vector<Testing::Test> Testing::testsTotal(0);
-int Testing::totalFailedTestCount = 0;
+int Testing::failedTestCount = 0;
 
 /* ========== Signer ========== */
 
@@ -141,7 +154,6 @@ vector<Signer::signedTestWrapper> Signer::signedTestList(0);
         bool res = !(condition); \
         if(condition) { \
         FAIL("Didn't pass (" #condition ")" ); \
-        std::cout << " |\t\t\t{ REQUIRE }" << std::endl; \
         } return res; \
     } () )
 #define CHECK(condition) \
@@ -149,16 +161,19 @@ vector<Signer::signedTestWrapper> Signer::signedTestList(0);
         bool res = condition; \
         if(res) MSG("Pass (" #condition ")" ); \
         else FAIL("Didn't pass (" #condition ")" ); \
-        std::cout << " |\t\t\t{ CHECK }" << std::endl; \
         return !(res); \
     } () )
-#define REQ_LOG(varname, condition) \
+#define REQ_LOG(expected, actual, condition) \
     do { \
-        if(REQUIRE(condition)) \
-            std::cout << " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
+        if(REQUIRE(condition)) { \
+            testing.Expected(#expected, (expected)); \
+            testing.Actual(#actual, (actual)); \
+        } \
     } while(0)
-#define CHK_LOG(varname, condition) \
+#define CHK_LOG(expected, actual, condition) \
     do { \
-        if(CHECK(condition)) \
-            std::cout << " |\t\t\t#ACTUAL: " #varname " = " << varname << std::endl; \
+        if(CHECK(condition)) { \
+            testing.Expected(#expected, (expected)); \
+            testing.Actual(#actual, (actual)); \
+        } \
     } while(0)

@@ -12,16 +12,23 @@ It's header only ( really, only a header file, without any binary files required
 
 ## Example
 
-Have a look at `test.cpp`. It simply shows how to use test case, test, assertion macros, and logging macros.
+Have a look at `test.cpp`. It simply shows how to use tests, assertion macros, timer macros and logging macros.
 
-If you use GCC, please type:
+If you use MinGW (GCC & Windows) please type in Windows BAT:
+
+```bat
+mingwbuild.bat
+test.exe
+```
+
+to build & run this example.
+
+If you use GCC (Unix), please type:
 
 ```bash
 ./gccbuild.sh
 ./test.out
 ```
-
-to build & run this example.
 
 If you use clang, please type:
 
@@ -30,32 +37,34 @@ If you use clang, please type:
 ./test.out
 ```
 
-Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are **merely for building the example**.
+Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are merely for building the example.
 **No binary library files** should be built or required actually.
 
 The output of the example should be like this below:
 
 ```
 [Begin ] -------------------- AvgRight
- | [Msg  ] test.cpp:13: Pass (avg(dataSet) == expected)
- |                     { CHECK }
- | [Log  ] test.cpp:14: AVG_TIMER(avg(dataSet), 200) = 0.005
+ | [Msg  ] test.cpp:21: Pass (avg(dataSet) == expected)
 [End   ] -------------------- AvgRight PASS
   >> TIME: 1ms
 [Begin ] -------------------- AvgWrong
- | [Fail ] test.cpp:18: Didn't pass (avg_wrong(dataSet) == expected)
- |                     { CHECK }
- |                     #ACTUAL: avg_wrong(dataSet) = 15
- | [Log  ] test.cpp:19: AVG_TIMER(avg(dataSet), 200) = 0.005
+ | [Fail ] test.cpp:26: Didn't pass (avg_wrong(dataSet) == expected)
+ |  -> EXPECTED: expected = 8.5
+ |  -> ACTUAL: avg_wrong(dataSet) = 15
 [End   ] -------------------- AvgWrong FAIL
   >> FAILURE: 1
-  >> TIME: 1ms
+  >> TIME: 2ms
+[Begin ] -------------------- AvgSpeed
+ | [Log  ] test.cpp:31: AVG_TIMER(avg(li), 10000) = 0.2262
+[End   ] -------------------- AvgSpeed PASS
+  >> TIME: 2263ms
 [Report  ] -------------------- TOTAL
- * AvgCase.AvgRight: 0 failure, 1ms  ( test.cpp )
- * AvgCase.AvgWrong: 1 failure, 1ms  ( test.cpp )
- # 0 failed tests.
+ * AvgRight: 0 failure, 1ms  ( test.cpp )
+ * AvgWrong: 1 failure, 2ms  ( test.cpp )
+ * AvgSpeed: 0 failure, 2263ms  ( test.cpp )
+ # 1 failed tests.
 [Report  ] -------------------- TOTAL
-Done. 2ms used.
+Done. 2282ms used.
 ```
 
 ## Usage
@@ -90,7 +99,8 @@ It provides a default main function which calls `lightest::Signer::TestAll()` an
 
 * Use macro `REQUIRE(condition)` to check a condition. If the condition is failed, the macro will send a Fail, or it will do nothing. The macro will return the boolean value of the condition.
 * Use macro `CHECK(condition)` to check a condition. If the condition is true, the macro will send a Msg, or if will send a Fail. The macro will return the boolean value of the condition.
-* The assertion macros will not output the expected value and the actual value. If you want to learn what exact value the tested expression is, use macro `REQ_LOG(varname, condition)`and `CHK_LOG(varname, condition)`. `varname` is the variable you want to log and `condition` is the condition you want to test.
+* The assertion macros will not output the expected value and the actual value. If you want to learn what exact value the tested expression is, use macro `REQ_LOG(expected, actual, condition)`and `CHK_LOG(expected, actual, condition)`.
+`actual` is the actual value you want to log, `expected` is the expected value you want to log, and `condition` is the condition you want to test.
 
 ### Timer macros
 
