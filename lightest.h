@@ -1,7 +1,9 @@
-/*
+/********************
 This is the core file of this library, which provides a lightest unit test framework.
 MIT licensed.
-*/
+Github Repo: https://github.com/zhangzheheng12345/Lightest
+Author's Github: https://github.com/zhangzheheng12345
+********************/
 
 #pragma once
 
@@ -49,27 +51,32 @@ class Testing {
                       << varname << " = " << value << endl;
         }
         template<typename T> void Actual(const char* varname, T value) {
-            cout << " |  -> ACTUAL: " << varname << " = " << value << endl;
+            cout << " |   -> ACTUAL: " << varname << " = " << value << endl;
         }
         template<typename T> void Expected(const char* varname, T value) {
-            cout << " |  -> EXPECTED: " << varname << " = " << value << endl;
+            cout << " |   -> EXPECTED: " << varname << " = " << value << endl;
         }
         ~Testing() {
             clock_t duration = clock() - start;
             cout << "[End   ] -------------------- " << test.name;
             if(test.failed) cout << " FAIL" << endl;
             else cout << " PASS" << endl;
-            if(test.failed) cout << "  >> FAILURE: " << test.failureCount << endl;
-            cout << "  >> TIME: " << duration << "ms" << endl;
+            if(more) {
+                if(test.failed) cout << "  >> FAILURE: " << test.failureCount << endl;
+                cout << "  >> TIME: " << duration << "ms" << endl;
+            }
             test.duration = duration;
             testsTotal.push_back(test);
         }
+        static void Simpler() {
+            more = false;
+        }
         static void ReportTotal() {
             cout << "[Report  ] -------------------- TOTAL" << endl;
-            for(vector<Test>::iterator item = testsTotal.begin(); item < testsTotal.end(); item++) {
-                cout << " * " << item->name << ": "
-                          << item->failureCount << " failure, " << item->duration << "ms  "
-                          << "( " << item->file << " )" << endl;
+            for(Test item : testsTotal) {
+                cout << " * " << item.name << ": "
+                          << item.failureCount << " failure, " << item.duration << "ms  "
+                          << "( " << item.file << " )" << endl;
             }
             if(failedTestCount > 0) cout << " # " << failedTestCount << " failed tests." << endl;
             cout << "[Report  ] -------------------- TOTAL" << endl
@@ -88,10 +95,12 @@ class Testing {
         clock_t start; // No need to report.
         static vector<Test> testsTotal;
         static int failedTestCount;
+        static bool more;
 };
 
 vector<Testing::Test> Testing::testsTotal(0);
 int Testing::failedTestCount = 0;
+bool Testing::more = true;
 
 /* ========== Signer ========== */
 
@@ -101,16 +110,16 @@ class Signer {
             signedTestList.push_back({file, name, func});
         }
         static void TestAll() {
-            for(vector<signedTestWrapper>::iterator item = signedTestList.begin(); item < signedTestList.end(); item++) {
-                Testing testing = Testing(item->file, item->name);
+            for(signedTestWrapper item : signedTestList) {
+                Testing testing = Testing(item.file, item.name);
                 try {
-                    (*item->func)(testing);
+                    (*item.func)(testing);
                 } catch(exception& err) {
                     testing.Err(-1, err.what());
-                    cout << " |  !!! UNCAUGHT ERROR" << endl;
+                    cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
                 } catch(const char* err) {
                     testing.Err(-1, err);
-                    cout << " |  !!! UNCAUGHT ERROR" << endl;
+                    cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
                 }
             }
             signedTestList.clear();
@@ -127,11 +136,15 @@ vector<Signer::signedTestWrapper> Signer::signedTestList(0);
 
 }; /* namespace ending */
 
-/* ========== Default main function ========== */
+/* ========== Default main functions ========== */
 
 #define MAIN \
     int main() { \
         lightest::Signer::TestAll(); lightest::Testing::ReportTotal(); \
+        return 0; }
+#define LESS_MAIN \
+    int main() { \
+        lightest::Testing::Simpler(); lightest::Signer::TestAll(); \
         return 0; }
 
 /* ========== Logging Macros ========== */

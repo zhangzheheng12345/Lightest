@@ -6,9 +6,8 @@
 **Lightest**, the name of the project, means it provides a lightest C++ unit test framework.
 
 It's header only ( really, only a header file, without any binary files required ). If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be a excellent choice.
-**Your compiler has to support C++11 if you want to use this library.**
 
-( *The project has only been tested on clang++ & Ubuntu, and g++(MinGW) & Windows 10* )
+( *Your compiler has to support C++11 if you want to use this library because the library is partly based on lambda expression.* *Also, the project has only been tested on clang++ & Ubuntu, and g++(MinGW) & Windows 10* )
 
 ## Example
 
@@ -17,7 +16,7 @@ Have a look at `test.cpp`. It simply shows how to use tests, assertion macros, t
 If you use MinGW (GCC & Windows) please type in Windows BAT:
 
 ```bat
-mingwbuild.bat
+g++ -std=c++11 test.cpp -o test.exe
 test.exe
 ```
 
@@ -26,19 +25,18 @@ to build & run this example.
 If you use GCC (Unix), please type:
 
 ```bash
-./gccbuild.sh
+g++ -std=c++11 test.cpp -o test
 ./test.out
 ```
 
 If you use clang, please type:
 
 ```bash
-./clangbuild.sh
+clang++ test.cpp -o test
 ./test.out
 ```
 
-Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are merely for building the example.
-**No binary library files** should be built or required actually.
+Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are merely for building the example. **No binary library files** should be built or required actually.
 
 The output of the example should be like this below:
 
@@ -46,25 +44,25 @@ The output of the example should be like this below:
 [Begin ] -------------------- AvgRight
  | [Msg  ] test.cpp:21: Pass (avg(dataSet) == expected)
 [End   ] -------------------- AvgRight PASS
-  >> TIME: 1ms
+  >> TIME: 0ms
 [Begin ] -------------------- AvgWrong
  | [Fail ] test.cpp:26: Didn't pass (avg_wrong(dataSet) == expected)
- |  -> EXPECTED: expected = 8.5
- |  -> ACTUAL: avg_wrong(dataSet) = 15
+ |   -> EXPECTED: expected = 8.5
+ |   -> ACTUAL: avg_wrong(dataSet) = 15
 [End   ] -------------------- AvgWrong FAIL
   >> FAILURE: 1
-  >> TIME: 2ms
+  >> TIME: 0ms
 [Begin ] -------------------- AvgSpeed
- | [Log  ] test.cpp:31: AVG_TIMER(avg(li), 10000) = 0.2262
+ | [Log  ] test.cpp:31: AVG_TIMER(avg(li), 10000) = 0.2062
 [End   ] -------------------- AvgSpeed PASS
-  >> TIME: 2263ms
+  >> TIME: 2062ms
 [Report  ] -------------------- TOTAL
- * AvgRight: 0 failure, 1ms  ( test.cpp )
- * AvgWrong: 1 failure, 2ms  ( test.cpp )
- * AvgSpeed: 0 failure, 2263ms  ( test.cpp )
+ * AvgRight: 0 failure, 0ms  ( test.cpp )
+ * AvgWrong: 1 failure, 0ms  ( test.cpp )
+ * AvgSpeed: 0 failure, 2062ms  ( test.cpp )
  # 1 failed tests.
 [Report  ] -------------------- TOTAL
-Done. 2282ms used.
+Done. 2077ms used.
 ```
 
 ## Usage
@@ -84,10 +82,8 @@ DEFTEST(testname) {
 }
 ```
 
-* All the defined tests will be automatically run if you add a macro `MAIN`.
-It provides a default main function which calls `lightest::Signer::TestAll()` and `lightest::Testing::ReportTotal()` to run the tests & report.
+* All the defined tests will be automatically run if you add a macro `MAIN`. It provides a default main function which calls `lightest::Signer::TestAll()` and `lightest::Testing::ReportTotal()` to run the tests & report. If you think the outputs are too many, use the macro of `LESS_MAIN` instead of `MAIN`.
 
-* A total report will be automatically provided in the end.
 (*The test case feature is removed*)
 
 ### Ouputing macros
@@ -109,13 +105,11 @@ It provides a default main function which calls `lightest::Signer::TestAll()` an
 
 ## Caution
 
-* You must add a semicolon after a **Lightest** macro.
+* You must add a semicolon after a assertion or outputing macro.
 * Outputing macros and assertion macros must be used inside tests, but you can use timer macros any where.
 * If you meet any issue, please have a look at the source code or put forward an issue.
 
 ## Future
 
-* Lighter, lighter, and lighter. I found this framework is becoming heavier, gradually running off course.
-  Writing one single test needs a lot of codes, which make me decide to make it lighter & lighter.
 * Write loggings to files
 * Special output formats when writing to files
