@@ -103,6 +103,45 @@ DEFTEST(testname) {
 * `TIMER(sentence)` runs the sentence provided, and returns how long did the sentence spend running. (*It returns type `clock_t`, ms*)
 * `AVG_TIMER(sentence, times)` runs the sentence provided `times` times, and then returns the average time.
 
+### Your main function
+
+Besides `MAIN` and `LESS_MAIN`, you can write your own main function.
+* The macro of `TESTALL()` runs all the signed tests and clear the signed test list.
+* The macro of `REPORT()` gives a total report.
+* The macro of `SIMPLER()` hide the `>> TIME: ...ms` and `>> FAILURE: ...` (if there is) at the end of each test.
+* If you don't want to run some of the tests, use macro of `EXCEPT(name)` to disable them.
+
+Here is a simple example of a user defined main function:
+
+```C++
+int main() {
+    EXCEPT(AvgSpeed); // Disable the test of AvgSpeed
+    SIMPLER();
+    TESTALL();
+    REPORT();
+    return 0; // Don't forget `return 0`!
+}
+```
+
+Replace the `MAIN` macro in `test.cpp` and then run it, the output will be like this:
+
+```
+[Begin ] -------------------- AvgRight
+ | [Msg  ] test.cpp:29: Pass (avg(dataSet) == expected)
+[End   ] -------------------- AvgRight PASS
+[Begin ] -------------------- AvgWrong
+ | [Fail ] test.cpp:34: Didn't pass (avg_wrong(dataSet) == expected)
+ |   -> EXPECTED: expected = 8.5
+ |   -> ACTUAL: avg_wrong(dataSet) = 15
+[End   ] -------------------- AvgWrong FAIL
+[Report  ] -------------------- TOTAL
+ * AvgRight: 0 failure, 0ms  ( test.cpp )
+ * AvgWrong: 1 failure, 4ms  ( test.cpp )
+ # 1 failed tests.
+[Report  ] -------------------- TOTAL
+Done. 27ms used.
+```
+
 ## Caution
 
 * You must add a semicolon after a assertion or outputing macro.

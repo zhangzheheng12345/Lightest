@@ -10,6 +10,7 @@ Author's Github: https://github.com/zhangzheheng12345
 #include <iostream>
 #include <ctime>
 #include <vector>
+#include <set>
 #include <exception>
 
 namespace lightest {
@@ -111,7 +112,8 @@ class Signer {
         }
         static void TestAll() {
             for(signedTestWrapper item : signedTestList) {
-                Testing testing = Testing(item.file, item.name);
+                if(!excepts.count(item.name)) {
+                    Testing testing = Testing(item.file, item.name);
                 try {
                     (*item.func)(testing);
                 } catch(exception& err) {
@@ -121,8 +123,12 @@ class Signer {
                     testing.Err(-1, err);
                     cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
                 }
+                }
             }
             signedTestList.clear();
+        }
+        static void Except(const char* name) {
+            excepts.insert(name);
         }
         /* A signed independence test list */
         typedef struct {
@@ -131,8 +137,10 @@ class Signer {
             void (*func)(Testing&);
         } signedTestWrapper;
         static vector<signedTestWrapper> signedTestList;
+        static set<const char*> excepts;
 };
 vector<Signer::signedTestWrapper> Signer::signedTestList(0);
+set<const char*> Signer::excepts;
 
 }; /* namespace ending */
 
@@ -146,6 +154,11 @@ vector<Signer::signedTestWrapper> Signer::signedTestList(0);
     int main() { \
         lightest::Testing::Simpler(); lightest::Signer::TestAll(); \
         return 0; }
+
+#define EXCEPT(name) lightest::Signer::Except( #name )
+#define TESTALL() lightest::Signer::TestAll()
+#define REPORT() lightest::Testing::ReportTotal()
+#define SIMPLER() lightest::Testing::Simpler()
 
 /* ========== Logging Macros ========== */
 
