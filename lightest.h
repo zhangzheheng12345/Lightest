@@ -73,14 +73,14 @@ class Testing {
             more = false;
         }
         static void ReportTotal() {
-            cout << "[Report  ] -------------------- TOTAL" << endl;
+            cout << "[Report  ] --------------------" << endl;
             for(Test item : testsTotal) {
                 cout << " * " << item.name << ": "
                           << item.failureCount << " failure, " << item.duration << "ms  "
                           << "( " << item.file << " )" << endl;
             }
             if(failedTestCount > 0) cout << " # " << failedTestCount << " failed tests." << endl;
-            cout << "[Report  ] -------------------- TOTAL" << endl
+            cout << "[Report  ] --------------------" << endl
                 << "Done. " << clock() << "ms used." << endl;
         }
     private:
@@ -114,15 +114,15 @@ class Signer {
             for(signedTestWrapper item : signedTestList) {
                 if(!excepts.count(item.name)) {
                     Testing testing = Testing(item.file, item.name);
-                try {
-                    (*item.func)(testing);
-                } catch(exception& err) {
-                    testing.Err(-1, err.what());
-                    cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
-                } catch(const char* err) {
-                    testing.Err(-1, err);
-                    cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
-                }
+                    try {
+                        (*item.func)(testing);
+                    } catch(exception& err) {
+                        testing.Err(-1, err.what());
+                        cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
+                    } catch(const char* err) {
+                        testing.Err(-1, err);
+                        cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
+                    }
                 }
             }
             signedTestList.clear();
@@ -192,9 +192,9 @@ set<const char*> Signer::excepts;
 #define REQUIRE(condition) \
     ( [&] () { \
         bool res = !(condition); \
-        if(condition) { \
-        FAIL("Didn't pass (" #condition ")" ); \
-        } return res; \
+        if(res) \
+            FAIL("Didn't pass (" #condition ")" ); \
+        return res; \
     } () )
 #define CHECK(condition) \
     ( [&] () { \

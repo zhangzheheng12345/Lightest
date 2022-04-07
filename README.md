@@ -7,7 +7,8 @@
 
 It's header only ( really, only a header file, without any binary files required ). If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be a excellent choice.
 
-( *Your compiler has to support C++11 if you want to use this library because the library is partly based on lambda expression.* *Also, the project has only been tested on clang++ & Ubuntu, and g++(MinGW) & Windows 10* )
+( *Your compiler has to support C++11 if you want to use this library because the library is partly based on lambda expression.*
+*Also, the project has only been tested on clang++ & Ubuntu, and g++(MinGW) & Windows 10* )
 
 ## Example
 
@@ -56,12 +57,12 @@ The output of the example should be like this below:
  | [Log  ] test.cpp:31: AVG_TIMER(avg(li), 10000) = 0.2062
 [End   ] -------------------- AvgSpeed PASS
   >> TIME: 2062ms
-[Report  ] -------------------- TOTAL
+[Report  ] --------------------
  * AvgRight: 0 failure, 0ms  ( test.cpp )
  * AvgWrong: 1 failure, 0ms  ( test.cpp )
  * AvgSpeed: 0 failure, 2062ms  ( test.cpp )
  # 1 failed tests.
-[Report  ] -------------------- TOTAL
+[Report  ] --------------------
 Done. 2077ms used.
 ```
 
@@ -135,11 +136,11 @@ Replace the `MAIN` macro in `test.cpp` and then run it, the output will be like 
  |   -> EXPECTED: expected = 8.5
  |   -> ACTUAL: avg_wrong(dataSet) = 15
 [End   ] -------------------- AvgWrong FAIL
-[Report  ] -------------------- TOTAL
+[Report  ] --------------------
  * AvgRight: 0 failure, 0ms  ( test.cpp )
  * AvgWrong: 1 failure, 4ms  ( test.cpp )
  # 1 failed tests.
-[Report  ] -------------------- TOTAL
+[Report  ] --------------------
 Done. 27ms used.
 ```
 
