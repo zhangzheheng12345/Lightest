@@ -26,14 +26,14 @@ If you use GCC (Unix), please type:
 
 ```bash
 g++ -std=c++11 test.cpp -o test
-./test.out
+./test
 ```
 
 If you use clang, please type:
 
 ```bash
 clang++ test.cpp -o test
-./test.out
+./test
 ```
 
 Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are merely for building the example. **No binary library files** should be built or required actually.
