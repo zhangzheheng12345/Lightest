@@ -29,6 +29,6 @@ DEFTEST(AvgWrong) {
 }
 DEFTEST(AvgSpeed) {
     std::vector<int> li(0);
-    for(int i = 0; i < 10000; i++) li.push_back(i);
+    for(int i = 0; i < 5000; i++) li.push_back(i);
     LOG(AVG_TIMER(avg(li), 10000));
 }

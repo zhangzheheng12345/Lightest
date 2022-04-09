@@ -5,7 +5,8 @@ Github Repo: https://github.com/zhangzheheng12345/Lightest
 Author's Github: https://github.com/zhangzheheng12345
 ********************/
 
-#pragma once
+#ifndef _LIGHTEST_H_
+#define _LIGHTEST_H_
 
 #include <iostream>
 #include <ctime>
@@ -117,11 +118,17 @@ class Signer {
                     try {
                         (*item.func)(testing);
                     } catch(exception& err) {
-                        testing.Err(-1, err.what());
-                        cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
+                        if(allThrow) throw err;
+                        else {
+                            testing.Err(-1, err.what());
+                            cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
+                        }
                     } catch(const char* err) {
-                        testing.Err(-1, err);
-                        cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
+                        if(allThrow) throw err;
+                        else {
+                            testing.Err(-1, err);
+                            cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
+                        }
                     }
                 }
             }
@@ -129,6 +136,9 @@ class Signer {
         }
         static void Except(const char* name) {
             excepts.insert(name);
+        }
+        static void AllThrow() {
+            allThrow = true;
         }
         /* A signed independence test list */
         typedef struct {
@@ -138,11 +148,13 @@ class Signer {
         } signedTestWrapper;
         static vector<signedTestWrapper> signedTestList;
         static set<const char*> excepts;
+        static bool allThrow;
 };
 vector<Signer::signedTestWrapper> Signer::signedTestList(0);
 set<const char*> Signer::excepts;
+bool Signer::allThrow = false;
 
-}; /* namespace ending */
+} /* namespace ending */
 
 /* ========== Default main functions ========== */
 
@@ -159,6 +171,7 @@ set<const char*> Signer::excepts;
 #define TESTALL() lightest::Signer::TestAll()
 #define REPORT() lightest::Testing::ReportTotal()
 #define SIMPLER() lightest::Testing::Simpler()
+#define ALL_THROW() lightest::Signer::AllThrow()
 
 /* ========== Logging Macros ========== */
 
@@ -217,3 +230,5 @@ set<const char*> Signer::excepts;
             testing.Actual(#actual, (actual)); \
         } \
     } while(0)
+
+#endif

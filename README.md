@@ -65,6 +65,8 @@ The output of the example should be like this below:
 [Report  ] --------------------
 Done. 2077ms used.
 ```
+(*Your time might be different*)
+
 
 ## Usage
 
@@ -112,6 +114,7 @@ Besides `MAIN` and `LESS_MAIN`, you can write your own main function.
 * The macro of `REPORT()` gives a total report.
 * The macro of `SIMPLER()` hide the `>> TIME: ...ms` and `>> FAILURE: ...` (if there is) at the end of each test.
 * If you don't want to run some of the tests, use macro of `EXCEPT(name)` to disable them.
+* Lightest will automatically catch the uncaught errors. The errors should be thrown out as `exception` or simply a string. If you want to solve the uncaught errors by your self, use the macro of `ALL_THROW()` to let Lightest throw the errors again, but that will stop the entire testing process.
 
 Here is a simple example of a user defined main function:
 
@@ -120,12 +123,17 @@ int main() {
     EXCEPT(AvgSpeed); // Disable the test of AvgSpeed
     SIMPLER();
     TESTALL();
+    /*
+    If you want to deal with the errors by your self:
+    ALL_THROW();
+    try { TESTALL(); } catch(...) {...}
+    */
     REPORT();
     return 0; // Don't forget `return 0`!
 }
 ```
 
-Replace the `MAIN` macro in `test.cpp` and then run it, the output will be like this:
+Replace the `MAIN` macro in `test.cpp` and then run it. The output will be like this below now:
 
 ```
 [Begin ] -------------------- AvgRight
@@ -149,28 +157,6 @@ Done. 27ms used.
 * You must add a semicolon after a assertion or outputing macro.
 * Outputing macros and assertion macros must be used inside tests, but you can use timer macros any where.
 * If you meet any issue, please have a look at the source code or put forward an issue.
-
-## How does it work? (CORE PART)
-
-```mermaid
-graph TD;
-
-def("DEFTEST(name)") -- define a function --> func("name(Testing&)");
-
-func -- use signer_name to sign ----> list(Signer::signedTestList);
-
-def -- define a object --> signer("Signer signer_name(name)");
-
-signer -- sign by the constructor funciton ----> list;
-
-testing("Testing (an object)") -- sent as an argument while calling ---> func;
-
-testall("Testing::TestAll() (TESTALL())") -- iterate it to run --> list;
-
-testall -- init --> testing;
-```
-
-All the output macros & assertion macros depend on the object of `Testing`.
 
 ## Future
 
