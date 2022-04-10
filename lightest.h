@@ -27,7 +27,7 @@ using namespace std;
 class Testing {
     public:
         Testing(const char* file, const char* name) {
-            cout << "[Begin ] -------------------- " << name << endl;
+            cout << "[Begin ] =====> " << name << " ----" << endl;
             test.name = name, test.file = file;
             test.failureCount = 0, test.failed = false;
             start = clock();
@@ -60,7 +60,7 @@ class Testing {
         }
         ~Testing() {
             clock_t duration = clock() - start;
-            cout << "[End   ] -------------------- " << test.name;
+            cout << "[End   ] =====> " << test.name;
             if(test.failed) cout << " FAIL" << endl;
             else cout << " PASS" << endl;
             if(more) {
@@ -228,6 +228,20 @@ bool Signer::allThrow = false;
         if(CHECK(condition)) { \
             testing.Expected(#expected, (expected)); \
             testing.Actual(#actual, (actual)); \
+        } \
+    } while(0)
+#define REQ_OP(expected, actual, operator) \
+    do { \
+        if(REQUIRE((expected) operator (actual))) { \
+            testing.Expected(#expected, expected); \
+            testing.Actual(#actual, actual); \
+        } \
+    } while(0)
+#define CHK_OP(expected, actual, operator) \
+    do { \
+        if(CHECK((expected) operator (actual))) { \
+            testing.Expected(#expected, expected); \
+            testing.Actual(#actual, actual); \
         } \
     } while(0)
 

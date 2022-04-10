@@ -42,20 +42,20 @@ Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are merely for 
 The output of the example should be like this below:
 
 ```
-[Begin ] -------------------- AvgRight
+[Begin ] =====> AvgRight ----
  | [Msg  ] test.cpp:21: Pass (avg(dataSet) == expected)
-[End   ] -------------------- AvgRight PASS
+[End   ] =====> AvgRight PASS
   >> TIME: 0ms
-[Begin ] -------------------- AvgWrong
+[Begin ] =====> AvgWrong ----
  | [Fail ] test.cpp:26: Didn't pass (avg_wrong(dataSet) == expected)
  |   -> EXPECTED: expected = 8.5
  |   -> ACTUAL: avg_wrong(dataSet) = 15
-[End   ] -------------------- AvgWrong FAIL
+[End   ] ====> AvgWrong FAIL
   >> FAILURE: 1
   >> TIME: 0ms
-[Begin ] -------------------- AvgSpeed
+[Begin ] =====> AvgSpeed ----
  | [Log  ] test.cpp:31: AVG_TIMER(avg(li), 10000) = 0.2062
-[End   ] -------------------- AvgSpeed PASS
+[End   ] =====> AvgSpeed PASS
   >> TIME: 2062ms
 [Report  ] --------------------
  * AvgRight: 0 failure, 0ms  ( test.cpp )
@@ -100,6 +100,8 @@ DEFTEST(testname) {
 * Use macro `CHECK(condition)` to check a condition. If the condition is true, the macro will send a Msg, or if will send a Fail. The macro will return the boolean value of the condition.
 * The assertion macros will not output the expected value and the actual value. If you want to learn what exact value the tested expression is, use macro `REQ_LOG(expected, actual, condition)`and `CHK_LOG(expected, actual, condition)`.
 `actual` is the actual value you want to log, `expected` is the expected value you want to log, and `condition` is the condition you want to test.
+* Other two assertion macros are `REQ_OP(expected, actual, operation)` and `CHK_OP(expected, actual, operation)`. They offer a easier way to compare the actual value and the expected value. You only need to give a comparing operator like `==`.
+`REQ_LOG(a, b, a==b)` equals to `REQ_OP(a, b, ==)`.
 
 ### Timer macros
 
@@ -136,14 +138,14 @@ int main() {
 Replace the `MAIN` macro in `test.cpp` and then run it. The output will be like this below now:
 
 ```
-[Begin ] -------------------- AvgRight
+[Begin ] =====> AvgRight ----
  | [Msg  ] test.cpp:29: Pass (avg(dataSet) == expected)
-[End   ] -------------------- AvgRight PASS
-[Begin ] -------------------- AvgWrong
+[End   ] =====> AvgRight PASS
+[Begin ] =====> AvgWrong ----
  | [Fail ] test.cpp:34: Didn't pass (avg_wrong(dataSet) == expected)
  |   -> EXPECTED: expected = 8.5
  |   -> ACTUAL: avg_wrong(dataSet) = 15
-[End   ] -------------------- AvgWrong FAIL
+[End   ] =====> AvgWrong FAIL
 [Report  ] --------------------
  * AvgRight: 0 failure, 0ms  ( test.cpp )
  * AvgWrong: 1 failure, 4ms  ( test.cpp )
