@@ -17,15 +17,19 @@ double avg_wrong(const std::vector<int> li) { // a wrong realization of avg calc
 
 /* ========== Tests ========== */
 
+class TestData {
+public:
+    static double expected;
+    static std::vector<int> dataSet;
+};
+double TestData::expected = 8.5;
+std::vector<int> TestData::dataSet{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+
 DEFTEST(AvgRight) {
-    double expected = 8.5;
-    std::vector<int> dataSet{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
-    CHK_OP(expected, avg(dataSet), ==);
+    CHK_OP(TestData::expected, avg(TestData::dataSet), ==);
 }
 DEFTEST(AvgWrong) {
-    double expected = 8.5;
-    std::vector<int> dataSet{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
-    CHK_OP(expected, avg_wrong(dataSet), ==);
+    CHK_OP(TestData::expected, avg_wrong(TestData::dataSet), ==);
 }
 DEFTEST(AvgSpeed) {
     std::vector<int> li(0);

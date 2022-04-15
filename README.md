@@ -115,7 +115,8 @@ Besides `MAIN` and `LESS_MAIN`, you can write your own main function.
 * The macro of `TESTALL()` runs all the signed tests and clear the signed test list.
 * The macro of `REPORT()` gives a total report.
 * The macro of `SIMPLER()` hide the `>> TIME: ...ms` and `>> FAILURE: ...` (if there is) at the end of each test.
-* If you don't want to run some of the tests, use macro of `EXCEPT(name)` to disable them.
+* If you don't want to run some of the tests, use the macro of `EXCEPT(name)` to disable them.
+* If you don't want to see some of the outputs, use the macro of `FILTER(level)`. The `level` should be `lightest::MSG_LOWER`, `lightest::WARN_LOWER` or `lightest::ERR_LOWER`. `lightest::MSG_LOWER` ignores MSGs, `lightest::WARN_LOWER` ignores MSGs & WARNs, and `lightest::ERR_LOWER` ignores MSGs, WARNs & ERRORs. Outputs of `LOG(varname)` is at the same level of MSGs.
 * Lightest will automatically catch the uncaught errors. The errors should be thrown out as `exception` or simply a string. If you want to solve the uncaught errors by your self, use the macro of `ALL_THROW()` to let Lightest throw the errors again, but that will stop the entire testing process.
 
 Here is a simple example of a user defined main function:
@@ -124,6 +125,7 @@ Here is a simple example of a user defined main function:
 int main() {
     EXCEPT(AvgSpeed); // Disable the test of AvgSpeed
     SIMPLER();
+    // If you want to ignore MSGs: FILTER(lightest::MSG_LOWER);
     TESTALL();
     /*
     If you want to deal with the errors by your self:
@@ -162,5 +164,9 @@ Done. 27ms used.
 
 ## Future
 
+* Use macro `CATCHER(func)` to define uncaught error catcher by users
 * Write loggings to files
 * Special output formats when writing to files
+
+If you meet any issues, be free to put forward issues in GitHub!
+(*Please use English*)

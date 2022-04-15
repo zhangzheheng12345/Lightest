@@ -23,6 +23,11 @@ using namespace std;
     void name(lightest::Testing& testing); \
     lightest::Signer signer_ ## name(__FILE__, #name, name); \
     void name(lightest::Testing& testing)
+#define FILTER(level) lightest::Testing::Filter(level)
+
+enum FiltLevel {
+    ALL = 0, MSG_LOWER, WARN_LOWER, ERR_LOWER // LOG => MSG level, Fail will always be outputted
+};
 
 class Testing {
     public:
@@ -33,13 +38,16 @@ class Testing {
             start = clock();
         }
         void Msg(int line, const char* str) {
-            cout << " | [Msg  ] " << test.file << ":" << line << ": " << str << endl;
+            if(level < MSG_LOWER)
+                cout << " | [Msg  ] " << test.file << ":" << line << ": " << str << endl;
         }
         void Warn(int line, const char* str) {
-            cout << " | [Warn ] " << test.file << ":" << line << ": " << str << endl;
+            if(level < WARN_LOWER)
+                cout << " | [Warn ] " << test.file << ":" << line << ": " << str << endl;
         }
         void Err(int line, const char* str) {
-            cout << " | [Error] " << test.file << ":" << line << ": " << str << endl;
+            if(level < ERR_LOWER)
+                cout << " | [Error] " << test.file << ":" << line << ": " << str << endl;
             test.failed = true, test.failureCount++;
             failedTestCount++;
         }
@@ -49,7 +57,8 @@ class Testing {
             failedTestCount++;
         }
         template<typename T> void Log(int line, const char* varname, T value) {
-            cout << " | [Log  ] " << test.file << ":" << line << ": "
+            if(level < MSG_LOWER)
+                cout << " | [Log  ] " << test.file << ":" << line << ": "
                       << varname << " = " << value << endl;
         }
         template<typename T> void Actual(const char* varname, T value) {
@@ -72,6 +81,9 @@ class Testing {
         }
         static void Simpler() {
             more = false;
+        }
+        static void Filter(FiltLevel filt) {
+            level = filt;
         }
         static void ReportTotal() {
             cout << "[Report  ] --------------------" << endl;
@@ -98,11 +110,13 @@ class Testing {
         static vector<Test> testsTotal;
         static int failedTestCount;
         static bool more;
+        static FiltLevel level;
 };
 
 vector<Testing::Test> Testing::testsTotal(0);
 int Testing::failedTestCount = 0;
 bool Testing::more = true;
+FiltLevel Testing::level = ALL;
 
 /* ========== Signer ========== */
 
