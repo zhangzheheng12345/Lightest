@@ -1,11 +1,11 @@
-# ![Lightest!](lightest.png)
+# ![Lightest](lightest.png)
 
 ![build_pass](https://img.shields.io/badge/build-passing-green.svg)
 ![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
 **Lightest**, the name of the project, means it provides a lightest C++ unit test framework.
 
-It's header only ( really, only a header file, without any binary files required ). If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be a excellent choice.
+It's header only. If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be a excellent choice.
 
 ( *Your compiler has to support C++11 if you want to use this library because the library is partly based on lambda expression.*
 *Also, the project has only been tested on clang++ & Ubuntu, and g++(MinGW) & Windows 10* )
@@ -98,15 +98,33 @@ DEFTEST(testname) {
 
 * Use macro `REQUIRE(condition)` to check a condition. If the condition is failed, the macro will send a Fail, or it will do nothing. The macro will return the boolean value of the condition.
 * Use macro `CHECK(condition)` to check a condition. If the condition is true, the macro will send a Msg, or if will send a Fail. The macro will return the boolean value of the condition.
-* The assertion macros will not output the expected value and the actual value. If you want to learn what exact value the tested expression is, use macro `REQ_LOG(expected, actual, condition)`and `CHK_LOG(expected, actual, condition)`.
+* If you want to learn what exact value the tested expression is, use macro `REQ_LOG(expected, actual, condition)`and `CHK_LOG(expected, actual, condition)`.
 `actual` is the actual value you want to log, `expected` is the expected value you want to log, and `condition` is the condition you want to test.
 * Other two assertion macros are `REQ_OP(expected, actual, operation)` and `CHK_OP(expected, actual, operation)`. They offer a easier way to compare the actual value and the expected value. You only need to give a comparing operator like `==`.
 `REQ_LOG(a, b, a==b)` equals to `REQ_OP(a, b, ==)`.
+
+Example:
+
+```C++
+REQUIRE(1<2); // Output nothing
+REQUIRE(1>2); // Fail!
+CHECK(1<2); // Output passed
+CHECK(1>2); // Fail!
+CHK_LOG(1, 2, 1==2) // Of course fail, and will also give EXPECTED:1, ACTUAL:2
+CHK_OP(1, 2, ==); // Same as the one above
+```
 
 ### Timer macros
 
 * `TIMER(sentence)` runs the sentence provided, and returns how long did the sentence spend running. (*It returns type `clock_t`, ms*)
 * `AVG_TIMER(sentence, times)` runs the sentence provided `times` times, and then returns the average time.
+
+Example: 
+
+```C++
+TIMER(std::cout << "One Hello" << std::endl); // Return how long the sentence spends running
+TIMER(std::cout << "Avg Hello" << std::endl, 1000); // Run it 1000 times and return the average time
+``` 
 
 ### Your main function
 
@@ -117,7 +135,7 @@ Besides `MAIN` and `LESS_MAIN`, you can write your own main function.
 * The macro of `SIMPLER()` hide the `>> TIME: ...ms` and `>> FAILURE: ...` (if there is) at the end of each test.
 * If you don't want to run some of the tests, use the macro of `EXCEPT(name)` to disable them.
 * If you don't want to see some of the outputs, use the macro of `FILTER(level)`. The `level` should be `lightest::MSG_LOWER`, `lightest::WARN_LOWER` or `lightest::ERR_LOWER`. `lightest::MSG_LOWER` ignores MSGs, `lightest::WARN_LOWER` ignores MSGs & WARNs, and `lightest::ERR_LOWER` ignores MSGs, WARNs & ERRORs. Outputs of `LOG(varname)` is at the same level of MSGs.
-* Lightest will automatically catch the uncaught errors. The errors should be thrown out as `exception` or simply a string. If you want to solve the uncaught errors by your self, use the macro of `ALL_THROW()` to let Lightest throw the errors again, but that will stop the entire testing process.
+* Lightest will automatically catch the uncaught errors which are thrown out as `exception` or simply strings. If you want to solve the uncaught errors by your self, use the macro of `ALL_THROW()` to let Lightest throw the errors again, but that will stop the entire testing process.
 
 Here is a simple example of a user defined main function:
 
@@ -160,11 +178,10 @@ Done. 27ms used.
 
 * You must add a semicolon after a assertion or outputing macro.
 * Outputing macros and assertion macros must be used inside tests, but you can use timer macros any where.
-* If you meet any issue, please have a look at the source code or put forward an issue.
 
 ## Future
 
-* Use macro `CATCHER(func)` to define uncaught error catcher by users
+* `MSG(...)`, `WARN(...)`, and `LOG(...)` can be used everywhere. 
 * Write loggings to files
 * Special output formats when writing to files
 
