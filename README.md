@@ -23,7 +23,7 @@ test.exe
 
 to build & run this example.
 
-If you use GCC (Unix), please type:
+If you use g++ (Unix), please type:
 
 ```bash
 g++ -std=c++11 test.cpp -o test
@@ -99,7 +99,6 @@ DEFTEST(testname) {
 * Use macro `REQUIRE(condition)` to check a condition. If the condition is failed, the macro will send a Fail, or it will do nothing. The macro will return the boolean value of the condition.
 * Use macro `CHECK(condition)` to check a condition. If the condition is true, the macro will send a Msg, or if will send a Fail. The macro will return the boolean value of the condition.
 * If you want to learn what exact value the tested expression is, use macro `REQ_LOG(expected, actual, condition)`and `CHK_LOG(expected, actual, condition)`.
-`actual` is the actual value you want to log, `expected` is the expected value you want to log, and `condition` is the condition you want to test.
 * Other two assertion macros are `REQ_OP(expected, actual, operation)` and `CHK_OP(expected, actual, operation)`. They offer a easier way to compare the actual value and the expected value. You only need to give a comparing operator like `==`.
 `REQ_LOG(a, b, a==b)` equals to `REQ_OP(a, b, ==)`.
 
@@ -181,7 +180,6 @@ Done. 27ms used.
 
 ## Future
 
-* `MSG(...)`, `WARN(...)`, and `LOG(...)` can be used everywhere. 
 * Write loggings to files
 * Special output formats when writing to files
 
