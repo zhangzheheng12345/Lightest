@@ -1,6 +1,6 @@
 /********************
-This is the core file of Lightest, which provides a lightest unit test framework.
-Licensed under the MIT License.
+This is the core file of this library, which provides a lightest unit test framework.
+MIT licensed.
 Github Repo: https://github.com/zhangzheheng12345/Lightest
 Author's Github: https://github.com/zhangzheheng12345
 ********************/
@@ -21,7 +21,7 @@ using namespace std;
 
 #define DEFTEST(name) \
     void name(lightest::Testing& testing); \
-    lightest::Register sign_ ## name(__FILE__, #name, name); \
+    lightest::Signer signer_ ## name(__FILE__, #name, name); \
     void name(lightest::Testing& testing)
 #define FILTER(level) lightest::Testing::Filter(level)
 
@@ -37,11 +37,11 @@ class Testing {
             test.failureCount = 0, test.failed = false;
             start = clock();
         }
-        static void Msg(int line, const char* str) {
+        void Msg(int line, const char* str) {
             if(level < MSG_LOWER)
                 cout << " | [Msg  ] " << test.file << ":" << line << ": " << str << endl;
         }
-        static void Warn(int line, const char* str) {
+        void Warn(int line, const char* str) {
             if(level < WARN_LOWER)
                 cout << " | [Warn ] " << test.file << ":" << line << ": " << str << endl;
         }
@@ -56,7 +56,7 @@ class Testing {
             test.failed = true, test.failureCount++;
             failedTestCount++;
         }
-        template<typename T> static void Log(int line, const char* varname, T value) {
+        template<typename T> void Log(int line, const char* varname, T value) {
             if(level < MSG_LOWER)
                 cout << " | [Log  ] " << test.file << ":" << line << ": "
                       << varname << " = " << value << endl;
@@ -120,9 +120,9 @@ FiltLevel Testing::level = ALL;
 
 /* ========== Signer ========== */
 
-class Register {
+class Signer {
     public:
-        Register(const char* file, const char* name, void (*func)(Testing&)) {
+        Signer(const char* file, const char* name, void (*func)(Testing&)) {
             signedTestList.push_back({file, name, func});
         }
         static void TestAll() {
@@ -164,36 +164,36 @@ class Register {
         static set<const char*> excepts;
         static bool allThrow;
 };
-vector<Signer::signedTestWrapper> Register::signedTestList(0);
-set<const char*> Register::excepts;
-bool Register::allThrow = false;
+vector<Signer::signedTestWrapper> Signer::signedTestList(0);
+set<const char*> Signer::excepts;
+bool Signer::allThrow = false;
 
 } /* namespace ending */
 
 /* ========== Default main functions ========== */
 
-#define EXCEPT(name) lightest::Register::Except( #name )
-#define TESTALL() lightest::Register::TestAll()
-#define REPORT() lightest::Testing::ReportTotal()
-#define SIMPLER() lightest::Testing::Simpler()
-#define ALL_THROW() lightest::Register::AllThrow()
-
 #define MAIN \
     int main() { \
-        TESTALL(); REPORT(); \
+        lightest::Signer::TestAll(); lightest::Testing::ReportTotal(); \
         return 0; }
 #define LESS_MAIN \
     int main() { \
-        SIMPLER(); TESTALL(); \
+        lightest::Testing::Simpler(); lightest::Signer::TestAll(); \
         return 0; }
+
+#define EXCEPT(name) lightest::Signer::Except( #name )
+#define TESTALL() lightest::Signer::TestAll()
+#define REPORT() lightest::Testing::ReportTotal()
+#define SIMPLER() lightest::Testing::Simpler()
+#define ALL_THROW() lightest::Signer::AllThrow()
 
 /* ========== Logging Macros ========== */
 
-#define MSG(str) testing::Msg(__LINE__,(str))
-#define WARN(str) testing::Warn(__LINE__,(str))
+#define MSG(str) testing.Msg(__LINE__,(str))
+#define WARN(str) testing.Warn(__LINE__,(str))
 #define ERR(str) testing.Err(__LINE__,(str))
 #define FAIL(str) testing.Fail(__LINE__,(str))
-#define LOG(varname) testing::Log(__LINE__,#varname,(varname))
+#define LOG(varname) testing.Log(__LINE__,#varname,(varname))
 
 /* ========= Timer Macros =========== */
 
