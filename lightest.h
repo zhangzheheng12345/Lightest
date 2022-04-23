@@ -172,20 +172,20 @@ bool Signer::allThrow = false;
 
 /* ========== Default main functions ========== */
 
-#define MAIN \
-    int main() { \
-        lightest::Signer::TestAll(); lightest::Testing::ReportTotal(); \
-        return 0; }
-#define LESS_MAIN \
-    int main() { \
-        lightest::Testing::Simpler(); lightest::Signer::TestAll(); \
-        return 0; }
-
 #define EXCEPT(name) lightest::Signer::Except( #name )
 #define TESTALL() lightest::Signer::TestAll()
 #define REPORT() lightest::Testing::ReportTotal()
 #define SIMPLER() lightest::Testing::Simpler()
 #define ALL_THROW() lightest::Signer::AllThrow()
+
+#define MAIN \
+    int main() { \
+        TESTALL(); REPORT(); \
+        return 0; }
+#define LESS_MAIN \
+    int main() { \
+        SIMPLER(); FILTER(lightest::MSG_LOWER); TESTALL(); \
+        return 0; }
 
 /* ========== Logging Macros ========== */
 

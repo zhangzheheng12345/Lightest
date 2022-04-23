@@ -109,7 +109,7 @@ REQUIRE(1<2); // Output nothing
 REQUIRE(1>2); // Fail!
 CHECK(1<2); // Output passed
 CHECK(1>2); // Fail!
-CHK_LOG(1, 2, 1==2) // Of course fail, and will also give EXPECTED:1, ACTUAL:2
+CHK_LOG(1, 2, 1==2); // Of course fail, and will also give EXPECTED:1, ACTUAL:2
 CHK_OP(1, 2, ==); // Same as the one above
 ```
 
