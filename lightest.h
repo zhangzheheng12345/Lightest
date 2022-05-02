@@ -21,7 +21,7 @@ using namespace std;
 
 #define DEFTEST(name) \
     void name(lightest::Testing& testing); \
-    lightest::Signer signer_ ## name(__FILE__, #name, name); \
+    lightest::Register register_ ## name(__FILE__, #name, name); \
     void name(lightest::Testing& testing)
 #define FILTER(level) lightest::Testing::Filter(level)
 
@@ -37,13 +37,13 @@ class Testing {
             test.failureCount = 0, test.failed = false;
             start = clock();
         }
-        void Msg(int line, const char* str) {
+        static void Msg(const char* file, int line, const char* str) {
             if(level < MSG_LOWER)
-                cout << " | [Msg  ] " << test.file << ":" << line << ": " << str << endl;
+                cout << " | [Msg  ] " << file << ":" << line << ": " << str << endl;
         }
-        void Warn(int line, const char* str) {
+        static void Warn(const char* file, int line, const char* str) {
             if(level < WARN_LOWER)
-                cout << " | [Warn ] " << test.file << ":" << line << ": " << str << endl;
+                cout << " | [Warn ] " << file << ":" << line << ": " << str << endl;
         }
         void Err(int line, const char* str) {
             if(level < ERR_LOWER)
@@ -56,9 +56,9 @@ class Testing {
             test.failed = true, test.failureCount++;
             failedTestCount++;
         }
-        template<typename T> void Log(int line, const char* varname, T value) {
+        template<typename T> static void Log(const char* file, int line, const char* varname, T value) {
             if(level < MSG_LOWER)
-                cout << " | [Log  ] " << test.file << ":" << line << ": "
+                cout << " | [Log  ] " << file << ":" << line << ": "
                       << varname << " = " << value << endl;
         }
         template<typename T> void Actual(const char* varname, T value) {
@@ -120,9 +120,9 @@ FiltLevel Testing::level = ALL;
 
 /* ========== Signer ========== */
 
-class Signer {
+class Register {
     public:
-        Signer(const char* file, const char* name, void (*func)(Testing&)) {
+        Register(const char* file, const char* name, void (*func)(Testing&)) {
             signedTestList.push_back({file, name, func});
         }
         static void TestAll() {
@@ -141,6 +141,12 @@ class Signer {
                         if(allThrow) throw err;
                         else {
                             testing.Err(-1, err);
+                            cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
+                        }
+                    } catch(...) {
+                        if(allThrow) throw;
+                        else {
+                            testing.Err(-1, "Unknown type err");
                             cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
                         }
                     }
@@ -164,19 +170,19 @@ class Signer {
         static set<const char*> excepts;
         static bool allThrow;
 };
-vector<Signer::signedTestWrapper> Signer::signedTestList(0);
-set<const char*> Signer::excepts;
-bool Signer::allThrow = false;
+vector<Register::signedTestWrapper> Register::signedTestList(0);
+set<const char*> Register::excepts;
+bool Register::allThrow = false;
 
 } /* namespace ending */
 
 /* ========== Default main functions ========== */
 
-#define EXCEPT(name) lightest::Signer::Except( #name )
-#define TESTALL() lightest::Signer::TestAll()
+#define EXCEPT(name) lightest::Register::Except( #name )
+#define TESTALL() lightest::Register::TestAll()
 #define REPORT() lightest::Testing::ReportTotal()
 #define SIMPLER() lightest::Testing::Simpler()
-#define ALL_THROW() lightest::Signer::AllThrow()
+#define ALL_THROW() lightest::Register::AllThrow()
 
 #define MAIN \
     int main() { \
@@ -189,11 +195,11 @@ bool Signer::allThrow = false;
 
 /* ========== Logging Macros ========== */
 
-#define MSG(str) testing.Msg(__LINE__,(str))
-#define WARN(str) testing.Warn(__LINE__,(str))
+#define MSG(str) lightest::Testing::Msg(__FILE__, __LINE__,(str))
+#define WARN(str) lightest::Testing::Warn(__FILE__, __LINE__,(str))
 #define ERR(str) testing.Err(__LINE__,(str))
 #define FAIL(str) testing.Fail(__LINE__,(str))
-#define LOG(varname) testing.Log(__LINE__,#varname,(varname))
+#define LOG(varname) lightest::Testing::Log(__FILE__, __LINE__,#varname,(varname))
 
 /* ========= Timer Macros =========== */
 

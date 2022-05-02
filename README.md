@@ -176,12 +176,7 @@ Done. 27ms used.
 ## Caution
 
 * You must add a semicolon after a assertion or outputing macro.
-* Outputing macros and assertion macros must be used inside tests, but you can use timer macros any where.
-
-## Future
-
-* Write loggings to files
-* Special output formats when writing to files
+* `ERR(str)`, `FAIL(str)`, and assertion macros must be used inside tests, but you can use timer macros and `MSG(str)`, `WARN(str)`, and `LOG(varname)` any where.
 
 If you meet any issues, be free to put forward issues in GitHub!
 (*Please use English*)
