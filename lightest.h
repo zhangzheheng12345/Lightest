@@ -32,12 +32,14 @@ using namespace std;
 enum Color {
    Reset = 0, Red = 31, Green = 32, Yellow = 33
 };
+bool OutputColor = true;
 
 void SetColor(Color color) {
+if(OutputColor) {
 #ifdef _LINUX_
     cout << "\033[" << color << "m";
 #endif
-}
+}}
 
 /* ========== Testing ========== */
 
@@ -65,20 +67,20 @@ class Testing {
         }
         static void Warn(const char* file, int line, const char* str) {
             if(level < WARN_LOWER) {
-                SetColor(Yellow); cout << " | [Warn ] "; SetColor(Reset);
+                cout << " | "; SetColor(Yellow); cout << "[Warn ] "; SetColor(Reset);
                 cout << file << ":" << line << ": " << str << endl;
             }
         }
         void Err(int line, const char* str) {
             if(level < ERR_LOWER) {
-                SetColor(Red); cout << " | [Error] "; SetColor(Reset);
+                cout << " | "; SetColor(Red); cout << "[Error] "; SetColor(Reset);
                 cout << test.file << ":" << line << ": " << str << endl;
             }
             test.failed = true, test.failureCount++;
             failedTestCount++;
         }
         void Fail(int line, const char* str) {
-            SetColor(Red); cout << " | [Fail ] "; SetColor(Reset);
+            cout << " | "; SetColor(Red); cout << "[Fail ] "; SetColor(Reset);
             cout << test.file << ":" << line << ": " << str << endl;
             test.failed = true, test.failureCount++;
             failedTestCount++;
@@ -89,10 +91,14 @@ class Testing {
                       << varname << " = " << value << endl;
         }
         template<typename T> void Actual(const char* varname, T value) {
-            cout << " |   -> ACTUAL: " << varname << " = " << value << endl;
+            cout << " |   ";
+            SetColor(Yellow); cout << "-> ACTUAL: "; SetColor(Reset);
+            cout << varname << " = " << value << endl;
         }
         template<typename T> void Expected(const char* varname, T value) {
-            cout << " |   -> EXPECTED: " << varname << " = " << value << endl;
+            cout << " |   ";
+            SetColor(Yellow); cout << "-> EXPECTED: "; SetColor(Reset);
+            cout << varname << " = " << value << endl;
         }
         ~Testing() {
             clock_t duration = clock() - start;
@@ -211,6 +217,7 @@ bool Register::allThrow = false;
 #define REPORT() lightest::Testing::ReportTotal()
 #define SIMPLER() lightest::Testing::Simpler()
 #define ALL_THROW() lightest::Register::AllThrow()
+#define NO_COLOR() lightest::OutputColor = false;
 
 #define MAIN \
     int main() { \
