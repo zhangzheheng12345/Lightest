@@ -8,6 +8,16 @@ Author's Github: https://github.com/zhangzheheng12345
 #ifndef _LIGHTEST_H_
 #define _LIGHTEST_H_
 
+#if defined(__unix__) || defined(__unix) || defined(__linux__)
+#define _LINUX_
+#elif defined(WIN32) || defined(_WIN32) || defined(_WIN64)
+#define _WIN_
+#elif defined(__APPLE__) || defined(__MACH__)
+#define _MAC_
+#else
+#error Unknown Platform
+#endif
+
 #include <iostream>
 #include <ctime>
 #include <vector>
@@ -16,6 +26,18 @@ Author's Github: https://github.com/zhangzheheng12345
 
 namespace lightest {
 using namespace std;
+
+/* ========== Output Color ==========*/
+
+enum Color {
+   Reset = 0, Red = 31, Green = 32, Yellow = 33
+};
+
+void SetColor(Color color) {
+#ifdef _LINUX_
+    cout << "\033[" << color << "m";
+#endif
+}
 
 /* ========== Testing ========== */
 
@@ -42,17 +64,22 @@ class Testing {
                 cout << " | [Msg  ] " << file << ":" << line << ": " << str << endl;
         }
         static void Warn(const char* file, int line, const char* str) {
-            if(level < WARN_LOWER)
-                cout << " | [Warn ] " << file << ":" << line << ": " << str << endl;
+            if(level < WARN_LOWER) {
+                SetColor(Yellow); cout << " | [Warn ] "; SetColor(Reset);
+                cout << file << ":" << line << ": " << str << endl;
+            }
         }
         void Err(int line, const char* str) {
-            if(level < ERR_LOWER)
-                cout << " | [Error] " << test.file << ":" << line << ": " << str << endl;
+            if(level < ERR_LOWER) {
+                SetColor(Red); cout << " | [Error] "; SetColor(Reset);
+                cout << test.file << ":" << line << ": " << str << endl;
+            }
             test.failed = true, test.failureCount++;
             failedTestCount++;
         }
         void Fail(int line, const char* str) {
-            cout << " | [Fail ] " << test.file << ":" << line << ": " << str << endl;
+            SetColor(Red); cout << " | [Fail ] "; SetColor(Reset);
+            cout << test.file << ":" << line << ": " << str << endl;
             test.failed = true, test.failureCount++;
             failedTestCount++;
         }
@@ -70,8 +97,9 @@ class Testing {
         ~Testing() {
             clock_t duration = clock() - start;
             cout << "[End   ] =====> " << test.name;
-            if(test.failed) cout << " FAIL" << endl;
-            else cout << " PASS" << endl;
+            if(test.failed) { SetColor(Red); cout << " FAIL" << endl; }
+            else { SetColor(Green); cout << " PASS" << endl; }
+            SetColor(Reset);
             if(more) {
                 if(test.failed) cout << "  >> FAILURE: " << test.failureCount << endl;
                 cout << "  >> TIME: " << duration << "ms" << endl;
@@ -264,5 +292,9 @@ bool Register::allThrow = false;
             testing.Actual(#actual, actual); \
         } \
     } while(0)
+
+#undef _LINUX_
+#undef _WIN_
+#undef _MAC_
 
 #endif
