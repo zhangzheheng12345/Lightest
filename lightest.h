@@ -100,6 +100,11 @@ class Testing {
             SetColor(Yellow); cout << "-> EXPECTED: "; SetColor(Reset);
             cout << varname << " = " << value << endl;
         }
+        void Index(unsigned int index) { // For iterating assertion
+            cout << " |   ";
+            SetColor(Yellow); cout << "-> INDEX: "; SetColor(Reset);
+            cout << index << endl;
+        }
         ~Testing() {
             clock_t duration = clock() - start;
             cout << "[End   ] =====> " << test.name;
@@ -297,6 +302,43 @@ bool Register::allThrow = false;
         if(CHECK((expected) operator (actual))) { \
             testing.Expected(#expected, expected); \
             testing.Actual(#actual, actual); \
+        } \
+    } while(0)
+#define REQ_ARRAY(expected, actual, expLen, actLen, operator) \
+    do { \
+        if(expLen != actLen) { \
+            FAIL("<ARRAY ASSERTION> Lengths aren't equal"); \
+            testing.Expected(#expLen, expLen); \
+            testing.Actual(#actLen, actLen); \
+            break; \
+        } \
+        for(unsigned int i = 0; i < expLen; i++) { \
+            if(REQUIRE(expected[i] operator actual[i])) { \
+                testing.Expected(#expected "[i]", expected[i]); \
+                testing.Actual(#actual "[i]", actual[i]); \
+                testing.Index(i); \
+            } \
+        } \
+    } while(0)
+#define CHK_ARRAY(expected, actual, expLen, actLen, operator) \
+    do { \
+        if(expLen != actLen) { \
+            FAIL("<ARRAY ASSERTION> Lengths aren't equal"); \
+            testing.Expected(#expLen, expLen); \
+            testing.Actual(#actLen, actLen); \
+            break; \
+        } \
+        bool failed = false; \
+        for(unsigned int i = 0; i < expLen; i++) { \
+            if(REQUIRE(expected[i] operator actual[i])) { \
+                testing.Expected(#expected "[i]", expected[i]); \
+                testing.Actual(#actual "[i]", actual[i]); \
+                testing.Index(i); \
+                failed = true; \
+            } \
+        } \
+        if(!failed) { \
+            MSG("<ARRAY ASSERTION> Pass " #expected " " #operator " " #actual); \
         } \
     } while(0)
 
