@@ -96,11 +96,12 @@ DEFTEST(testname) {
 
 ### Assertion macros
 
-* Use macro `REQUIRE(condition)` to check a condition. If the condition is failed, the macro will send a Fail, or it will do nothing. The macro will return the boolean value of the condition.
-* Use macro `CHECK(condition)` to check a condition. If the condition is true, the macro will send a Msg, or if will send a Fail. The macro will return the boolean value of the condition.
+* Use macro `REQUIRE(condition)` to check a condition. If the condition is failed, the macro will send a Fail, or it will do nothing.
+* Use macro `CHECK(condition)` to check a condition. If the condition is true, the macro will send a Msg, or if will send a Fail.
 * If you want to learn what exact value the tested expression is, use macro `REQ_LOG(expected, actual, condition)`and `CHK_LOG(expected, actual, condition)`.
 * Other two assertion macros are `REQ_OP(expected, actual, operation)` and `CHK_OP(expected, actual, operation)`. They offer a easier way to compare the actual value and the expected value. You only need to give a comparing operator like `==`.
 `REQ_LOG(a, b, a==b)` equals to `REQ_OP(a, b, ==)`.
+* `REQ_ARRAY(expected, actual, expLen, actualLen, operator)` and `CHK_ARRAY(expected, actual, expLen, actualLen, operator)` can compare two arrays. Besides the basic information, it will also put the index of the unexpected value.
 
 Example:
 
@@ -111,6 +112,8 @@ CHECK(1<2); // Output passed
 CHECK(1>2); // Fail!
 CHK_LOG(1, 2, 1==2); // Of course fail, and will also give EXPECTED:1, ACTUAL:2
 CHK_OP(1, 2, ==); // Same as the one above
+int arr1[] = {1, 2, 3}, arr2[] = {1, 2, 3};
+CHK_ARRAY(arr1, arr2, 3, 3, ==); // Obviously pass
 ```
 
 ### Timer macros

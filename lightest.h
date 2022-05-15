@@ -89,24 +89,24 @@ class Testing {
         }
         template<typename T> static void Log(const char* file, int line, const char* varname, T value) {
             if(level < MSG_LOWER) {
-                cout << " | "; SetColor(Yellow); cout << "[Log  ] "; SetColor(Reset);
+                cout << " | "; SetColor(Green); cout << "[Log  ] "; SetColor(Reset);
                 cout << file << ":" << line << ": "
                       << varname << " = " << value << endl;
             }
         }
         template<typename T> void Actual(const char* varname, T value) {
-            cout << " |   ";
-            SetColor(Yellow); cout << "-> ACTUAL: "; SetColor(Reset);
+            cout << " |   |-> ";
+            SetColor(Red); cout << "ACTUAL: "; SetColor(Reset);
             cout << varname << " = " << value << endl;
         }
         template<typename T> void Expected(const char* varname, T value) {
-            cout << " |   ";
-            SetColor(Yellow); cout << "-> EXPECTED: "; SetColor(Reset);
+            cout << " |   |-> ";
+            SetColor(Red); cout << "EXPECTED: "; SetColor(Reset);
             cout << varname << " = " << value << endl;
         }
         void Index(unsigned int index) { // For iterating assertion
-            cout << " |   ";
-            SetColor(Yellow); cout << "-> INDEX: "; SetColor(Reset);
+            cout << " |   |-> ";
+            SetColor(Red); cout << "INDEX: "; SetColor(Reset);
             cout << index << endl;
         }
         ~Testing() {
@@ -179,19 +179,19 @@ class Register {
                         if(allThrow) throw err;
                         else {
                             testing.Err(-1, err.what());
-                            cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
+                            cout << " |   | -> !!! UNCAUGHT ERROR !!!" << endl;
                         }
                     } catch(const char* err) {
                         if(allThrow) throw err;
                         else {
                             testing.Err(-1, err);
-                            cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
+                            cout << " |   | -> !!! UNCAUGHT ERROR !!!" << endl;
                         }
                     } catch(...) {
                         if(allThrow) throw;
                         else {
-                            testing.Err(-1, "Unknown type err");
-                            cout << " |   -> !!! UNCAUGHT ERROR !!!" << endl;
+                            testing.Err(-1, "Unknown type error");
+                            cout << " |   | -> !!! UNCAUGHT ERROR !!!" << endl;
                         }
                     }
                 }
@@ -268,70 +268,54 @@ bool Register::allThrow = false;
 /* ========== Assertion Macros ========== */
 
 #define REQUIRE(condition) \
-    ( [&] () { \
+    ( [&] () -> bool { \
         bool res = !(condition); \
         if(res) \
             FAIL("Didn't pass (" #condition ")" ); \
         return res; \
     } () )
 #define CHECK(condition) \
-    ( [&] () { \
+    ( [&] () -> bool { \
         bool res = condition; \
         if(res) MSG("Pass (" #condition ")" ); \
         else FAIL("Didn't pass (" #condition ")" ); \
         return !(res); \
     } () )
+
+#define PUT_EXP_ACT(expected, actual) \
+    do { testing.Expected(#expected, expected); testing.Actual(#actual, actual); } while(0)
 #define REQ_LOG(expected, actual, condition) \
     do { \
         if(REQUIRE(condition)) { \
-            testing.Expected(#expected, (expected)); \
-            testing.Actual(#actual, (actual)); \
+            PUT_EXP_ACT((expected), (actual)); \
         } \
     } while(0)
 #define CHK_LOG(expected, actual, condition) \
     do { \
         if(CHECK(condition)) { \
-            testing.Expected(#expected, (expected)); \
-            testing.Actual(#actual, (actual)); \
+            PUT_EXP_ACT((expected), (actual)); \
         } \
     } while(0)
 #define REQ_OP(expected, actual, operator) \
     do { \
         if(REQUIRE((expected) operator (actual))) { \
-            testing.Expected(#expected, expected); \
-            testing.Actual(#actual, actual); \
+            PUT_EXP_ACT((expected), (actual)); \
         } \
     } while(0)
 #define CHK_OP(expected, actual, operator) \
     do { \
         if(CHECK((expected) operator (actual))) { \
-            testing.Expected(#expected, expected); \
-            testing.Actual(#actual, actual); \
+            PUT_EXP_ACT((expected), (actual)); \
         } \
     } while(0)
+
 #define REQ_ARRAY(expected, actual, expLen, actLen, operator) \
-    do { \
+    ( [&]() -> bool { \
         if(expLen != actLen) { \
             FAIL("<ARRAY> Lengths aren't equal"); \
-            testing.Expected(#expLen, expLen); \
-            testing.Actual(#actLen, actLen); \
-            break; \
-        } \
-        for(unsigned int i = 0; i < expLen; i++) { \
-            if(REQUIRE(expected[i] operator actual[i])) { \
-                testing.Expected(#expected "[i]", expected[i]); \
-                testing.Actual(#actual "[i]", actual[i]); \
-                testing.Index(i); \
-            } \
-        } \
-    } while(0)
-#define CHK_ARRAY(expected, actual, expLen, actLen, operator) \
-    do { \
-        if(expLen != actLen) { \
-            FAIL("<ARRAY> Lengths aren't equal"); \
-            testing.Expected(#expLen, expLen); \
-            testing.Actual(#actLen, actLen); \
-            break; \
+            testing.Expected("expected length", expLen); \
+            testing.Actual("actual length", actLen); \
+            return false; \
         } \
         bool failed = false; \
         for(unsigned int i = 0; i < expLen; i++) { \
@@ -342,10 +326,16 @@ bool Register::allThrow = false;
                 failed = true; \
             } \
         } \
-        if(!failed) { \
+        return failed; \
+    } )() // Call lambda
+#define CHK_ARRAY(expected, actual, expLen, actLen, operator) \
+    ( [&] () -> bool { \
+        if(!REQ_ARRAY(expected, actual, expLen, actLen, operator)) { \
             MSG("<ARRAY> Pass " #expected " " #operator " " #actual); \
+            return false; \
         } \
-    } while(0)
+        return true; \
+    } ) () // Call lambda
 
 #undef _LINUX_
 #undef _WIN_
