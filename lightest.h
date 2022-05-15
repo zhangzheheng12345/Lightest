@@ -1,5 +1,5 @@
 /********************
-This is the core file of this library, which provides a lightest unit test framework.
+This is the core file of this library, which provides a lightest C++ unit test framework.
 MIT licensed.
 Github Repo: https://github.com/zhangzheheng12345/Lightest
 Author's Github: https://github.com/zhangzheheng12345
@@ -62,8 +62,10 @@ class Testing {
             start = clock();
         }
         static void Msg(const char* file, int line, const char* str) {
-            if(level < MSG_LOWER)
-                cout << " | [Msg  ] " << file << ":" << line << ": " << str << endl;
+            if(level < MSG_LOWER) {
+                cout << " | "; SetColor(Green); cout << "[Msg  ] "; SetColor(Reset);
+                cout << file << ":" << line << ": " << str << endl;
+            }
         }
         static void Warn(const char* file, int line, const char* str) {
             if(level < WARN_LOWER) {
@@ -86,9 +88,11 @@ class Testing {
             failedTestCount++;
         }
         template<typename T> static void Log(const char* file, int line, const char* varname, T value) {
-            if(level < MSG_LOWER)
-                cout << " | [Log  ] " << file << ":" << line << ": "
+            if(level < MSG_LOWER) {
+                cout << " | "; SetColor(Yellow); cout << "[Log  ] "; SetColor(Reset);
+                cout << file << ":" << line << ": "
                       << varname << " = " << value << endl;
+            }
         }
         template<typename T> void Actual(const char* varname, T value) {
             cout << " |   ";
@@ -127,9 +131,10 @@ class Testing {
         static void ReportTotal() {
             cout << "[Report  ] --------------------" << endl;
             for(Test item : testsTotal) {
-                cout << " * " << item.name << ": "
-                          << item.failureCount << " failure, " << item.duration << "ms  "
-                          << "( " << item.file << " )" << endl;
+                if(item.failed) SetColor(Red); else SetColor(Green);
+                cout << " * "; SetColor(Reset);
+                cout << item.name << ": " << item.failureCount << " failure, " << item.duration << "ms  "
+                    << "( " << item.file << " )" << endl;
             }
             if(failedTestCount > 0) cout << " # " << failedTestCount << " failed tests." << endl;
             cout << "[Report  ] --------------------" << endl
@@ -307,7 +312,7 @@ bool Register::allThrow = false;
 #define REQ_ARRAY(expected, actual, expLen, actLen, operator) \
     do { \
         if(expLen != actLen) { \
-            FAIL("<ARRAY ASSERTION> Lengths aren't equal"); \
+            FAIL("<ARRAY> Lengths aren't equal"); \
             testing.Expected(#expLen, expLen); \
             testing.Actual(#actLen, actLen); \
             break; \
@@ -323,7 +328,7 @@ bool Register::allThrow = false;
 #define CHK_ARRAY(expected, actual, expLen, actLen, operator) \
     do { \
         if(expLen != actLen) { \
-            FAIL("<ARRAY ASSERTION> Lengths aren't equal"); \
+            FAIL("<ARRAY> Lengths aren't equal"); \
             testing.Expected(#expLen, expLen); \
             testing.Actual(#actLen, actLen); \
             break; \
@@ -338,7 +343,7 @@ bool Register::allThrow = false;
             } \
         } \
         if(!failed) { \
-            MSG("<ARRAY ASSERTION> Pass " #expected " " #operator " " #actual); \
+            MSG("<ARRAY> Pass " #expected " " #operator " " #actual); \
         } \
     } while(0)
 
