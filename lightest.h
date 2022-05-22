@@ -24,6 +24,10 @@ Author's Github: https://github.com/zhangzheheng12345
 #include <set>
 #include <exception>
 
+#ifdef _WIN_
+#include <Windows.h>
+#endif
+
 namespace lightest {
 using namespace std;
 
@@ -34,10 +38,22 @@ enum Color {
 };
 bool OutputColor = true;
 
-void SetColor(Color color) {
+void SetColor(Color color, bool whiteBg = false) {
 if(OutputColor) {
 #ifdef _LINUX_
     cout << "\033[" << color << "m";
+    if(whiteBg) cout << "\033[47m";
+#elif defined(_WIN_)
+    unsigned int winColor;
+    switch (color) {
+    case Reset: winColor = 0x07; break;
+    case Red: winColor = 0x0c; break;
+    case Green: winColor = 0x0a; break;
+    case Yellow: winColor = 0x0e; break;
+    default: winColor = 0x07; break;
+    }
+    if(whiteBg) winColor += 0xf0;
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), winColor);
 #endif
 }}
 
@@ -94,20 +110,10 @@ class Testing {
                       << varname << " = " << value << endl;
             }
         }
-        template<typename T> void Actual(const char* varname, T value) {
+        template<typename T> void Addition(const char * kind, const char* varname, T value) {
             cout << " |   |-> ";
-            SetColor(Red); cout << "ACTUAL: "; SetColor(Reset);
-            cout << varname << " = " << value << endl;
-        }
-        template<typename T> void Expected(const char* varname, T value) {
-            cout << " |   |-> ";
-            SetColor(Red); cout << "EXPECTED: "; SetColor(Reset);
-            cout << varname << " = " << value << endl;
-        }
-        void Index(unsigned int index) { // For iterating assertion
-            cout << " |   |-> ";
-            SetColor(Red); cout << "INDEX: "; SetColor(Reset);
-            cout << index << endl;
+            SetColor(Red, true); cout << kind << ":"; SetColor(Reset);
+            cout << " " << varname << " = " << value << endl;
         }
         ~Testing() {
             clock_t duration = clock() - start;
@@ -283,7 +289,7 @@ bool Register::allThrow = false;
     } () )
 
 #define PUT_EXP_ACT(expected, actual) \
-    do { testing.Expected(#expected, expected); testing.Actual(#actual, actual); } while(0)
+    do { testing.Addition("EXPECTED", #expected, expected); testing.Addition("ACTUAL", #actual, actual); } while(0)
 #define REQ_LOG(expected, actual, condition) \
     do { \
         if(REQUIRE(condition)) { \
@@ -313,16 +319,16 @@ bool Register::allThrow = false;
     ( [&]() -> bool { \
         if(expLen != actLen) { \
             FAIL("<ARRAY> Lengths aren't equal"); \
-            testing.Expected("expected length", expLen); \
-            testing.Actual("actual length", actLen); \
+            testing.Addition("EXPECTED", "expected length", expLen); \
+            testing.Addition("ACTUAL", "actual length", actLen); \
             return false; \
         } \
         bool failed = false; \
         for(unsigned int i = 0; i < expLen; i++) { \
             if(REQUIRE(expected[i] operator actual[i])) { \
-                testing.Expected(#expected "[i]", expected[i]); \
-                testing.Actual(#actual "[i]", actual[i]); \
-                testing.Index(i); \
+                testing.Addition("EXPECTED", #expected "[i]", expected[i]); \
+                testing.Addition("ACTUAL", #actual "[i]", actual[i]); \
+                testing.Addition("INDEX", "", i); \
                 failed = true; \
             } \
         } \
