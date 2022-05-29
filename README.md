@@ -17,7 +17,7 @@ Have a look at `test.cpp`. It simply shows how to use tests, assertion macros, t
 If you use MinGW (GCC & Windows) please type in Windows BAT:
 
 ```bat
-g++ -std=c++11 test.cpp -o test.exe
+g++ -std=c++11 example.cpp -o example.exe
 test.exe
 ```
 
@@ -26,15 +26,15 @@ to build & run this example.
 If you use g++ (Unix), please type:
 
 ```bash
-g++ -std=c++11 test.cpp -o test
-./test
+g++ -std=c++11 example.cpp -o example
+./example
 ```
 
 If you use clang, please type:
 
 ```bash
-clang++ test.cpp -o test
-./test
+clang++ example.cpp -o example
+./example
 ```
 
 Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are merely for building the example. **No binary library files** should be built or required actually.
@@ -43,27 +43,27 @@ The output of the example should be like this below:
 
 ```
 [Begin ] =====> AvgRight ----
- | [Msg  ] test.cpp:21: Pass (avg(dataSet) == expected)
+ | [Msg  ] example.cpp:29: Pass ((TestData::expected) == (avg(TestData::dataSet)))
 [End   ] =====> AvgRight PASS
-  >> TIME: 0ms
+  >> TIME: 25ms
 [Begin ] =====> AvgWrong ----
- | [Fail ] test.cpp:26: Didn't pass (avg_wrong(dataSet) == expected)
- |   -> EXPECTED: expected = 8.5
- |   -> ACTUAL: avg_wrong(dataSet) = 15
-[End   ] ====> AvgWrong FAIL
+ | [Fail ] example.cpp:32: Didn't pass ((TestData::expected) == (avg_wrong(TestData::dataSet)))
+ |   |-> EXPECTED: (TestData::expected) = 8.5
+ |   |-> ACTUAL: (avg_wrong(TestData::dataSet)) = 15
+[End   ] =====> AvgWrong FAIL
   >> FAILURE: 1
-  >> TIME: 0ms
+  >> TIME: 47ms
 [Begin ] =====> AvgSpeed ----
- | [Log  ] test.cpp:31: AVG_TIMER(avg(li), 10000) = 0.2062
+ | [Log  ] example.cpp:37: AVG_TIMER(avg(li), 10000) = 69.4998
 [End   ] =====> AvgSpeed PASS
-  >> TIME: 2062ms
+  >> TIME: 701852ms
 [Report  ] --------------------
- * AvgRight: 0 failure, 0ms  ( test.cpp )
- * AvgWrong: 1 failure, 0ms  ( test.cpp )
- * AvgSpeed: 0 failure, 2062ms  ( test.cpp )
+ * AvgRight: 0 failure, 25ms  ( example.cpp )
+ * AvgWrong: 1 failure, 47ms  ( example.cpp )
+ * AvgSpeed: 0 failure, 701852ms  ( example.cpp )
  # 1 failed tests.
 [Report  ] --------------------
-Done. 2077ms used.
+Done. 704127ms used.
 ```
 (*Your time might be different*)
 
