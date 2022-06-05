@@ -280,13 +280,6 @@ bool Register::allThrow = false;
             FAIL("Didn't pass (" #condition ")" ); \
         return res; \
     } () )
-#define CHECK(condition) \
-    ( [&] () -> bool { \
-        bool res = condition; \
-        if(res) MSG("Pass (" #condition ")" ); \
-        else FAIL("Didn't pass (" #condition ")" ); \
-        return !(res); \
-    } () )
 
 #define PUT_EXP_ACT(expected, actual) \
     do { testing.Addition("EXPECTED", #expected, expected); testing.Addition("ACTUAL", #actual, actual); } while(0)
@@ -296,21 +289,9 @@ bool Register::allThrow = false;
             PUT_EXP_ACT((expected), (actual)); \
         } \
     } while(0)
-#define CHK_LOG(expected, actual, condition) \
-    do { \
-        if(CHECK(condition)) { \
-            PUT_EXP_ACT((expected), (actual)); \
-        } \
-    } while(0)
 #define REQ_OP(expected, actual, operator) \
     do { \
         if(REQUIRE((expected) operator (actual))) { \
-            PUT_EXP_ACT((expected), (actual)); \
-        } \
-    } while(0)
-#define CHK_OP(expected, actual, operator) \
-    do { \
-        if(CHECK((expected) operator (actual))) { \
             PUT_EXP_ACT((expected), (actual)); \
         } \
     } while(0)
@@ -334,14 +315,6 @@ bool Register::allThrow = false;
         } \
         return failed; \
     } )() // Call lambda
-#define CHK_ARRAY(expected, actual, expLen, actLen, operator) \
-    ( [&] () -> bool { \
-        if(!REQ_ARRAY(expected, actual, expLen, actLen, operator)) { \
-            MSG("<ARRAY> Pass " #expected " " #operator " " #actual); \
-            return false; \
-        } \
-        return true; \
-    } ) () // Call lambda
 
 #undef _LINUX_
 #undef _WIN_

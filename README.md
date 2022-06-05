@@ -67,7 +67,6 @@ Done. 704127ms used.
 ```
 (*Your time might be different*)
 
-
 ## Usage
 
 You only need to add `lightest.h` to your project, and include it in test files. No static library files or other complex things needed at all!
@@ -97,11 +96,10 @@ DEFTEST(testname) {
 ### Assertion macros
 
 * Use macro `REQUIRE(condition)` to check a condition. If the condition is failed, the macro will send a Fail, or it will do nothing.
-* Use macro `CHECK(condition)` to check a condition. If the condition is true, the macro will send a Msg, or if will send a Fail.
 * If you want to learn what exact value the tested expression is, use macro `REQ_LOG(expected, actual, condition)`and `CHK_LOG(expected, actual, condition)`.
-* Other two assertion macros are `REQ_OP(expected, actual, operation)` and `CHK_OP(expected, actual, operation)`. They offer a easier way to compare the actual value and the expected value. You only need to give a comparing operator like `==`.
+* Another assertion macro is `REQ_OP(expected, actual, operation)`. It offers a easier way to compare the actual value and the expected value. You only need to give a comparing operator like `==`.
 `REQ_LOG(a, b, a==b)` equals to `REQ_OP(a, b, ==)`.
-* `REQ_ARRAY(expected, actual, expLen, actualLen, operator)` and `CHK_ARRAY(expected, actual, expLen, actualLen, operator)` can compare two arrays. Besides the basic information, it will also put the index of the unexpected value.
+* `REQ_ARRAY(expected, actual, expLen, actualLen, operator)` can compare two arrays. Besides the basic information, it will also put the index of the unexpected value.
 
 Example:
 
@@ -116,17 +114,19 @@ int arr1[] = {1, 2, 3}, arr2[] = {1, 2, 3};
 CHK_ARRAY(arr1, arr2, 3, 3, ==); // Obviously pass
 ```
 
+* There used to be a macro set called `CHECK`. It is removed because I think it's actually useless, making this library weigh too much.
+
 ### Timer macros
 
 * `TIMER(sentence)` runs the sentence provided, and returns how long did the sentence spend running. (*It returns type `clock_t`, ms*)
 * `AVG_TIMER(sentence, times)` runs the sentence provided `times` times, and then returns the average time.
 
-Example: 
+Example:
 
 ```C++
 TIMER(std::cout << "One Hello" << std::endl); // Return how long the sentence spends running
 TIMER(std::cout << "Avg Hello" << std::endl, 1000); // Run it 1000 times and return the average time
-``` 
+```
 
 ### Your main function
 
