@@ -4,3 +4,5 @@ test.out
 test.exe
 .vs/
 main
+build/
+replit.nix
