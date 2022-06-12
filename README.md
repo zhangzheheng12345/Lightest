@@ -5,6 +5,8 @@
 
 **Lightest**, the name of the project, means it provides a lightest C++ unit test framework.
 
+The library file is `/src/lightest.h`.
+
 It's header only. If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be a excellent choice.
 
 ( *Your compiler has to support C++11 if you want to use this library because the library is partly based on lambda expression.*
@@ -12,32 +14,9 @@ It's header only. If you suddenly want to do some small experiments, or decide t
 
 ## Example
 
-Have a look at `test.cpp`. It simply shows how to use tests, assertion macros, timer macros and logging macros.
+Have a look at `example.cpp`. It simply shows how to use tests, assertion macros, timer macros and logging macros.
 
-If you use MinGW (GCC & Windows) please type in Windows BAT:
-
-```bat
-g++ -std=c++11 example.cpp -o example.exe
-test.exe
-```
-
-to build & run this example.
-
-If you use g++ (Unix), please type:
-
-```bash
-g++ -std=c++11 example.cpp -o example
-./example
-```
-
-If you use clang, please type:
-
-```bash
-clang++ example.cpp -o example
-./example
-```
-
-Again, I want to remind you that `gccbuild.sh` & `clangbuild.sh` are merely for building the example. **No binary library files** should be built or required actually.
+If you want to run the example, change the variable `build_example` in `CMakeLists.txt` from `false` to `true`, and then use CMake to build this project.
 
 The output of the example should be like this below:
 
@@ -65,7 +44,7 @@ The output of the example should be like this below:
 [Report  ] --------------------
 Done. 704127ms used.
 ```
-(*Your time might be different*)
+(*Your time & file path might be different*)
 
 ## Usage
 
@@ -106,12 +85,10 @@ Example:
 ```C++
 REQUIRE(1<2); // Output nothing
 REQUIRE(1>2); // Fail!
-CHECK(1<2); // Output passed
-CHECK(1>2); // Fail!
-CHK_LOG(1, 2, 1==2); // Of course fail, and will also give EXPECTED:1, ACTUAL:2
-CHK_OP(1, 2, ==); // Same as the one above
+REQ_LOG(1, 2, 1==2); // Of course fail, and will also give EXPECTED:1, ACTUAL:2
+REQ_OP(1, 2, ==); // Same as the one above
 int arr1[] = {1, 2, 3}, arr2[] = {1, 2, 3};
-CHK_ARRAY(arr1, arr2, 3, 3, ==); // Obviously pass
+REQ_ARRAY(arr1, arr2, 3, 3, ==); // Obviously pass
 ```
 
 * There used to be a macro set called `CHECK`. It is removed because I think it's actually useless, making this library weigh too much.
@@ -161,19 +138,17 @@ Replace the `MAIN` macro in `test.cpp` and then run it. The output will be like 
 
 ```
 [Begin ] =====> AvgRight ----
- | [Msg  ] test.cpp:29: Pass (avg(dataSet) == expected)
+ | [Msg  ] example.cpp:29: Pass ((TestData::expected) == (avg(TestData::dataSet)))
 [End   ] =====> AvgRight PASS
 [Begin ] =====> AvgWrong ----
- | [Fail ] test.cpp:34: Didn't pass (avg_wrong(dataSet) == expected)
- |   -> EXPECTED: expected = 8.5
- |   -> ACTUAL: avg_wrong(dataSet) = 15
+ | [Fail ] example.cpp:32: Didn't pass ((TestData::expected) == (avg_wrong(TestData::dataSet)))
+ |   |-> EXPECTED: (TestData::expected) = 8.5
+ |   |-> ACTUAL: (avg_wrong(TestData::dataSet)) = 15
 [End   ] =====> AvgWrong FAIL
-[Report  ] --------------------
- * AvgRight: 0 failure, 0ms  ( test.cpp )
- * AvgWrong: 1 failure, 4ms  ( test.cpp )
- # 1 failed tests.
-[Report  ] --------------------
-Done. 27ms used.
+[Begin ] =====> AvgSpeed ----
+ | [Log  ] example.cpp:37: AVG_TIMER(avg(li), 10000) = 69.4998
+[End   ] =====> AvgSpeed PASS
+Done. 704127ms used.
 ```
 
 ## Caution
