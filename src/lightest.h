@@ -142,7 +142,7 @@ class Testing {
                 cout << item.name << ": " << item.failureCount << " failure, " << item.duration << "ms  "
                     << "( " << item.file << " )" << endl;
             }
-            if(failedTestCount > 0) cout << " # " << failedTestCount << " failed tests." << endl;
+            if(failedTestCount > 0) cout << " # " << failedTestCount << " failures." << endl;
             cout << "[Report  ] --------------------" << endl
                 << "Done. " << clock() << "ms used." << endl;
         }
