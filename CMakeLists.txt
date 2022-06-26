@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(Lightest)
 
 set(build_example false)
+set(CMAKE_CXX_STANDARD 11)
 
 if(${build_example})
     add_executable(Lightest ./src/example.cpp)

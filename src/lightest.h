@@ -34,7 +34,7 @@ using namespace std;
 /* ========== Output Color ==========*/
 
 enum Color {
-   Reset = 0, Red = 31, Green = 32, Yellow = 33
+   Reset = 0, Black = 30, Red = 31, Green = 32, Yellow = 33
 };
 bool OutputColor = true;
 
@@ -47,6 +47,7 @@ if(OutputColor) {
     unsigned int winColor;
     switch (color) {
     case Reset: winColor = 0x07; break;
+    case Black: winColor = 0x00;
     case Red: winColor = 0x0c; break;
     case Green: winColor = 0x0a; break;
     case Yellow: winColor = 0x0e; break;
@@ -112,7 +113,7 @@ class Testing {
         }
         template<typename T> void Addition(const char * kind, const char* varname, T value) {
             cout << " |   |-> ";
-            SetColor(Red, true); cout << kind << ":"; SetColor(Reset);
+            SetColor(Black, true); cout << kind << ":"; SetColor(Reset);
             cout << " " << varname << " = " << value << endl;
         }
         ~Testing() {
@@ -273,29 +274,29 @@ bool Register::allThrow = false;
 
 /* ========== Assertion Macros ========== */
 
+// return false; => failed | return true; => passed
 #define REQUIRE(condition) \
     ( [&] () -> bool { \
         bool res = !(condition); \
         if(res) \
             FAIL("Didn't pass (" #condition ")" ); \
-        return res; \
+        return !res; \
     } () )
 
 #define PUT_EXP_ACT(expected, actual) \
     do { testing.Addition("EXPECTED", #expected, expected); testing.Addition("ACTUAL", #actual, actual); } while(0)
 #define REQ_LOG(expected, actual, condition) \
-    do { \
-        if(REQUIRE(condition)) { \
-            PUT_EXP_ACT((expected), (actual)); \
-        } \
-    } while(0)
+    ( [&] () -> bool { \
+        if(!REQUIRE(condition)) { \
+            PUT_EXP_ACT((expected), (actual)); return false; \
+        } return true; \
+    } () )
 #define REQ_OP(expected, actual, operator) \
-    do { \
-        if(REQUIRE((expected) operator (actual))) { \
-            PUT_EXP_ACT((expected), (actual)); \
-        } \
-    } while(0)
-
+    ( [&] () -> bool { \
+        if(!REQUIRE((expected) operator (actual))) { \
+            PUT_EXP_ACT((expected), (actual)); return false; \
+        } return true; \
+    } () )
 #define REQ_ARRAY(expected, actual, expLen, actLen, operator) \
     ( [&]() -> bool { \
         if(expLen != actLen) { \
@@ -304,17 +305,21 @@ bool Register::allThrow = false;
             testing.Addition("ACTUAL", "actual length", actLen); \
             return false; \
         } \
-        bool failed = false; \
+        bool failed = true; \
         for(unsigned int i = 0; i < expLen; i++) { \
-            if(REQUIRE(expected[i] operator actual[i])) { \
+            if(!REQUIRE(expected[i] operator actual[i])) { \
                 testing.Addition("EXPECTED", #expected "[i]", expected[i]); \
                 testing.Addition("ACTUAL", #actual "[i]", actual[i]); \
                 testing.Addition("INDEX", "", i); \
-                failed = true; \
+                failed = false; \
             } \
         } \
         return failed; \
     } )() // Call lambda
+
+// condition must be true
+#define MUST(condition) do { bool var = (condition); \
+    if(!var) { FAIL("A must didn't pass"); abort(); } } while(0)
 
 #undef _LINUX_
 #undef _WIN_
