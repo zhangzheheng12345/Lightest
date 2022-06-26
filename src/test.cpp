@@ -43,5 +43,5 @@ DEFTEST(TestAssertionMacors) {
     int arr1[] = {1, 2, 3, 4}, arr2[] = {1, 2, 3, 4}, arr3[] = {1, 2, 3}, arr4[] = {1, 2, 3, 5};
     MUST(REQ_ARRAY(arr1, arr2, 4, 4, ==)); // PASS
     REQ_ARRAY(arr1, arr3, 4, 3, ==); REQ_ARRAY(arr1, arr4, 4, 4, ==); // FAIL
-    MUST(REQUIRE(1 == 2)); // FAIL & Aborted
+    //  MUST(REQUIRE(1 == 2)); // FAIL & Aborted
 }

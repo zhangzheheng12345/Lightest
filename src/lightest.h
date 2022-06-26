@@ -40,7 +40,7 @@ bool OutputColor = true;
 
 void SetColor(Color color, bool whiteBg = false) {
 if(OutputColor) {
-#ifdef _LINUX_
+#if defined(_LINUX_) || defined(_MAC_)
     cout << "\033[" << color << "m";
     if(whiteBg) cout << "\033[47m";
 #elif defined(_WIN_)
