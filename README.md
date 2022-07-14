@@ -22,27 +22,27 @@ The output of the example should be like this below:
 
 ```
 [Begin ] =====> AvgRight ----
- | [Msg  ] example.cpp:29: Pass ((TestData::expected) == (avg(TestData::dataSet)))
 [End   ] =====> AvgRight PASS
-  >> TIME: 25ms
+  >> TIME: 3ms
 [Begin ] =====> AvgWrong ----
- | [Fail ] example.cpp:32: Didn't pass ((TestData::expected) == (avg_wrong(TestData::dataSet)))
+ | [Fail ] example.cpp:33: Didn't pass ((TestData::expected) == (avg_wrong(TestData::dataSet)))
  |   |-> EXPECTED: (TestData::expected) = 8.5
  |   |-> ACTUAL: (avg_wrong(TestData::dataSet)) = 15
 [End   ] =====> AvgWrong FAIL
   >> FAILURE: 1
-  >> TIME: 47ms
+  >> TIME: 56ms
 [Begin ] =====> AvgSpeed ----
- | [Log  ] example.cpp:37: AVG_TIMER(avg(li), 10000) = 69.4998
+ | [Log  ] example.cpp:38: AVG_TIMER(avg(li), 10000) = 63.4643
 [End   ] =====> AvgSpeed PASS
-  >> TIME: 701852ms
+  >> TIME: 641180ms
 [Report  ] --------------------
- * AvgRight: 0 failure, 25ms  ( example.cpp )
- * AvgWrong: 1 failure, 47ms  ( example.cpp )
- * AvgSpeed: 0 failure, 701852ms  ( example.cpp )
- # 1 failed tests.
+ * AvgRight: 0 failure, 3ms  ( example.cpp )
+ * AvgWrong: 1 failure, 56ms  ( example.cpp )
+ * AvgSpeed: 0 failure, 641180ms  ( example.cpp )
+ # [ 2 / 3 ] passed
+ # { 1 } failures occurred
 [Report  ] --------------------
-Done. 704127ms used.
+Done. 643276ms used.
 ```
 (*Your time & file path might be different*)
 
@@ -138,17 +138,16 @@ Replace the `MAIN` macro in `test.cpp` and then run it. The output will be like 
 
 ```
 [Begin ] =====> AvgRight ----
- | [Msg  ] example.cpp:29: Pass ((TestData::expected) == (avg(TestData::dataSet)))
 [End   ] =====> AvgRight PASS
 [Begin ] =====> AvgWrong ----
- | [Fail ] example.cpp:32: Didn't pass ((TestData::expected) == (avg_wrong(TestData::dataSet)))
+ | [Fail ] example.cpp:33: Didn't pass ((TestData::expected) == (avg_wrong(TestData::dataSet)))
  |   |-> EXPECTED: (TestData::expected) = 8.5
  |   |-> ACTUAL: (avg_wrong(TestData::dataSet)) = 15
 [End   ] =====> AvgWrong FAIL
 [Begin ] =====> AvgSpeed ----
- | [Log  ] example.cpp:37: AVG_TIMER(avg(li), 10000) = 69.4998
+ | [Log  ] example.cpp:38: AVG_TIMER(avg(li), 10000) = 63.4643
 [End   ] =====> AvgSpeed PASS
-Done. 704127ms used.
+Done. 643276ms used.
 ```
 
 ## Caution

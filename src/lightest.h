@@ -1,4 +1,5 @@
 /********************
+| Lightest |
 This is the core file of this library, which provides a lightest C++ unit test framework.
 MIT licensed.
 Github Repo: https://github.com/zhangzheheng12345/Lightest
@@ -15,7 +16,7 @@ Author's Github: https://github.com/zhangzheheng12345
 #elif defined(__APPLE__) || defined(__MACH__)
 #define _MAC_
 #else
-#error Unknown Platform
+#warning Unknown platform to Lightest will cause no outputing color
 #endif
 
 #include <iostream>
@@ -137,13 +138,22 @@ class Testing {
         }
         static void ReportTotal() {
             cout << "[Report  ] --------------------" << endl;
+            unsigned int passedTestCount = 0, failureSum = 0;
             for(Test item : testsTotal) {
-                if(item.failed) SetColor(Red); else SetColor(Green);
+                if(item.failed) { SetColor(Red); failureSum += item.failureCount; }
+                else { SetColor(Green); passedTestCount++; }
                 cout << " * "; SetColor(Reset);
                 cout << item.name << ": " << item.failureCount << " failure, " << item.duration << "ms  "
                     << "( " << item.file << " )" << endl;
             }
-            if(failedTestCount > 0) cout << " # " << failedTestCount << " failures." << endl;
+            cout << " # [ "; SetColor(Green);
+            cout << passedTestCount; SetColor(Reset);
+            cout << " / " << testsTotal.size() << " ] passed" << endl;
+            if(failureSum != 0) {
+                cout << " # { "; SetColor(Red);
+                cout << failureSum; SetColor(Reset);
+                cout << " } failures occurred" << endl;
+            }
             cout << "[Report  ] --------------------" << endl
                 << "Done. " << clock() << "ms used." << endl;
         }

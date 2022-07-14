@@ -1,9 +1,9 @@
 .replit
 .breakpoints
-test.out
 test.exe
 .vs/
 main
 build/
 replit.nix
 Lightest
+tmp_out.txt
