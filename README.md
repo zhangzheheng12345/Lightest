@@ -10,7 +10,7 @@ The library file is `/src/lightest.h`.
 It's header only. If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be a excellent choice.
 
 ( *Your compiler has to support C++11 if you want to use this library because the library is partly based on lambda expression.*
-*Also, the project has only been tested on clang++ & Ubuntu, and g++(MinGW) & Windows 10* )
+*Also, the project has only been tested on clang++ in Ubuntu, and g++(MinGW) in Windows 10* )
 
 ## Example
 
@@ -25,14 +25,14 @@ The output of the example should be like this below:
 [End   ] =====> AvgRight PASS
   >> TIME: 3ms
 [Begin ] =====> AvgWrong ----
- | [Fail ] example.cpp:33: Didn't pass ((TestData::expected) == (avg_wrong(TestData::dataSet)))
+ | [Fail ] example.cpp:32: Didn't pass ((TestData::expected) == (avg_wrong(TestData::dataSet)))
  |   |-> EXPECTED: (TestData::expected) = 8.5
  |   |-> ACTUAL: (avg_wrong(TestData::dataSet)) = 15
 [End   ] =====> AvgWrong FAIL
   >> FAILURE: 1
   >> TIME: 56ms
 [Begin ] =====> AvgSpeed ----
- | [Log  ] example.cpp:38: AVG_TIMER(avg(li), 10000) = 63.4643
+ | [Log  ] example.cpp:37: AVG_TIMER(avg(li), 10000) = 63.4643
 [End   ] =====> AvgSpeed PASS
   >> TIME: 641180ms
 [Report  ] --------------------
@@ -44,7 +44,8 @@ The output of the example should be like this below:
 [Report  ] --------------------
 Done. 643276ms used.
 ```
-(*Your time & file path might be different*)
+(*Your time & file path might be different,*
+*and they should be colorful if your platform is Windows, Linux or Mac*)
 
 ## Usage
 
@@ -114,15 +115,17 @@ Besides `MAIN` and `LESS_MAIN`, you can write your own main function.
 * The macro of `SIMPLER()` hide the `>> TIME: ...ms` and `>> FAILURE: ...` (if there is) at the end of each test.
 * If you don't want to run some of the tests, use the macro of `EXCEPT(name)` to disable them.
 * If you don't want to see some of the outputs, use the macro of `FILTER(level)`. The `level` should be `lightest::MSG_LOWER`, `lightest::WARN_LOWER` or `lightest::ERR_LOWER`. `lightest::MSG_LOWER` ignores MSGs, `lightest::WARN_LOWER` ignores MSGs & WARNs, and `lightest::ERR_LOWER` ignores MSGs, WARNs & ERRORs. Outputs of `LOG(varname)` is at the same level of MSGs.
-* Lightest will automatically catch the uncaught errors which are thrown out as `exception` or simply strings. If you want to solve the uncaught errors by your self, use the macro of `ALL_THROW()` to let Lightest throw the errors again, but that will stop the entire testing process.
+* Lightest will automatically catch the uncaught errors which are thrown out as `exception`, simple strings as well as other user-defined error types. If you want to solve the uncaught errors by your self, use the macro of `ALL_THROW()` to let Lightest throw the errors again, but that will stop the entire testing process.
+* Lightest has a simple coloring system which supports Windows, Linux, and MacOS. If you want to write outputs to files, please add the macro of `NO_COLOR()` in main function or the first test you defined. It will close the coloring system so that messy code will not appear in your files. (This problem will probably happen in Unix platforms.)
 
-Here is a simple example of a user defined main function:
+Here is a simple example of a user-defined main function:
 
 ```C++
 int main() {
     EXCEPT(AvgSpeed); // Disable the test of AvgSpeed
     SIMPLER();
     // If you want to ignore MSGs: FILTER(lightest::MSG_LOWER);
+    // If you want to write to files: NO_COLOR();
     TESTALL();
     /*
     If you want to deal with the errors by your self:
@@ -140,13 +143,10 @@ Replace the `MAIN` macro in `test.cpp` and then run it. The output will be like 
 [Begin ] =====> AvgRight ----
 [End   ] =====> AvgRight PASS
 [Begin ] =====> AvgWrong ----
- | [Fail ] example.cpp:33: Didn't pass ((TestData::expected) == (avg_wrong(TestData::dataSet)))
+ | [Fail ] example.cpp:32: Didn't pass ((TestData::expected) == (avg_wrong(TestData::dataSet)))
  |   |-> EXPECTED: (TestData::expected) = 8.5
  |   |-> ACTUAL: (avg_wrong(TestData::dataSet)) = 15
 [End   ] =====> AvgWrong FAIL
-[Begin ] =====> AvgSpeed ----
- | [Log  ] example.cpp:38: AVG_TIMER(avg(li), 10000) = 63.4643
-[End   ] =====> AvgSpeed PASS
 Done. 643276ms used.
 ```
 
