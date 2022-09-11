@@ -1,4 +1,4 @@
-# ![Lightest](lightest.png)
+# [![Lightest](https://s1.ax1x.com/2022/09/11/vO6YAs.png)](https://imgse.com/i/vO6YAs)
 
 ![build_pass](https://img.shields.io/badge/build-passing-green.svg)
 ![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
