@@ -61,12 +61,6 @@ if(OutputColor) {
 
 /* ========== Testing ========== */
 
-#define DEFTEST(name) \
-    void name(lightest::Testing& testing); \
-    lightest::Register register_ ## name(__FILE__, #name, name); \
-    void name(lightest::Testing& testing)
-#define FILTER(level) lightest::Testing::Filter(level)
-
 enum FiltLevel {
     ALL = 0, MSG_LOWER, WARN_LOWER, ERR_LOWER // LOG => MSG level, Fail will always be outputted
 };
@@ -179,6 +173,12 @@ int Testing::failedTestCount = 0;
 bool Testing::more = true;
 FiltLevel Testing::level = ALL;
 
+#define TEST(name) \
+    void name(lightest::Testing& testing); \
+    lightest::Register register_ ## name(__FILE__, #name, name); \
+    void name(lightest::Testing& testing)
+#define FILTER(level) lightest::Testing::Filter(level)
+
 /* ========== Signer ========== */
 
 class Register {
@@ -259,9 +259,9 @@ bool Register::allThrow = false;
 
 #define MSG(str) lightest::Testing::Msg(__FILE__, __LINE__,(str))
 #define WARN(str) lightest::Testing::Warn(__FILE__, __LINE__,(str))
-#define ERR(str) testing.Err(__LINE__,(str))
-#define FAIL(str) testing.Fail(__LINE__,(str))
-#define LOG(varname) lightest::Testing::Log(__FILE__, __LINE__,#varname,(varname))
+#define ERR(str) testing.Err(__LINE__, (str))
+#define FAIL(str) testing.Fail(__LINE__, (str))
+#define LOG(varname) lightest::Testing::Log(__FILE__, __LINE__, #varname, (varname))
 
 /* ========= Timer Macros =========== */
 
@@ -307,7 +307,7 @@ bool Register::allThrow = false;
             PUT_EXP_ACT((expected), (actual)); return false; \
         } return true; \
     } () )
-#define REQ_ARRAY(expected, actual, expLen, actLen, operator) \
+#define REQ_ARR(expected, actual, expLen, actLen, operator) \
     ( [&]() -> bool { \
         if(expLen != actLen) { \
             FAIL("<ARRAY> Lengths aren't equal"); \

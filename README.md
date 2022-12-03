@@ -53,18 +53,18 @@ You only need to add `lightest.h` to your project, and include it in test files.
 
 ### To add tests
 
-* Use macro `DEFTEST(name)` to define a test named 'name'. In the outputs, ten `-` wrap the loggings from the test. `DEFTEST(name)` must be written outside functions.
+* Use macro `TEST(name)` to define a test named 'name'. In the outputs, ten `-` wrap the loggings from the test. `TEST(name)` must be written outside functions.
 * Here is an example showing how to add tests:
 
 ```C++
-DEFTEST(testname) {
+TEST(testname) {
     int var = 123456;
     MSG("Hello from testname"); // Output a message.
     LOG(var); // Output the shared variable of var.
 }
 ```
 
-* All the defined tests will be automatically run if you add a macro `MAIN`. It provides a default main function which calls `lightest::Signer::TestAll()` and `lightest::Testing::ReportTotal()` to run the tests & report. If you think the outputs are too many, use the macro of `LESS_MAIN` instead of `MAIN`.
+* All the defined tests will be automatically run if you add a macro `MAIN`. It provides a default main function which calls `lightest::Register::TestAll()` and `lightest::Testing::ReportTotal()` to run the tests & report. If you think the outputs are too many, use the macro of `LESS_MAIN` instead of `MAIN`.
 
 (*The test case feature is removed*)
 
@@ -79,7 +79,7 @@ DEFTEST(testname) {
 * If you want to learn what exact value the tested expression is, use macro `REQ_LOG(expected, actual, condition)`and `CHK_LOG(expected, actual, condition)`.
 * Another assertion macro is `REQ_OP(expected, actual, operation)`. It offers a easier way to compare the actual value and the expected value. You only need to give a comparing operator like `==`.
 `REQ_LOG(a, b, a==b)` equals to `REQ_OP(a, b, ==)`.
-* `REQ_ARRAY(expected, actual, expLen, actualLen, operator)` can compare two arrays. Besides the basic information, it will also put the index of the unexpected value.
+* `REQ_ARR(expected, actual, expLen, actualLen, operator)` can compare two arrays. Besides the basic information, it will also put the index of the unexpected value.
 
 Example:
 
@@ -89,7 +89,7 @@ REQUIRE(1>2); // Fail!
 REQ_LOG(1, 2, 1==2); // Of course fail, and will also give EXPECTED:1, ACTUAL:2
 REQ_OP(1, 2, ==); // Same as the one above
 int arr1[] = {1, 2, 3}, arr2[] = {1, 2, 3};
-REQ_ARRAY(arr1, arr2, 3, 3, ==); // Obviously pass
+REQ_ARR(arr1, arr2, 3, 3, ==); // Obviously pass
 ```
 
 * There used to be a macro set called `CHECK`. It is removed because I think it's actually useless, making this library weigh too much.

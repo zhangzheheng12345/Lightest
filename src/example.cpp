@@ -25,13 +25,13 @@ public:
 double TestData::expected = 8.5;
 std::vector<int> TestData::dataSet{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 
-DEFTEST(AvgRight) {
+TEST(AvgRight) {
     REQ_OP(TestData::expected, avg(TestData::dataSet), ==);
 }
-DEFTEST(AvgWrong) {
+TEST(AvgWrong) {
     REQ_OP(TestData::expected, avg_wrong(TestData::dataSet), ==);
 }
-DEFTEST(AvgSpeed) {
+TEST(AvgSpeed) {
     std::vector<int> li(0);
     for(int i = 0; i < 5000; i++) li.push_back(i);
     LOG(AVG_TIMER(avg(li), 10000));
