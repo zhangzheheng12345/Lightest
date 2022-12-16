@@ -177,6 +177,7 @@ private:
     const char* varName;
     T value;
 };
+// TODO: DataReq, DataReqOp, DataReqArr
 
 /* ========== Signer ========== */
 
@@ -331,12 +332,6 @@ class Testing {
 
 #define PUT_EXP_ACT(expected, actual) \
     do { testing.Addition("EXPECTED", #expected, expected); testing.Addition("ACTUAL", #actual, actual); } while(0)
-#define REQ_LOG(expected, actual, condition) \
-    ( [&] () -> bool { \
-        if(!REQUIRE(condition)) { \
-            PUT_EXP_ACT((expected), (actual)); return false; \
-        } return true; \
-    } () )
 #define REQ_OP(expected, actual, operator) \
     ( [&] () -> bool { \
         if(!REQUIRE((expected) operator (actual))) { \
