@@ -4,7 +4,7 @@ project(Lightest)
 
 set(build_example false)
 # To build example
-set(build_example true)
+# set(build_example true)
 
 set(CMAKE_CXX_STANDARD 11)
 

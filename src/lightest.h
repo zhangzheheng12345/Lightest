@@ -75,7 +75,7 @@ public:
 class DataSet : public Data {
 public:
     DataSet(const char* file, const char* name) {
-        this->file = file, this->name = name;
+        this->file = file, this->name = name, duration = 0, failureCount = 0;
     }
     void Add(Data* son) {
         sons.push_back(son);
@@ -199,7 +199,7 @@ public:
     }
     ~Register() {
         for(unsigned int i = 0; i < 3; i++) {
-            for (const signedFuncWrapper& item : registerList[1]) {
+            for (const signedFuncWrapper& item : registerList[i]) {
                 (*item.callerFunc)(Context{ testData });
             }
         }
@@ -218,7 +218,7 @@ Register globalRegister("", "");
 
 class Registing {
 public:
-    Registing(Register reg,
+    Registing(Register& reg,
         const char* file, const char* name,
         void (*callerFunc)(Register::Context&), unsigned int level) {
         reg.Add(file, name, callerFunc, level);
@@ -267,6 +267,13 @@ class Testing {
         Register reg;
 };
 
+#define CONFIG(name) \
+    void name(); \
+    void call_ ## name(lightest::Register::Context& ctx){ \
+        name(); \
+    } \
+    lightest::Registing registing_ ## name(lightest::globalRegister, __FILE__, #name, call_ ## name, 2); \
+    void name(const lightest::Data* data)
 #define TEST(name) \
     void name(lightest::Testing& testing); \
     void call_ ## name(lightest::Register::Context& ctx){ \
@@ -276,6 +283,13 @@ class Testing {
     } \
     lightest::Registing registing_ ## name(lightest::globalRegister, __FILE__, #name, call_ ## name, 1); \
     void name(lightest::Testing& testing)
+#define DATA(name) \
+    void name(const lightest::Data* data); \
+    void call_ ## name(lightest::Register::Context& ctx){ \
+        name(ctx.testData); \
+    } \
+    lightest::Registing registing_ ## name(lightest::globalRegister, __FILE__, #name, call_ ## name, 2); \
+    void name(const lightest::Data* data)
 
 } /* namespace ending */
 
@@ -361,6 +375,11 @@ class Testing {
 // condition must be true
 #define MUST(condition) do { bool var = (condition); \
     if(!var) { FAIL("A must didn't pass"); abort(); } } while(0)
+
+DATA(PrintAllOutputs) {
+    data->Print();
+    std::cout << "hello?";
+}
 
 #undef _LINUX_
 #undef _WIN_
