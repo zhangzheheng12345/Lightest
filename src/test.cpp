@@ -1,20 +1,7 @@
 #include "lightest.h"
 
-// MAIN
+MAIN
 // LESS_MAIN
-int main() {
-    EXCEPT(Except1);
-    EXCEPT(Except2);
-    TESTALL();
-    REPORT();
-}
-
-TEST(Except1) {
-    ERR("Except1 run");
-}
-TEST(Except2) {
-    ERR("Except2 run");
-}
 
 TEST(TestOutputMacros) {
     MSG("msg");
@@ -25,14 +12,10 @@ TEST(TestOutputMacros) {
     LOG(a);
 }
 
-TEST(TestTimerMacors) {
+TEST(TestTimerMacoros) {
     int i = 0;
     LOG(TIMER(i++));
     LOG(AVG_TIMER(i++, 100));
-}
-
-TEST(TestThrow) {
-    throw "Error from TestThrow";
 }
 
 TEST(TestAssertionMacors) {
