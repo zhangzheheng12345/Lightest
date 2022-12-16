@@ -23,7 +23,6 @@ Author's Github: https://github.com/zhangzheheng12345
 #include <ctime>
 #include <vector>
 #include <exception>
-#include <assert.h>
 
 #ifdef _WIN_
 #include <Windows.h>
