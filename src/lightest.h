@@ -162,7 +162,7 @@ private:
 };
 template<class T> class DataLog : public Data {
 public:
-    DataLog(const char* file, unsigned int line, const char* varName, T value) {
+    DataLog(const char* file, unsigned int line, const char* varName,const T& value) {
         this->file = file, this->line = line, this->varName = varName, this->value = value;
     }
     void Print() const {
@@ -174,9 +174,29 @@ private:
     const char* file;
     unsigned int line;
     const char* varName;
-    T value;
+    const T& value;
 };
-// TODO: DataReq, DataReqOp, DataReqArr
+template<class T> class DataReq : public Data {
+public:
+    DataReq(const char* file, unsigned int line,
+        const T& actual, const T& expected, const char* operator, bool failed) {
+        this->file = file, this->line = line;
+        this->actual = atcual, this->expected = expected, this->operator = operator, this->failed = failed;
+    }
+    void Print() {
+        if(failed) {
+            DataFail(file, line, "Req failed");
+            cout << "        +ACTUAL: " << acual << endl;
+            cout << "        +EXPECTED: " << operator << expected << endl;
+        }
+    }
+private:
+    const char* file;
+    unsigned int line;
+    const T& actual, expected;
+    const char* operator;
+    bool failed;
+};
 
 /* ========== Signer ========== */
 
@@ -197,9 +217,10 @@ public:
         registerList[level].push_back({ file, name, callerFunc });
     }
     ~Register() {
+        Context ctx = Context{testData};
         for(unsigned int i = 0; i < 3; i++) {
             for (const signedFuncWrapper& item : registerList[i]) {
-                (*item.callerFunc)(Context{ testData });
+                (*item.callerFunc)(ctx);
             }
         }
     }
@@ -250,8 +271,9 @@ class Testing {
         template<typename T> void Log(const char* file, int line, const char* varName, T value) {
             reg.testData->Add(new DataLog<T>(file, line, varName, value));
         }
-        template<typename T> void Addition(const char * kind, const char* varname, T value) {
-            cout << "      + " << kind << ": " << varname << " = " << value << endl;
+        template<typename T> void Req(const char* file, int line,
+            const T& actual, const T& expected, const char* operator_, bool failed) {
+            reg.testData->Add(new DataReq(file, line, actual, expected, operator_, failed));
         }
         DataSet* GetData() {
             return reg.testData;
@@ -334,42 +356,12 @@ class Testing {
 
 /* ========== Assertion Macros ========== */
 
-// return false; => failed | return true; => passed
-#define REQUIRE(condition) \
-    ( [&] () -> bool { \
-        bool res = !(condition); \
-        if(res) \
-            FAIL("Didn't pass (" #condition ")" ); \
-        return !res; \
-    } () )
-
-#define PUT_EXP_ACT(expected, actual) \
-    do { testing.Addition("EXPECTED", #expected, expected); testing.Addition("ACTUAL", #actual, actual); } while(0)
 #define REQ_OP(expected, actual, operator) \
-    ( [&] () -> bool { \
-        if(!REQUIRE((expected) operator (actual))) { \
-            PUT_EXP_ACT((expected), (actual)); return false; \
-        } return true; \
-    } () )
-#define REQ_ARR(expected, actual, expLen, actLen, operator) \
-    ( [&]() -> bool { \
-        if(expLen != actLen) { \
-            FAIL("<ARRAY> Lengths aren't equal"); \
-            testing.Addition("EXPECTED", "expected length", expLen); \
-            testing.Addition("ACTUAL", "actual length", actLen); \
-            return false; \
-        } \
-        bool failed = true; \
-        for(unsigned int i = 0; i < expLen; i++) { \
-            if(!REQUIRE(expected[i] operator actual[i])) { \
-                testing.Addition("EXPECTED", #expected "[i]", expected[i]); \
-                testing.Addition("ACTUAL", #actual "[i]", actual[i]); \
-                testing.Addition("INDEX", "", i); \
-                failed = false; \
-            } \
-        } \
-        return failed; \
-    } )() // Call lambda
+    do { \
+        testing.Req(__FILE__, __LINE__, actual, expected, #operator, \
+            ((actual) operator (expected))); \
+    } while(0)
+// TODO: Rewrite REQ_ARR
 
 // condition must be true
 #define MUST(condition) do { bool var = (condition); \
