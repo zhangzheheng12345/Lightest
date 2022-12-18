@@ -20,10 +20,6 @@ TEST(TestTimerMacoros) {
 
 TEST(TestAssertionMacors) {
     int a = 0, b = 0, c = 1;
-    REQUIRE(a == b); REQUIRE(a != c);
-    REQ_OP(a, b, ==); REQ_OP(a, c, !=);
-    int arr1[] = {1, 2, 3, 4}, arr2[] = {1, 2, 3, 4}, arr3[] = {1, 2, 3}, arr4[] = {1, 2, 3, 5};
-    MUST(REQ_ARR(arr1, arr2, 4, 4, ==)); // PASS
-    REQ_ARR(arr1, arr3, 4, 3, ==); REQ_ARR(arr1, arr4, 4, 4, ==); // FAIL
-    //  MUST(REQUIRE(1 == 2)); // FAIL & Aborted
+    REQ(a, ==, b); REQ(a, !=, c);
+    //  MUST(REQ(a, ==, c)); // FAIL & Aborted
 }

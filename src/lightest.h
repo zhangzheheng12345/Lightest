@@ -356,12 +356,11 @@ class Testing {
 
 /* ========== Assertion Macros ========== */
 
-#define REQ_OP(expected, actual, operator) \
+#define REQ(actual, operator, expected) \
     do { \
         testing.Req(__FILE__, __LINE__, actual, expected, #operator, \
             ((actual) operator (expected))); \
     } while(0)
-// TODO: Rewrite REQ_ARR
 
 // condition must be true
 #define MUST(condition) do { bool var = (condition); \
