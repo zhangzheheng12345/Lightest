@@ -73,8 +73,8 @@ public:
 
 class DataSet : public Data {
 public:
-    DataSet(const char* file, const char* name) {
-        this->file = file, this->name = name, duration = 0, failureCount = 0;
+    DataSet(const char* name) {
+        this->name = name, duration = 0, failureCount = 0;
     }
     void Add(Data* son) {
         sons.push_back(son);
@@ -100,14 +100,19 @@ public:
         }
     }
 private:
-    const char* file, *name;
+    const char* name;
     bool failed;
     unsigned int failureCount;
     clock_t duration;
     vector<Data*> sons;
 };
 
-class DataMsg : public Data {
+class DataUnit {
+protected:
+    const char* file;
+    unsigned int line;
+};
+class DataMsg : public Data, public DataUnit {
 public:
     DataMsg(const char* file, unsigned int line, const char* str) {
         this->file = file, this->line = line, this->str = str;
@@ -119,11 +124,9 @@ public:
 		}
     }
 private:
-    const char* file;
-    unsigned int line;
     const char* str;
 };
-class DataWarn : public Data {
+class DataWarn : public Data, public DataUnit{
 public:
     DataWarn(const char* file, unsigned int line, const char* str) {
         this->file = file, this->line = line, this->str = str;
@@ -135,11 +138,9 @@ public:
 		}
     }
 private:
-    const char* file;
-    unsigned int line;
     const char* str;
 };
-class DataError : public Data {
+class DataError : public Data, public DataUnit {
 public:
     DataError(const char* file, unsigned int line, const char* str) {
         this->file = file, this->line = line, this->str = str;
@@ -151,11 +152,9 @@ public:
 		}
     }
 private:
-    const char* file;
-    unsigned int line;
     const char* str;
 };
-class DataFail : public Data {
+class DataFail : public Data, public DataUnit {
 public:
     DataFail(const char* file, unsigned int line, const char* str) {
         this->file = file, this->line = line, this->str = str;
@@ -165,11 +164,9 @@ public:
         cout << file << ":" << line << ": " << str << endl;
     }
 private:
-    const char* file;
-    unsigned int line;
     const char* str;
 };
-template<class T> class DataLog : public Data {
+template<class T> class DataLog : public Data, public DataUnit {
 public:
     DataLog(const char* file, unsigned int line, const char* varName, const T& value_) : value(value_) {
         this->file = file, this->line = line, this->varName = varName;
@@ -182,12 +179,10 @@ public:
 		}
     }
 private:
-    const char* file;
-    unsigned int line;
     const char* varName;
     const T value;
 };
-template<class T> class DataReq : public Data {
+template<class T> class DataReq : public Data, public DataUnit{
 public:
     DataReq(const char* file, unsigned int line,
         const T& actual_, const T& expected_, const char* operator_, bool failed_)
@@ -202,8 +197,6 @@ public:
         }
     }
 private:
-    const char* file;
-    unsigned int line;
     const T actual, expected;
     const char* operator_;
     const bool failed;
@@ -213,8 +206,8 @@ private:
 
 class Register {
 public:
-    Register(const char* file, const char* name) {
-        testData = new DataSet(file, name);
+    Register(const char* name) {
+        testData = new DataSet(name);
         for (unsigned int i = 0; i < 3; i++) registerList[i] = vector<signedFuncWrapper>(0);
     }
     Register() {
@@ -224,7 +217,7 @@ public:
     typedef struct {
         DataSet* testData;
     } Context;
-    void Add(const char* name, void (*callerFunc)(Register::Context&), unsigned int level) {
+    void Add(const char* name, void (*callerFunc)(Context&), unsigned int level) {
         registerList[level].push_back({ name, callerFunc });
     }
     ~Register() {
@@ -244,7 +237,7 @@ private:
     vector<signedFuncWrapper> registerList[3];
 };
 
-Register globalRegister("", "");
+Register globalRegister("");
 
 class Registing {
 public:
@@ -258,8 +251,8 @@ public:
 
 class Testing {
     public:
-        Testing(const char* file, const char* name) {
-            reg = Register(file, name);
+        Testing(const char* name) {
+            reg = Register(name);
             failureCount = 0, failed = false;
             start = clock();
         }
@@ -297,6 +290,10 @@ class Testing {
         Register reg;
 };
 
+} // namespace ending
+
+/* ========== Registing macros ========== */
+
 #define CONFIG(name) \
     void name(); \
     void call_ ## name(lightest::Register::Context& ctx){ \
@@ -307,7 +304,7 @@ class Testing {
 #define TEST(name) \
     void name(lightest::Testing& testing); \
     void call_ ## name(lightest::Register::Context& ctx){ \
-        lightest::Testing testing(__FILE__, #name); \
+        lightest::Testing testing(#name); \
         name(testing); \
         ctx.testData->Add(testing.GetData()); \
     } \
@@ -320,8 +317,6 @@ class Testing {
     } \
     lightest::Registing registing_ ## name(lightest::globalRegister, #name, call_ ## name, 2); \
     void name(const lightest::DataSet* data)
-
-} /* namespace ending */
 
 /* ========== Default main functions ========== */
 

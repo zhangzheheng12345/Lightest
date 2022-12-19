@@ -65,10 +65,11 @@ TEST(Test1) {
 
 All the defined tests will be automatically. If you think the outputs are too many, use the macro of `LESS_MAIN` instead of `MAIN`.
 
-### Ouputing macros
+### Logging macros
 
 * Use macro `MSG(str)`, `WARN(str)`, `ERR(str)` and `FAIL(str)` to output test information. `ERR(str)` and `FAIL(str)` will also set the test failed.
 * Use macro `LOG(varname)` to output a variable. The message will include both the variable's name and its value.
+* These macros can only be used insides tests.
 
 ### Assertion macros
 
