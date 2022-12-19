@@ -14,36 +14,33 @@ It's header only. If you suddenly want to do some small experiments, or decide t
 
 ## Example
 
-Have a look at `example.cpp`. It simply shows how to use tests, assertion macros, timer macros and logging macros.
-
-If you want to run the example, change the variable `build_example` in `CMakeLists.txt` from `false` to `true`, and then use CMake to build this project.
+Have a look at `test.cpp`. It simply shows how to use tests, assertion macros, timer macros, configuring macros and logging macros.
 
 The output of the example should be like this below:
 
 ```
-[Begin ] =====> AvgRight ----
-[End   ] =====> AvgRight PASS
-  >> TIME: 3ms
-[Begin ] =====> AvgWrong ----
- | [Fail ] example.cpp:32: Didn't pass ((TestData::expected) == (avg_wrong(TestData::dataSet)))
- |   |-> EXPECTED: (TestData::expected) = 8.5
- |   |-> ACTUAL: (avg_wrong(TestData::dataSet)) = 15
-[End   ] =====> AvgWrong FAIL
-  >> FAILURE: 1
-  >> TIME: 56ms
-[Begin ] =====> AvgSpeed ----
- | [Log  ] example.cpp:37: AVG_TIMER(avg(li), 10000) = 63.4643
-[End   ] =====> AvgSpeed PASS
-  >> TIME: 641180ms
-[Report  ] --------------------
- * AvgRight: 0 failure, 3ms  ( example.cpp )
- * AvgWrong: 1 failure, 56ms  ( example.cpp )
- * AvgSpeed: 0 failure, 641180ms  ( example.cpp )
- # [ 2 / 3 ] passed
- # { 1 } failures occurred
-[Report  ] --------------------
-Done. 643276ms used.
+[Begin ] TestOutputMacros
+    [Msg  ] test.cpp:14: msg
+    [Warn ] test.cpp:15: warn
+    [Error] test.cpp:16: error
+    [Fail ] test.cpp:17: fail
+    [Log  ] test.cpp:19: a = 100
+[End   ] TestOutputMacros FAIL
+  >> FAILURE: 2
+  >> TIME: 0ms
+[Begin ] TestTimerMacoros
+    [Log  ] test.cpp:24: TIMER(i++) = 0
+    [Log  ] test.cpp:25: AVG_TIMER(i++, 100) = 0.00057
+[End   ] TestTimerMacoros PASS
+  >> TIME: 0ms
+[Begin ] TestAssertionMacors
+    [Fail ] test.cpp:30: Req failed
+        + ACTUAL: 0
+        + EXPECTED: > 0
+[End   ] TestAssertionMacors PASS
+  >> TIME: 0ms
 ```
+
 (*Your time & file path might be different,*
 *and they should be colorful if your platform is Windows, Linux or Mac*)
 
@@ -53,18 +50,20 @@ You only need to add `lightest.h` to your project, and include it in test files.
 
 ### To add tests
 
-* Use macro `TEST(name)` to define a test named 'name'. In the outputs, ten `-` wrap the loggings from the test. `TEST(name)` must be written outside functions.
-* Here is an example showing how to add tests:
+There must be a `MAIN` added to one of your test files. Then use macro `TEST(name)` to define a test named 'name'.
+
+Here is an example showing how to add tests:
 
 ```C++
-TEST(testname) {
+// in global scope
+TEST(Test1) {
     int var = 123456;
-    MSG("Hello from testname"); // Output a message.
-    LOG(var); // Output the shared variable of var.
+    MSG("Hello from Test1"); // Output a message.
+    LOG(var); // Output the variable of var.
 }
 ```
 
-* All the defined tests will be automatically run if you add a macro `MAIN`. If you think the outputs are too many, use the macro of `LESS_MAIN` instead of `MAIN`.
+All the defined tests will be automatically. If you think the outputs are too many, use the macro of `LESS_MAIN` instead of `MAIN`.
 
 ### Ouputing macros
 
@@ -73,7 +72,8 @@ TEST(testname) {
 
 ### Assertion macros
 
-Use `REQ(actual, operator, expected)`. It offers a way to compare the actual value and the expected value. If the assertion is failed, it'll output the actual value and the expected value. As for some situations like that you just want the returning value of a function to be true, pray write `REQ(func(), ==, true)` which is more readable and also fit Lightest.
+Use `REQ(actual, operator, expected)`. It offers a way to compare the actual value and the expected value. If the assertion is failed, it'll output the actual value and the expected value. 
+As for some situations like that you just want the returning value of a function to be true, pray write `REQ(func(), ==, true)` which is more readable and also fit Lightest.
 
 Example:
 
@@ -93,10 +93,36 @@ TIMER(std::cout << "One Hello" << std::endl); // Return how long the sentence sp
 TIMER(std::cout << "Avg Hello" << std::endl, 1000); // Run it 1000 times and return the average time
 ```
 
+### Configuring macros
+
+* You can write configurations like thus:
+
+```C++
+// in global scope
+CONFIG(Config1) {
+	SIMPLER();
+	NO_COLOR();
+	FILTER(WARN_LOWER);
+}
+```
+
+* `SIMPLER()` makes outputs' format a bit simpler.
+* `NO_COLOR()` makes outputs get no coloring. This is useful when you want to write outputs to a file.
+* `FILTER(level)` will ignore some outputs. For example, `FILTER(MSG_LOWER)` will ignore msg outputs (including `MSG(str)` and `LOG(var)`); `FILTER(WARN_LOWER)` will ignore msg & warn outputs. `ERR_LOWER` is also supported. Default level is `ALL`.
+
+## Future
+
+* Better data processing & reporting system.
+* `SUB(name)` to define sub tests.
+* More assertion macros in a independent file as an extension.
+* Async testing system in a independent file as an extension.
+* Provide `argc` and `argn`  for configuring functions.
+* Catch uncaught error thrown by tested programs.
+
 ## Caution
 
 * You must add a semicolon after a assertion or outputing macro.
-* `ERR(str)`, `FAIL(str)`, and assertion macros must be used inside tests, but you can use timer macros and `MSG(str)`, `WARN(str)`, and `LOG(varname)` any where.
+* Don't forget `MAIN` or `LESS_MAIN`!
 
 If you meet any issues, be free to put forward issues in GitHub!
 (*Please use English*)

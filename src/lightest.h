@@ -82,12 +82,15 @@ public:
     void End(bool failed, clock_t duration, unsigned int failureCount) {
         this->failed = failed, this->duration = duration, this->failureCount = failureCount;
     }
-    void Print() const {
-        cout << "[Begin ] " << name << endl;
-        for (const Data* item : sons) {
+    void PrintSons() const {
+		for (const Data* item : sons) {
             item->Print();
         }
-        cout << "[End   ] " << name << endl;
+	}
+    void Print() const {
+        cout << "[Begin ] " << name << endl;
+        PrintSons();
+        cout << "[End   ] " << name;
         if (failed) { SetColor(Red); cout << " FAIL" << endl; }
         else { SetColor(Green); cout << " PASS" << endl; }
         SetColor(Reset);
@@ -110,8 +113,10 @@ public:
         this->file = file, this->line = line, this->str = str;
     }
     void Print() const {
-        cout << "    "; SetColor(Green); cout << "[Msg  ] "; SetColor(Reset);
-        cout << file << ":" << line << ": " << str << endl;
+		if(filtLevel < MSG_LOWER) {
+            cout << "    "; SetColor(Green); cout << "[Msg  ] "; SetColor(Reset);
+            cout << file << ":" << line << ": " << str << endl;
+		}
     }
 private:
     const char* file;
@@ -124,8 +129,10 @@ public:
         this->file = file, this->line = line, this->str = str;
     }
     void Print() const {
-        cout << "    "; SetColor(Yellow); cout << "[Warn ] "; SetColor(Reset);
-        cout << file << ":" << line << ": " << str << endl;
+		if(filtLevel < WARN_LOWER) {
+            cout << "    "; SetColor(Yellow); cout << "[Warn ] "; SetColor(Reset);
+            cout << file << ":" << line << ": " << str << endl;
+		}
     }
 private:
     const char* file;
@@ -138,8 +145,10 @@ public:
         this->file = file, this->line = line, this->str = str;
     }
     void Print() const {
-        cout << "    "; SetColor(Red); cout << "[Error] "; SetColor(Reset);
-        cout << file << ":" << line << ": " << str << endl;
+		if(filtLevel < ERR_LOWER) {
+            cout << "    "; SetColor(Red); cout << "[Error] "; SetColor(Reset);
+            cout << file << ":" << line << ": " << str << endl;
+		}
     }
 private:
     const char* file;
@@ -162,40 +171,42 @@ private:
 };
 template<class T> class DataLog : public Data {
 public:
-    DataLog(const char* file, unsigned int line, const char* varName,const T& value) {
-        this->file = file, this->line = line, this->varName = varName, this->value = value;
+    DataLog(const char* file, unsigned int line, const char* varName, const T& value_) : value(value_) {
+        this->file = file, this->line = line, this->varName = varName;
     }
     void Print() const {
-        cout << "    "; SetColor(Green); cout << "[Log  ] "; SetColor(Reset);
-        cout << file << ":" << line << ": "
-            << varName << " = " << value << endl;
+		if(filtLevel < MSG_LOWER) {
+            cout << "    "; SetColor(Green); cout << "[Log  ] "; SetColor(Reset);
+            cout << file << ":" << line << ": "
+                << varName << " = " << value << endl;
+		}
     }
 private:
     const char* file;
     unsigned int line;
     const char* varName;
-    const T& value;
+    const T value;
 };
 template<class T> class DataReq : public Data {
 public:
     DataReq(const char* file, unsigned int line,
-        const T& actual, const T& expected, const char* operator, bool failed) {
-        this->file = file, this->line = line;
-        this->actual = atcual, this->expected = expected, this->operator = operator, this->failed = failed;
+        const T& actual_, const T& expected_, const char* operator_, bool failed_)
+            : actual(actual_), expected(expected_), failed(failed_) {
+        this->file = file, this->line = line, this->operator_ = operator_;
     }
-    void Print() {
+    void Print() const {
         if(failed) {
-            DataFail(file, line, "Req failed");
-            cout << "        +ACTUAL: " << acual << endl;
-            cout << "        +EXPECTED: " << operator << expected << endl;
+            DataFail(file, line, "Req failed").Print();
+            cout << "        + ACTUAL: " << actual << endl;
+            cout << "        + EXPECTED: " << operator_ << " " << expected << endl;
         }
     }
 private:
     const char* file;
     unsigned int line;
-    const T& actual, expected;
-    const char* operator;
-    bool failed;
+    const T actual, expected;
+    const char* operator_;
+    const bool failed;
 };
 
 /* ========== Signer ========== */
@@ -266,12 +277,12 @@ class Testing {
             reg.testData->Add(new DataFail(file, line, str));
             failed = true, failureCount++;
         }
-        template<typename T> void Log(const char* file, int line, const char* varName, T value) {
+        template<typename T> void Log(const char* file, int line, const char* varName, const T& value) {
             reg.testData->Add(new DataLog<T>(file, line, varName, value));
         }
         template<typename T> void Req(const char* file, int line,
             const T& actual, const T& expected, const char* operator_, bool failed) {
-            reg.testData->Add(new DataReq(file, line, actual, expected, operator_, failed));
+            reg.testData->Add(new DataReq<T>(file, line, actual, expected, operator_, failed));
         }
         DataSet* GetData() {
             return reg.testData;
@@ -291,7 +302,7 @@ class Testing {
     void call_ ## name(lightest::Register::Context& ctx){ \
         name(); \
     } \
-    lightest::Registing registing_ ## name(lightest::globalRegister, __FILE__, #name, call_ ## name, 2); \
+    lightest::Registing registing_ ## name(lightest::globalRegister, #name, call_ ## name, 0); \
     void name()
 #define TEST(name) \
     void name(lightest::Testing& testing); \
@@ -300,15 +311,15 @@ class Testing {
         name(testing); \
         ctx.testData->Add(testing.GetData()); \
     } \
-    lightest::Registing registing_ ## name(lightest::globalRegister, __FILE__, #name, call_ ## name, 1); \
+    lightest::Registing registing_ ## name(lightest::globalRegister, #name, call_ ## name, 1); \
     void name(lightest::Testing& testing)
 #define DATA(name) \
-    void name(const lightest::Data* data); \
+    void name(const lightest::DataSet* data); \
     void call_ ## name(lightest::Register::Context& ctx){ \
         name(ctx.testData); \
     } \
-    lightest::Registing registing_ ## name(lightest::globalRegister, __FILE__, #name, call_ ## name, 2); \
-    void name(const lightest::Data* data)
+    lightest::Registing registing_ ## name(lightest::globalRegister, #name, call_ ## name, 2); \
+    void name(const lightest::DataSet* data)
 
 } /* namespace ending */
 
@@ -316,7 +327,7 @@ class Testing {
 
 #define SIMPLER() lightest::moreOutput = false;
 #define NO_COLOR() lightest::OutputColor = false;
-#define FILTER(level) filtLevel = level;
+#define FILTER(level) lightest::filtLevel = level;
 
 #define MAIN int main() { return 0; }
 
@@ -335,11 +346,12 @@ class Testing {
 
 /* ========= Timer Macros =========== */
 
+// unit: minisecond(ms)
 #define TIMER(sentence) \
     ( [&] () { \
         clock_t start = clock(); \
         (sentence); \
-        return clock() - start; \
+        return (clock() - start) / CLOCKS_PER_SEC * 1000; \
     } () )
 #define AVG_TIMER(sentence, times) \
     ( [&] () { \
@@ -349,7 +361,7 @@ class Testing {
             (sentence); \
             sum += clock() - start; \
         } \
-        return double(sum) / times; \
+        return double(sum) / times / CLOCKS_PER_SEC * 1000; \
     } () )
 
 /* ========== Assertion Macros ========== */
@@ -357,7 +369,7 @@ class Testing {
 #define REQ(actual, operator, expected) \
     do { \
         testing.Req(__FILE__, __LINE__, actual, expected, #operator, \
-            ((actual) operator (expected))); \
+            !((actual) operator (expected))); \
     } while(0)
 
 // condition must be true or call abort()
@@ -366,7 +378,7 @@ class Testing {
 
 // Call to output loggings
 DATA(PrintAllOutputs) {
-    data->Print();
+    data->PrintSons();
 }
 
 #undef _LINUX_
