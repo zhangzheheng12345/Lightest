@@ -213,8 +213,8 @@ public:
     typedef struct {
         DataSet* testData;
     } Context;
-    void Add(const char* file, const char* name, void (*callerFunc)(Register::Context&), unsigned int level) {
-        registerList[level].push_back({ file, name, callerFunc });
+    void Add(const char* name, void (*callerFunc)(Register::Context&), unsigned int level) {
+        registerList[level].push_back({ name, callerFunc });
     }
     ~Register() {
         Context ctx = Context{testData};
@@ -227,7 +227,6 @@ public:
     DataSet* testData;
 private:
     typedef struct {
-        const char* file;
         const char* name;
         void (*callerFunc)(Register::Context&);
     } signedFuncWrapper;
@@ -239,9 +238,8 @@ Register globalRegister("", "");
 class Registing {
 public:
     Registing(Register& reg,
-        const char* file, const char* name,
-        void (*callerFunc)(Register::Context&), unsigned int level) {
-        reg.Add(file, name, callerFunc, level);
+        const char* name, void (*callerFunc)(Register::Context&), unsigned int level) {
+        reg.Add(name, callerFunc, level);
     }
 };
 
@@ -294,7 +292,7 @@ class Testing {
         name(); \
     } \
     lightest::Registing registing_ ## name(lightest::globalRegister, __FILE__, #name, call_ ## name, 2); \
-    void name(const lightest::Data* data)
+    void name()
 #define TEST(name) \
     void name(lightest::Testing& testing); \
     void call_ ## name(lightest::Register::Context& ctx){ \
@@ -362,13 +360,13 @@ class Testing {
             ((actual) operator (expected))); \
     } while(0)
 
-// condition must be true
+// condition must be true or call abort()
 #define MUST(condition) do { bool var = (condition); \
-    if(!var) { FAIL("A must didn't pass"); abort(); } } while(0)
+    if(!var) { FAIL("A must didn't pass"); abort(); } } while(0) 
 
+// Call to output loggings
 DATA(PrintAllOutputs) {
     data->Print();
-    std::cout << "hello?";
 }
 
 #undef _LINUX_
