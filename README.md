@@ -3,9 +3,9 @@
 ![build_pass](https://img.shields.io/badge/build-passing-green.svg)
 ![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
-**Lightest**, the name of the project, means it provides a lightest C++ unit test framework.
+**Lightest**, the name of the project, means it provides a lightest C++ unit test framework. It's also quite flexible and customizable.
 
-The core library file is `/src/lightest.h`.
+The core library file is `/src/lightest.h`. Extensions will be provided in the future.
 
 It's header only. If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be a excellent choice.
 
@@ -16,7 +16,7 @@ It's header only. If you suddenly want to do some small experiments, or decide t
 
 Have a look at `test.cpp`. It simply shows how to use tests, assertion macros, timer macros, configuring macros and logging macros.
 
-The output of the example should be like this below:
+Just use CMake to build the project. Then run it. The output of the example should be like this below:
 
 ```
 [Begin ] TestOutputMacros
@@ -50,7 +50,7 @@ You only need to add `lightest.h` to your project, and include it in test files.
 
 ### To add tests
 
-There must be a `MAIN` added to one of your test files. Then use macro `TEST(name)` to define a test named 'name'.
+Use macro `TEST(name)` to define a test named 'name'.
 
 Here is an example showing how to add tests:
 
@@ -63,7 +63,7 @@ TEST(Test1) {
 }
 ```
 
-All the defined tests will be automatically. If you think the outputs are too many, use the macro of `LESS_MAIN` instead of `MAIN`.
+All the defined tests will be automatically run because auto registration is supported.
 
 ### Logging macros
 
@@ -86,6 +86,7 @@ REQ(1, ==, 2); // Fail and output actual: 1, expected: ==2
 
 * `TIMER(sentence)` runs the sentence provided, and returns how long did the sentence spend running. (*It returns type `clock_t`, ms*)
 * `AVG_TIMER(sentence, times)` runs the sentence provided `times` times, and then returns the average time.
+* The time unit is always minisecond(ms).
 
 Example:
 
@@ -104,12 +105,16 @@ CONFIG(Config1) {
 	SIMPLER();
 	NO_COLOR();
 	FILTER(WARN_LOWER);
+	// To get command line arguments
+	// argn & argc pre-defined
+	for(; argn > 0; argn--, argc++) std::cout << *argc << std::endl; // Output all args
 }
 ```
 
 * `SIMPLER()` makes outputs' format a bit simpler.
 * `NO_COLOR()` makes outputs get no coloring. This is useful when you want to write outputs to a file.
 * `FILTER(level)` will ignore some outputs. For example, `FILTER(MSG_LOWER)` will ignore msg outputs (including `MSG(str)` and `LOG(var)`); `FILTER(WARN_LOWER)` will ignore msg & warn outputs. `ERR_LOWER` is also supported. Default level is `ALL`.
+* You sometimes need to deal with `argn` and `argc` in configuring functions. Just use them as that you use them in main. We pre-define `argn` and `argc` in configuring functions.
 
 ## Future
 
@@ -117,7 +122,6 @@ CONFIG(Config1) {
 * `SUB(name)` to define sub tests.
 * More assertion macros in a independent file as an extension.
 * Async testing system in a independent file as an extension.
-* Provide `argc` and `argn`  for configuring functions.
 * Catch uncaught error thrown by tested programs.
 
 ## Caution
