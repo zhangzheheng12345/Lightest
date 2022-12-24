@@ -1,10 +1,13 @@
+#include <string>
+
 #include "lightest.h"
 
-MAIN
-// LESS_MAIN
-
-CONFIG(Config1) {	
-	// NO_COLOR();
+CONFIG(Config1) {
+	for(;argn > 0; argn--, argc++) {
+		if(std::string(*argc) == "--no-color") NO_COLOR();
+		if(std::string(*argc) == "--simpler") SIMPLER();
+	}
+	// NO_COLOR();// N
 	// SIMPLER();
 	// FILTER(MSG_LOWER);
 	// FILTER(WARN_LOWER);

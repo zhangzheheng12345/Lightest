@@ -216,18 +216,23 @@ public:
     }
     typedef struct {
         DataSet* testData;
+        int argn;
+        char** argc;
     } Context;
     void Add(const char* name, void (*callerFunc)(Context&), unsigned int level) {
         registerList[level].push_back({ name, callerFunc });
     }
     ~Register() {
-        Context ctx = Context{testData};
+        Context ctx = Context{testData, argn, argc};
         for(unsigned int i = 0; i < 3; i++) {
             for (const signedFuncWrapper& item : registerList[i]) {
                 (*item.callerFunc)(ctx);
             }
         }
     }
+    static void SetArg(int argn, char** argc) {
+		Register::argn = argn, Register::argc = argc;
+	}
     DataSet* testData;
 private:
     typedef struct {
@@ -235,7 +240,11 @@ private:
         void (*callerFunc)(Register::Context&);
     } signedFuncWrapper;
     vector<signedFuncWrapper> registerList[3];
+    static int argn;
+    static char** argc;
 };
+int Register::argn = 0;
+char** Register::argc = nullptr;
 
 Register globalRegister("");
 
@@ -295,12 +304,12 @@ class Testing {
 /* ========== Registing macros ========== */
 
 #define CONFIG(name) \
-    void name(); \
+    void name(int argn, char** argc); \
     void call_ ## name(lightest::Register::Context& ctx){ \
-        name(); \
+        name(ctx.argn, ctx.argc); \
     } \
     lightest::Registing registing_ ## name(lightest::globalRegister, #name, call_ ## name, 0); \
-    void name()
+    void name(int argn, char** argc)
 #define TEST(name) \
     void name(lightest::Testing& testing); \
     void call_ ## name(lightest::Register::Context& ctx){ \
@@ -318,18 +327,18 @@ class Testing {
     lightest::Registing registing_ ## name(lightest::globalRegister, #name, call_ ## name, 2); \
     void name(const lightest::DataSet* data)
 
-/* ========== Default main functions ========== */
+/* ========== Configuration macros ========== */
 
 #define SIMPLER() lightest::moreOutput = false;
 #define NO_COLOR() lightest::OutputColor = false;
 #define FILTER(level) lightest::filtLevel = level;
 
-#define MAIN int main() { return 0; }
+/* ========== Main ========== */
 
-#define LESS_MAIN \
-    int main() { \
-        SIMPLER(); FILTER(lightest::MSG_LOWER); \
-        return 0; }
+int main(int argn, char* argc[]) {
+	lightest::Register::SetArg(argn, argc);
+	return 0;
+}
 
 /* ========== Logging Macros ========== */
 
