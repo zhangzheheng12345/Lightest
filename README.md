@@ -28,25 +28,34 @@ Have a look at `test.cpp`. It simply shows how to use tests, assertion macros, t
 Just use CMake to build the project. Then run it. The output of the example should be like this below:
 
 ```
+Failed tests:
+ * TestOutputMacros
+ * TestAssertionMacors
+-----------------------------
 [Begin ] TestOutputMacros
-    [Msg  ] test.cpp:14: msg
-    [Warn ] test.cpp:15: warn
-    [Error] test.cpp:16: error
-    [Fail ] test.cpp:17: fail
-    [Log  ] test.cpp:19: a = 100
+    [Msg  ] test.cpp:21: msg
+    [Warn ] test.cpp:22: warn
+    [Error] test.cpp:23: error
+    [Fail ] test.cpp:24: fail
+    [Log  ] test.cpp:26: a = 100
 [End   ] TestOutputMacros FAIL
   >> FAILURE: 2
   >> TIME: 0ms
 [Begin ] TestTimerMacoros
-    [Log  ] test.cpp:24: TIMER(i++) = 0
-    [Log  ] test.cpp:25: AVG_TIMER(i++, 100) = 0.00057
+    [Log  ] test.cpp:31: TIMER(i++) = 0
+    [Log  ] test.cpp:32: AVG_TIMER(i++, 100) = 0.00041
 [End   ] TestTimerMacoros PASS
   >> TIME: 0ms
 [Begin ] TestAssertionMacors
-    [Fail ] test.cpp:30: Req failed
+    [Fail ] test.cpp:37: Req failed
         + ACTUAL: 0
         + EXPECTED: > 0
-[End   ] TestAssertionMacors PASS
+    [Fail ] test.cpp:40: Req failed
+        + ACTUAL: 0
+        + EXPECTED: == 1
+    [Fail ] test.cpp:40: A must didn't pass
+[End   ] TestAssertionMacors FAIL
+  >> FAILURE: 1
   >> TIME: 0ms
 ```
 

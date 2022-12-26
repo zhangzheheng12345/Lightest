@@ -36,7 +36,8 @@ TEST(TestAssertionMacors) {
 	REQ(a, >, b); // Test fail
     REQ(a, ==, b);
 	REQ(b, !=, c);
-    // (REQ(a, ==, c)); // FAIL & Aborted
+    MUST(REQ(a, ==, c)); // FAIL & stop this test
+	FAIL("This shouldn't be output"); // above should stop this test
 }
 
 // To test DATA

@@ -388,15 +388,16 @@ int main(int argn, char* argc[]) {
 
 /* ========== Assertion Macros ========== */
 
+// true => pass, false => fail
 #define REQ(actual, operator, expected) \
-    do { \
-        testing.Req(__FILE__, __LINE__, actual, expected, #operator, \
-            !((actual) operator (expected))); \
-    } while(0)
+    ( [&] () -> bool { \
+        bool res = (actual) operator (expected); \
+        testing.Req(__FILE__, __LINE__, actual, expected, #operator, !res); \
+        return res; \
+    } ) ()
 
-// condition must be true or call abort()
-#define MUST(condition) do { bool var = (condition); \
-    if(!var) { FAIL("A must didn't pass"); abort(); } } while(0) 
+// condition must be true or stop currnet test
+#define MUST(condition) do { if(!(condition)) { FAIL("A must didn't pass"); return; } } while(0) 
 
 #undef _LINUX_
 #undef _WIN_
