@@ -22,7 +22,6 @@ Author's Github: https://github.com/zhangzheheng12345
 #include <iostream>
 #include <ctime>
 #include <vector>
-#include <exception>
 
 #ifdef _WIN_
 #include <Windows.h>
@@ -33,6 +32,7 @@ using namespace std;
 
 /* ========== Output Color ==========*/
 
+// TODO: use enum class
 enum Color {
    Reset = 0, Black = 30, Red = 31, Green = 32, Yellow = 33
 };
@@ -58,16 +58,24 @@ if(OutputColor) {
 
 /* ========== Data ========== */
 
+// TODO: use enum class
 enum FiltLevel {
-    ALL = 0, MSG_LOWER, WARN_LOWER, ERR_LOWER // LOG => MSG level, Fail will always be outputted
+    ALL = 0, MSG_LOWER, WARN_LOWER, ERR_LOWER // LOG => MSG level, FAIL will always be outputted
 };
 
 bool moreOutput = true; // Use SIMPLER() to set to false
-FiltLevel filtLevel = ALL; // 
+FiltLevel filtLevel = ALL; // Use FILTER(level) to set
+bool toOutput = true; // Use NO_OUTPUT to set to false
+
+// TODO: use enum class
+enum DataType {
+    DATA_SET, DATA_MSG, DATA_WARN, DATA_ERR, DATA_FAIL, DATA_LOG, DATA_REQ
+};
 
 class Data {
 public:
     virtual void Print() const = 0;
+    virtual DataType Type() const = 0;
     virtual ~Data() {}
 };
 
@@ -98,8 +106,9 @@ public:
             if (failed) cout << "  >> FAILURE: " << failureCount << endl;
             cout << "  >> TIME: " << duration / CLOCKS_PER_SEC * 1000 << "ms" << endl;
         }
-    }
-private:
+	}
+    DataType Type() const { return DATA_SET; }
+    // public for data processing
     const char* name;
     bool failed;
     unsigned int failureCount;
@@ -108,7 +117,7 @@ private:
 };
 
 class DataUnit {
-protected:
+public:
     const char* file;
     unsigned int line;
 };
@@ -123,7 +132,7 @@ public:
             cout << file << ":" << line << ": " << str << endl;
 		}
     }
-private:
+    DataType Type() const { return DATA_MSG; }
     const char* str;
 };
 class DataWarn : public Data, public DataUnit{
@@ -137,7 +146,7 @@ public:
             cout << file << ":" << line << ": " << str << endl;
 		}
     }
-private:
+    DataType Type() const { return DATA_WARN; }
     const char* str;
 };
 class DataError : public Data, public DataUnit {
@@ -151,7 +160,7 @@ public:
             cout << file << ":" << line << ": " << str << endl;
 		}
     }
-private:
+    DataType Type() const { return DATA_ERR; }
     const char* str;
 };
 class DataFail : public Data, public DataUnit {
@@ -163,7 +172,7 @@ public:
         cout << "    "; SetColor(Red); cout << "[Fail ] "; SetColor(Reset);
         cout << file << ":" << line << ": " << str << endl;
     }
-private:
+    DataType Type() const { return DATA_FAIL; }
     const char* str;
 };
 template<class T> class DataLog : public Data, public DataUnit {
@@ -178,7 +187,7 @@ public:
                 << varName << " = " << value << endl;
 		}
     }
-private:
+    DataType Type() const { return DATA_LOG; }
     const char* varName;
     const T value;
 };
@@ -196,7 +205,7 @@ public:
             cout << "        + EXPECTED: " << operator_ << " " << expected << endl;
         }
     }
-private:
+    DataType Type() const { return DATA_REQ; }
     const T actual, expected;
     const char* operator_;
     const bool failed;
@@ -222,7 +231,7 @@ public:
     void Add(const char* name, void (*callerFunc)(Context&), unsigned int level) {
         registerList[level].push_back({ name, callerFunc });
     }
-    ~Register() {
+    void RunRegistered() {
         Context ctx = Context{testData, argn, argc};
         for(unsigned int i = 0; i < 3; i++) {
             for (const signedFuncWrapper& item : registerList[i]) {
@@ -248,9 +257,9 @@ char** Register::argc = nullptr;
 
 Register globalRegister("");
 
-class Registing {
+class Registering {
 public:
-    Registing(Register& reg,
+    Registering(Register& reg,
         const char* name, void (*callerFunc)(Register::Context&), unsigned int level) {
         reg.Add(name, callerFunc, level);
     }
@@ -285,11 +294,13 @@ class Testing {
         template<typename T> void Req(const char* file, int line,
             const T& actual, const T& expected, const char* operator_, bool failed) {
             reg.testData->Add(new DataReq<T>(file, line, actual, expected, operator_, failed));
+			this->failed = !failed;
         }
         DataSet* GetData() {
             return reg.testData;
         }
         ~Testing() {
+			reg.RunRegistered();
             reg.testData->End(failed, clock() - start, failureCount);
         }
     private:
@@ -308,7 +319,7 @@ class Testing {
     void call_ ## name(lightest::Register::Context& ctx){ \
         name(ctx.argn, ctx.argc); \
     } \
-    lightest::Registing registing_ ## name(lightest::globalRegister, #name, call_ ## name, 0); \
+    lightest::Registering registering_ ## name(lightest::globalRegister, #name, call_ ## name, 0); \
     void name(int argn, char** argc)
 #define TEST(name) \
     void name(lightest::Testing& testing); \
@@ -317,14 +328,14 @@ class Testing {
         name(testing); \
         ctx.testData->Add(testing.GetData()); \
     } \
-    lightest::Registing registing_ ## name(lightest::globalRegister, #name, call_ ## name, 1); \
+    lightest::Registering registering_ ## name(lightest::globalRegister, #name, call_ ## name, 1); \
     void name(lightest::Testing& testing)
 #define DATA(name) \
     void name(const lightest::DataSet* data); \
     void call_ ## name(lightest::Register::Context& ctx){ \
         name(ctx.testData); \
     } \
-    lightest::Registing registing_ ## name(lightest::globalRegister, #name, call_ ## name, 2); \
+    lightest::Registering registering_ ## name(lightest::globalRegister, #name, call_ ## name, 2); \
     void name(const lightest::DataSet* data)
 
 /* ========== Configuration macros ========== */
@@ -332,11 +343,16 @@ class Testing {
 #define SIMPLER() lightest::moreOutput = false;
 #define NO_COLOR() lightest::OutputColor = false;
 #define FILTER(level) lightest::filtLevel = level;
+#define NO_OUTPUT() lightest::toOutput = false;
 
 /* ========== Main ========== */
 
 int main(int argn, char* argc[]) {
 	lightest::Register::SetArg(argn, argc);
+	lightest::globalRegister.RunRegistered();
+	if(lightest::toOutput) {
+		lightest::globalRegister.testData->PrintSons();
+	}
 	return 0;
 }
 
@@ -379,11 +395,6 @@ int main(int argn, char* argc[]) {
 // condition must be true or call abort()
 #define MUST(condition) do { bool var = (condition); \
     if(!var) { FAIL("A must didn't pass"); abort(); } } while(0) 
-
-// Call to output loggings
-DATA(PrintAllOutputs) {
-    data->PrintSons();
-}
 
 #undef _LINUX_
 #undef _WIN_

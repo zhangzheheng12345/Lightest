@@ -1,4 +1,4 @@
-#include <string>
+#include <string> // To compare string easily in different platforms
 
 #include "lightest.h"
 
@@ -6,9 +6,11 @@ CONFIG(Config1) {
 	for(;argn > 0; argn--, argc++) {
 		if(std::string(*argc) == "--no-color") NO_COLOR();
 		if(std::string(*argc) == "--simpler") SIMPLER();
+		if(std::string(*argc) == "--no-output") NO_OUTPUT();
 	}
-	// NO_COLOR();// N
+	// NO_COLOR();
 	// SIMPLER();
+	// NO_OUTPUT();
 	// FILTER(MSG_LOWER);
 	// FILTER(WARN_LOWER);
 	// FILTER(ERR_LOWER);
@@ -35,4 +37,16 @@ TEST(TestAssertionMacors) {
     REQ(a, ==, b);
 	REQ(b, !=, c);
     //  MUST(REQ(a, ==, c)); // FAIL & Aborted
+}
+
+// To test DATA
+DATA(GetFailedTests) {
+	std::cout << "Failed tests:" << std::endl;
+	for(lightest::Data* item : data->sons) {
+		lightest::DataSet* test = static_cast<lightest::DataSet*>(item);
+		if(test->failed) {
+			std::cout << " * " << test->name << std::endl;
+		}
+	}
+	std::cout << "-----------------------------" << std::endl;
 }
