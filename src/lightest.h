@@ -63,7 +63,6 @@ enum FiltLevel {
     ALL = 0, MSG_LOWER, WARN_LOWER, ERR_LOWER // LOG => MSG level, FAIL will always be outputted
 };
 
-bool moreOutput = true; // Use SIMPLER() to set to false
 FiltLevel filtLevel = ALL; // Use FILTER(level) to set
 bool toOutput = true; // Use NO_OUTPUT to set to false
 
@@ -82,13 +81,13 @@ public:
 class DataSet : public Data {
 public:
     DataSet(const char* name) {
-        this->name = name, duration = 0, failureCount = 0;
+        this->name = name, duration = 0;
     }
     void Add(Data* son) {
         sons.push_back(son);
     }
-    void End(bool failed, clock_t duration, unsigned int failureCount) {
-        this->failed = failed, this->duration = duration, this->failureCount = failureCount;
+    void End(bool failed, clock_t duration) {
+        this->failed = failed, this->duration = duration;
     }
     void PrintSons() const {
 		for (const Data* item : sons) {
@@ -99,20 +98,22 @@ public:
         cout << "[Begin ] " << name << endl;
         PrintSons();
         cout << "[End   ] " << name;
-        if (failed) { SetColor(Red); cout << " FAIL" << endl; }
-        else { SetColor(Green); cout << " PASS" << endl; }
+        if (failed) { SetColor(Red); cout << " FAIL "; }
+        else { SetColor(Green); cout << " PASS "; }
         SetColor(Reset);
-        if (moreOutput) {
-            if (failed) cout << "  >> FAILURE: " << failureCount << endl;
-            cout << "  >> TIME: " << duration / CLOCKS_PER_SEC * 1000 << "ms" << endl;
-        }
+		cout << duration / CLOCKS_PER_SEC * 1000 << "ms" << endl;
 	}
     DataType Type() const { return DATA_SET; }
-    // public for data processing
-    // TODO: Use get functions to prevent that DATA change test data e.g. GetName()
+    bool GetFailed() const { return failed; }
+    clock_t GetDuration() const { return duration; }
+    void IterSons(void (*func)(const Data*)) const {
+		for(const Data* item : sons) {
+			func(item);
+		}
+	}
     const char* name;
+private:
     bool failed;
-    unsigned int failureCount;
     clock_t duration;
     vector<Data*> sons;
 };
@@ -120,8 +121,11 @@ public:
 class DataUnit {
 public:
     const char* file;
+    unsigned int GetLine() const { return line; }
+protected:
     unsigned int line;
 };
+
 class DataMsg : public Data, public DataUnit {
 public:
     DataMsg(const char* file, unsigned int line, const char* str) {
@@ -134,9 +138,9 @@ public:
 		}
     }
     DataType Type() const { return DATA_MSG; }
-    // TODO: get functions; following similar
     const char* str;
 };
+
 class DataWarn : public Data, public DataUnit{
 public:
     DataWarn(const char* file, unsigned int line, const char* str) {
@@ -151,6 +155,7 @@ public:
     DataType Type() const { return DATA_WARN; }
     const char* str;
 };
+
 class DataError : public Data, public DataUnit {
 public:
     DataError(const char* file, unsigned int line, const char* str) {
@@ -165,6 +170,7 @@ public:
     DataType Type() const { return DATA_ERR; }
     const char* str;
 };
+
 class DataFail : public Data, public DataUnit {
 public:
     DataFail(const char* file, unsigned int line, const char* str) {
@@ -177,6 +183,7 @@ public:
     DataType Type() const { return DATA_FAIL; }
     const char* str;
 };
+
 template<class T> class DataLog : public Data, public DataUnit {
 public:
     DataLog(const char* file, unsigned int line, const char* varName, const T& value_) : value(value_) {
@@ -193,6 +200,7 @@ public:
     const char* varName;
     const T value;
 };
+
 template<class T> class DataReq : public Data, public DataUnit{
 public:
     DataReq(const char* file, unsigned int line,
@@ -273,7 +281,7 @@ class Testing {
     public:
         Testing(const char* name) {
             reg = Register(name);
-            failureCount = 0, failed = false;
+            failed = false;
             start = clock();
         }
         void Msg(const char* file, int line, const char* str) {
@@ -284,11 +292,11 @@ class Testing {
         }
         void Err(const char* file, int line, const char* str) {
             reg.testData->Add(new DataError(file, line, str));
-            failed = true, failureCount++;
+            failed = true;
         }
         void Fail(const char* file, int line, const char* str) {
             reg.testData->Add(new DataFail(file, line, str));
-            failed = true, failureCount++;
+            failed = true;
         }
         template<typename T> void Log(const char* file, int line, const char* varName, const T& value) {
             reg.testData->Add(new DataLog<T>(file, line, varName, value));
@@ -303,11 +311,10 @@ class Testing {
         }
         ~Testing() {
 			reg.RunRegistered();
-            reg.testData->End(failed, clock() - start, failureCount);
+            reg.testData->End(failed, clock() - start);
         }
     private:
         clock_t start; // No need to report.
-        unsigned int failureCount;
         bool failed;
         Register reg;
 };
@@ -342,7 +349,6 @@ class Testing {
 
 /* ========== Configuration macros ========== */
 
-#define SIMPLER() lightest::moreOutput = false;
 #define NO_COLOR() lightest::OutputColor = false;
 #define FILTER(level) lightest::filtLevel = level;
 #define NO_OUTPUT() lightest::toOutput = false;
@@ -355,6 +361,7 @@ int main(int argn, char* argc[]) {
 	if(lightest::toOutput) {
 		lightest::globalRegister.testData->PrintSons();
 	}
+	std::cout << "Done. " << clock() / CLOCKS_PER_SEC * 1000 << "ms used." << std::endl;
 	return 0;
 }
 

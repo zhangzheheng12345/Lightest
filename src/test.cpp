@@ -1,11 +1,11 @@
 #include <string> // To compare string easily in different platforms
 
 #include "lightest.h"
+#define __FILE__ "test.cpp"
 
 CONFIG(Config1) {
 	for(;argn > 0; argn--, argc++) {
 		if(std::string(*argc) == "--no-color") NO_COLOR();
-		if(std::string(*argc) == "--simpler") SIMPLER();
 		if(std::string(*argc) == "--no-output") NO_OUTPUT();
 	}
 	// NO_COLOR();
@@ -43,11 +43,11 @@ TEST(TestAssertionMacors) {
 // To test DATA
 DATA(GetFailedTests) {
 	std::cout << "Failed tests:" << std::endl;
-	for(lightest::Data* item : data->sons) {
-		lightest::DataSet* test = static_cast<lightest::DataSet*>(item);
-		if(test->failed) {
+	data->IterSons([] (const lightest::Data* item) {
+		const lightest::DataSet* test = static_cast<const lightest::DataSet*>(item);
+		if(test->GetFailed()) {
 			std::cout << " * " << test->name << std::endl;
 		}
-	}
+	});
 	std::cout << "-----------------------------" << std::endl;
 }

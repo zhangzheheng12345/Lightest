@@ -33,30 +33,27 @@ Failed tests:
  * TestAssertionMacors
 -----------------------------
 [Begin ] TestOutputMacros
-    [Msg  ] test.cpp:21: msg
-    [Warn ] test.cpp:22: warn
-    [Error] test.cpp:23: error
-    [Fail ] test.cpp:24: fail
-    [Log  ] test.cpp:26: a = 100
-[End   ] TestOutputMacros FAIL
-  >> FAILURE: 2
-  >> TIME: 0ms
+    [Msg  ] test.cpp:20: msg
+    [Warn ] test.cpp:21: warn
+    [Error] test.cpp:22: error
+    [Fail ] test.cpp:23: fail
+    [Log  ] test.cpp:25: a = 100
+[End   ] TestOutputMacros FAIL 0ms
 [Begin ] TestTimerMacoros
-    [Log  ] test.cpp:31: TIMER(i++) = 0
-    [Log  ] test.cpp:32: AVG_TIMER(i++, 100) = 0.00041
-[End   ] TestTimerMacoros PASS
-  >> TIME: 0ms
+    [Log  ] test.cpp:30: TIMER(i++) = 0
+    [Log  ] test.cpp:31: AVG_TIMER(i++, 100) = 0.00059
+[End   ] TestTimerMacoros PASS 0ms
 [Begin ] TestAssertionMacors
-    [Fail ] test.cpp:37: Req failed
+    [Fail ] test.cpp:36: Req failed
         + ACTUAL: 0
         + EXPECTED: > 0
-    [Fail ] test.cpp:40: Req failed
+    [Fail ] test.cpp:39: Req failed
         + ACTUAL: 0
         + EXPECTED: == 1
-    [Fail ] test.cpp:40: A must didn't pass
-[End   ] TestAssertionMacors FAIL
-  >> FAILURE: 1
-  >> TIME: 0ms
+    [Fail ] test.cpp:39: A must didn't pass
+[End   ] TestAssertionMacors FAIL 0ms
+Done. 0ms used.
+
 ```
 
 (*Your time & file path might be different,*
@@ -123,17 +120,17 @@ Write thus to process the data yourself:
 
 ```C++
 DATA(DataProcessor1) {
-    for(Data* item : data->sons) {
+    data->IterSons( [] (const lightest::Data* item) {
         // To output all the defined tests' names
         std::cout << " * " << static_cast<DataSet*>(item)->name << std::endl;
-    }
+    }); // Pass a callback function to DataSet.IterSons to iterate all the test data
 }
 ```
 
 `data` is a pre-defined variable; its type is `const lightest::DataSet*`.
 
-You can use method of `Type()` and `static_cast` to process the data deeply yourself. 
-Better carefully look at `lightest.h` if you want to do this.
+You can use method of `Type()` and `static_cast` to transfer data's type and process the data deeply yourself. 
+Better carefully look at `lightest.h` if you want to do this. Const values can be got directly while for some other you need to call a getter function.
 
 All the loggings and assertions will be recorded so that you can get them while processing test data.
 
@@ -144,7 +141,6 @@ You can write configurations like thus (`CONFIG` functions will be run before te
 ```C++
 // in global scope
 CONFIG(Config1) {
-	SIMPLER();
 	NO_COLOR();
 	FILTER(WARN_LOWER);
 	// To get command line arguments
@@ -153,7 +149,6 @@ CONFIG(Config1) {
 }
 ```
 
-* `SIMPLER()` makes outputs' format a bit simpler.
 * `NO_COLOR()` makes outputs get no coloring. This is useful when you want to write outputs to a file.
 * `FILTER(level)` will ignore some outputs. For example, `FILTER(MSG_LOWER)` will ignore msg outputs (including `MSG(str)` and `LOG(var)`); `FILTER(WARN_LOWER)` will ignore msg & warn outputs. `ERR_LOWER` is also supported. Default level is `ALL`.
 * `NO_OUTPUT()` forbids the default outputting system to give out the loggings. This is useful when you only want to deal the test data yourself and don't want any default output.
