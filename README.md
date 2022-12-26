@@ -73,8 +73,8 @@ Here is an example showing how to add tests:
 // in global scope
 TEST(Test1) {
     int var = 123456;
-    MSG("Hello from Test1"); // Output a message.
-    LOG(var); // Output the variable of var.
+    MSG("Hello from Test1");
+    LOG(var);
 }
 ```
 
@@ -85,6 +85,18 @@ All the defined tests will be automatically run because auto registration is sup
 * Use macro `MSG(str)`, `WARN(str)`, `ERR(str)` and `FAIL(str)` to output test information. `ERR(str)` and `FAIL(str)` will also set the test failed.
 * Use macro `LOG(varname)` to output a variable. The message will include both the variable's name and its value.
 * These macros can only be used insides tests.
+
+Example:
+
+```C++
+// in a test
+MSG("Hello? This is a message.");
+WARN("Hey! This is a warning.");
+ERR("Opps! An error occurred."); // Output & set the test failed
+FAIL("Oh no! Test failed."); // Output & set the test failed
+int a = 100;
+LOG(a); // Output variable's name and its value at the same time
+``` 
 
 ### Assertion macros
 
@@ -97,6 +109,8 @@ We also provide `MUST(condition)`. The current test will be stopped if `conditio
 Example:
 
 ```C++
+// in a test
+REQ(1, ==, 1); // Pass with no output -- The cleaner, the better.
 REQ(1, ==, 2); // Fail and output actual: 1, expected: ==2
 MUST(REQ(1, ==, 2)); // Fail and current test will be stopped
 ```
@@ -141,11 +155,11 @@ You can write configurations like thus (`CONFIG` functions will be run before te
 ```C++
 // in global scope
 CONFIG(Config1) {
-	NO_COLOR();
-	FILTER(WARN_LOWER);
-	// To get command line arguments
-	// argn & argc pre-defined
-	for(; argn > 0; argn--, argc++) std::cout << *argc << std::endl; // Output all args
+    NO_COLOR();
+    FILTER(WARN_LOWER);
+    // To get command line arguments
+    // argn & argc pre-defined
+    for(; argn > 0; argn--, argc++) std::cout << *argc << std::endl; // Output all args
 }
 ```
 
