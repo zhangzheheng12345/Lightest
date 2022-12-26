@@ -3,14 +3,23 @@
 ![build_pass](https://img.shields.io/badge/build-passing-green.svg)
 ![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
-**Lightest**, the name of the project, means it provides a lightest C++ unit test framework. It's also quite flexible and customizable.
+**Lightest**, the name of the project, means it provides a extremely light but meanwhile string C++ unit test framework. It's also quite flexible and customizable.
 
 The core library file is `/src/lightest.h`. Extensions will be provided in the future.
 
 It's header only. If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be a excellent choice.
 
-( *Your compiler has to support C++11 if you want to use this library because the library is partly based on lambda expression.*
-*Also, the project has only been tested on clang++ in Ubuntu, and MSVC (Visual Studio) in Windows 10* )
+Following features are supported:
+
+* Automatic registration for testing, configuring and data processing functions.
+* Loggers such as MSG and FAIL.
+* Assertions.
+* Pretty output, include coloring (cross platform supported).
+* Test data collecting.
+* Timers.
+* Configurations are supported if you want.
+
+( *Your compiler has to support C++11. Also, the project has only been tested on clang++ in Ubuntu, and MSVC (Visual Studio) in Windows 10* )
 
 ## Example
 
@@ -74,12 +83,16 @@ All the defined tests will be automatically run because auto registration is sup
 ### Assertion macros
 
 Use `REQ(actual, operator, expected)`. It offers a way to compare the actual value and the expected value. If the assertion is failed, it'll output the actual value and the expected value. 
+
 As for some situations like that you just want the returning value of a function to be true, pray write `REQ(func(), ==, true)` which is more readable and also fit Lightest.
+
+We also provide `MUST(condition)`. The current test will be stopped if `condition` is false.
 
 Example:
 
 ```C++
 REQ(1, ==, 2); // Fail and output actual: 1, expected: ==2
+MUST(REQ(1, ==, 2)); // Fail and current test will be stopped
 ```
 
 ### Timer macros
@@ -95,9 +108,29 @@ TIMER(std::cout << "One Hello" << std::endl); // Return how long the sentence sp
 TIMER(std::cout << "Avg Hello" << std::endl, 1000); // Run it 1000 times and return the average time
 ```
 
+### To process data yourself
+
+Write thus to process the data yourself:
+
+```C++
+DATA(DataProcessor1) {
+    for(Data* item : data->sons) {
+        // To output all the defined tests' names
+        std::cout << " * " << static_cast<DataSet*>(item)->name << std::endl;
+    }
+}
+```
+
+`data` is a pre-defined variable; its type is `const lightest::DataSet*`.
+
+You can use method of `Type()` and `static_cast` to process the data deeply yourself. 
+Better carefully look at `lightest.h` if you want to do this.
+
+All the loggings and assertions will be recorded so that you can get them while processing test data.
+
 ### Configuring macros
 
-* You can write configurations like thus:
+You can write configurations like thus (`CONFIG` functions will be run before tests):
 
 ```C++
 // in global scope
@@ -114,6 +147,7 @@ CONFIG(Config1) {
 * `SIMPLER()` makes outputs' format a bit simpler.
 * `NO_COLOR()` makes outputs get no coloring. This is useful when you want to write outputs to a file.
 * `FILTER(level)` will ignore some outputs. For example, `FILTER(MSG_LOWER)` will ignore msg outputs (including `MSG(str)` and `LOG(var)`); `FILTER(WARN_LOWER)` will ignore msg & warn outputs. `ERR_LOWER` is also supported. Default level is `ALL`.
+* `NO_OUTPUT()` forbids the default outputting system to give out the loggings. This is useful when you only want to deal the test data yourself and don't want any default output.
 * You sometimes need to deal with `argn` and `argc` in configuring functions. Just use them as that you use them in main. We pre-define `argn` and `argc` in configuring functions.
 
 ## Future
@@ -123,11 +157,13 @@ CONFIG(Config1) {
 * More assertion macros in a independent file as an extension.
 * Async testing system in a independent file as an extension.
 * Catch uncaught error thrown by tested programs.
+* (Maybe) Chai like assertions support as an extension.
+* A stronger data processing tool set as an extension.
 
 ## Caution
 
 * You must add a semicolon after a assertion or outputing macro.
-* Don't forget `MAIN` or `LESS_MAIN`!
+* Logging macros and assertions macros can only be used in tests. 
 
 If you meet any issues, be free to put forward issues in GitHub!
 (*Please use English*)

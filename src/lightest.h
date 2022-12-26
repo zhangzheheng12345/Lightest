@@ -109,6 +109,7 @@ public:
 	}
     DataType Type() const { return DATA_SET; }
     // public for data processing
+    // TODO: Use get functions to prevent that DATA change test data e.g. GetName()
     const char* name;
     bool failed;
     unsigned int failureCount;
@@ -133,6 +134,7 @@ public:
 		}
     }
     DataType Type() const { return DATA_MSG; }
+    // TODO: get functions; following similar
     const char* str;
 };
 class DataWarn : public Data, public DataUnit{
