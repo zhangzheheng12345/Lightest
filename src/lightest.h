@@ -58,17 +58,10 @@ if(OutputColor) {
 
 /* ========== Data ========== */
 
-// TODO: use enum class
-enum FiltLevel {
-    ALL = 0, MSG_LOWER, WARN_LOWER, ERR_LOWER // LOG => MSG level, FAIL will always be outputted
-};
-
-FiltLevel filtLevel = ALL; // Use FILTER(level) to set
 bool toOutput = true; // Use NO_OUTPUT to set to false
 
-// TODO: use enum class
-enum DataType {
-    DATA_SET, DATA_MSG, DATA_WARN, DATA_ERR, DATA_FAIL, DATA_LOG, DATA_REQ
+enum class DataType {
+    DATA_SET, DATA_REQ
 };
 
 class Data {
@@ -103,7 +96,7 @@ public:
         SetColor(Reset);
 		cout << duration / CLOCKS_PER_SEC * 1000 << "ms" << endl;
 	}
-    DataType Type() const { return DATA_SET; }
+    DataType Type() const { return DataType::DATA_SET; }
     bool GetFailed() const { return failed; }
     clock_t GetDuration() const { return duration; }
     void IterSons(void (*func)(const Data*)) const {
@@ -126,98 +119,29 @@ protected:
     unsigned int line;
 };
 
-class DataMsg : public Data, public DataUnit {
-public:
-    DataMsg(const char* file, unsigned int line, const char* str) {
-        this->file = file, this->line = line, this->str = str;
-    }
-    void Print() const {
-		if(filtLevel < MSG_LOWER) {
-            cout << "    "; SetColor(Green); cout << "[Msg  ] "; SetColor(Reset);
-            cout << file << ":" << line << ": " << str << endl;
-		}
-    }
-    DataType Type() const { return DATA_MSG; }
-    const char* str;
-};
-
-class DataWarn : public Data, public DataUnit{
-public:
-    DataWarn(const char* file, unsigned int line, const char* str) {
-        this->file = file, this->line = line, this->str = str;
-    }
-    void Print() const {
-		if(filtLevel < WARN_LOWER) {
-            cout << "    "; SetColor(Yellow); cout << "[Warn ] "; SetColor(Reset);
-            cout << file << ":" << line << ": " << str << endl;
-		}
-    }
-    DataType Type() const { return DATA_WARN; }
-    const char* str;
-};
-
-class DataError : public Data, public DataUnit {
-public:
-    DataError(const char* file, unsigned int line, const char* str) {
-        this->file = file, this->line = line, this->str = str;
-    }
-    void Print() const {
-		if(filtLevel < ERR_LOWER) {
-            cout << "    "; SetColor(Red); cout << "[Error] "; SetColor(Reset);
-            cout << file << ":" << line << ": " << str << endl;
-		}
-    }
-    DataType Type() const { return DATA_ERR; }
-    const char* str;
-};
-
-class DataFail : public Data, public DataUnit {
-public:
-    DataFail(const char* file, unsigned int line, const char* str) {
-        this->file = file, this->line = line, this->str = str;
-    }
-    void Print() const {
-        cout << "    "; SetColor(Red); cout << "[Fail ] "; SetColor(Reset);
-        cout << file << ":" << line << ": " << str << endl;
-    }
-    DataType Type() const { return DATA_FAIL; }
-    const char* str;
-};
-
-template<class T> class DataLog : public Data, public DataUnit {
-public:
-    DataLog(const char* file, unsigned int line, const char* varName, const T& value_) : value(value_) {
-        this->file = file, this->line = line, this->varName = varName;
-    }
-    void Print() const {
-		if(filtLevel < MSG_LOWER) {
-            cout << "    "; SetColor(Green); cout << "[Log  ] "; SetColor(Reset);
-            cout << file << ":" << line << ": "
-                << varName << " = " << value << endl;
-		}
-    }
-    DataType Type() const { return DATA_LOG; }
-    const char* varName;
-    const T value;
-};
-
-template<class T> class DataReq : public Data, public DataUnit{
+template<class T, class U> class DataReq : public Data, public DataUnit{
 public:
     DataReq(const char* file, unsigned int line,
-        const T& actual_, const T& expected_, const char* operator_, bool failed_)
+        const T& actual_, const T& expected_, const char* operator_, const char* expr,
+        bool failed_)
             : actual(actual_), expected(expected_), failed(failed_) {
-        this->file = file, this->line = line, this->operator_ = operator_;
+        this->file = file, this->line = line, this->operator_ = operator_, this->expr = expr;
     }
     void Print() const {
         if(failed) {
-            DataFail(file, line, "Req failed").Print();
+			SetColor(Red);
+			cout << "    [Fail ] ";
+			SetColor(Reset);
+			cout << file << ":" << line << ":"
+				<< " REQ [" << expr << "] failed" << endl;
             cout << "        + ACTUAL: " << actual << endl;
             cout << "        + EXPECTED: " << operator_ << " " << expected << endl;
         }
     }
-    DataType Type() const { return DATA_REQ; }
-    const T actual, expected;
-    const char* operator_;
+    DataType Type() const { return DataType::DATA_REQ; }
+    const T actual;
+    const U expected;
+    const char* operator_, *expr;
     const bool failed;
 };
 
@@ -284,27 +208,11 @@ class Testing {
             failed = false;
             start = clock();
         }
-        void Msg(const char* file, int line, const char* str) {
-            reg.testData->Add(new DataMsg(file, line, str));
-        }
-        void Warn(const char* file, int line, const char* str) {
-            reg.testData->Add(new DataWarn(file, line, str));
-        }
-        void Err(const char* file, int line, const char* str) {
-            reg.testData->Add(new DataError(file, line, str));
-            failed = true;
-        }
-        void Fail(const char* file, int line, const char* str) {
-            reg.testData->Add(new DataFail(file, line, str));
-            failed = true;
-        }
-        template<typename T> void Log(const char* file, int line, const char* varName, const T& value) {
-            reg.testData->Add(new DataLog<T>(file, line, varName, value));
-        }
-        template<typename T> void Req(const char* file, int line,
-            const T& actual, const T& expected, const char* operator_, bool failed) {
-            reg.testData->Add(new DataReq<T>(file, line, actual, expected, operator_, failed));
-			this->failed = !failed;
+        template<typename T, typename U> void Req(const char* file, int line,
+            const T& actual, const U& expected, const char* operator_, const char* expr, 
+            bool failed) {
+            reg.testData->Add(new DataReq<T, U>(file, line, actual, expected, operator_, expr, failed));
+			this->failed = failed;
         }
         DataSet* GetData() {
             return reg.testData;
@@ -365,14 +273,6 @@ int main(int argn, char* argc[]) {
 	return 0;
 }
 
-/* ========== Logging Macros ========== */
-
-#define MSG(str) testing.Msg(__FILE__, __LINE__,(str))
-#define WARN(str) testing.Warn(__FILE__, __LINE__,(str))
-#define ERR(str) testing.Err(__FILE__, __LINE__, (str))
-#define FAIL(str) testing.Fail(__FILE__, __LINE__, (str))
-#define LOG(varName) testing.Log(__FILE__, __LINE__, #varName, (varName))
-
 /* ========= Timer Macros =========== */
 
 // unit: minisecond(ms)
@@ -399,12 +299,13 @@ int main(int argn, char* argc[]) {
 #define REQ(actual, operator, expected) \
     ( [&] () -> bool { \
         bool res = (actual) operator (expected); \
-        testing.Req(__FILE__, __LINE__, actual, expected, #operator, !res); \
+        testing.Req(__FILE__, __LINE__, \
+            actual, expected, #operator, #actual " " #operator " " #expected, !res); \
         return res; \
     } ) ()
 
 // condition must be true or stop currnet test
-#define MUST(condition) do { if(!(condition)) { FAIL("A must didn't pass"); return; } } while(0) 
+#define MUST(condition) do { if(!(condition)) { return; } } while(0) 
 
 #undef _LINUX_
 #undef _WIN_

@@ -5,14 +5,13 @@
 
 **Lightest**, the name of the project, means it provides a extremely light but meanwhile string C++ unit test framework. It's also quite flexible and customizable.
 
-The core library file is `/src/lightest.h`. Extensions will be provided in the future.
+The core library file is `/src/lightest.h`. Extensions will be provided in the future. I promise that I'll keep the core extremely light.
 
 It's header only. If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be a excellent choice.
 
 Following features are supported:
 
 * Automatic registration for testing, configuring and data processing functions.
-* Loggers such as MSG and FAIL.
 * Assertions.
 * Pretty output, include coloring (cross platform supported).
 * Test data collecting.
@@ -21,43 +20,29 @@ Following features are supported:
 
 ( *Your compiler has to support C++11. Also, the project has only been tested on clang++ in Ubuntu, and MSVC (Visual Studio) in Windows 10* )
 
-## Example
-
-Have a look at `test.cpp`. It simply shows how to use tests, assertion macros, timer macros, configuring macros and logging macros.
-
-Just use CMake to build the project. Then run it. The output of the example should be like this below:
+Take a quick look at how will Lightest output, similar to below, simple and tidy:
 
 ```
-Failed tests:
- * TestOutputMacros
- * TestAssertionMacors
------------------------------
-[Begin ] TestOutputMacros
-    [Msg  ] test.cpp:20: msg
-    [Warn ] test.cpp:21: warn
-    [Error] test.cpp:22: error
-    [Fail ] test.cpp:23: fail
-    [Log  ] test.cpp:25: a = 100
-[End   ] TestOutputMacros FAIL 0ms
 [Begin ] TestTimerMacoros
-    [Log  ] test.cpp:30: TIMER(i++) = 0
-    [Log  ] test.cpp:31: AVG_TIMER(i++, 100) = 0.00059
 [End   ] TestTimerMacoros PASS 0ms
 [Begin ] TestAssertionMacors
-    [Fail ] test.cpp:36: Req failed
+    [Fail ] test.cpp:23: REQ [a > b] failed
         + ACTUAL: 0
         + EXPECTED: > 0
-    [Fail ] test.cpp:39: Req failed
+    [Fail ] test.cpp:26: REQ [a == c] failed
         + ACTUAL: 0
         + EXPECTED: == 1
-    [Fail ] test.cpp:39: A must didn't pass
 [End   ] TestAssertionMacors FAIL 0ms
 Done. 0ms used.
-
 ```
 
-(*Your time & file path might be different,*
-*and they should be colorful if your platform is Windows, Linux or Mac*)
+## Example
+
+Have a look at `test.cpp`. It simply shows how to use tests, assertion macros, timer macros, and configuring macros.
+
+Just use CMake to build the project. Then run it. The outputs should be like those given out above, but maybe a bit more, since `test.cpp` adds a user defined data processor to list the failed tests.
+
+(*they should be colorful if your platform is Windows, Linux or Mac*)
 
 ## Usage
 
@@ -72,31 +57,11 @@ Here is an example showing how to add tests:
 ```C++
 // in global scope
 TEST(Test1) {
-    int var = 123456;
-    MSG("Hello from Test1");
-    LOG(var);
+    REQ(1, ==, 1); // Pass, of course
 }
 ```
 
 All the defined tests will be automatically run because auto registration is supported.
-
-### Logging macros
-
-* Use macro `MSG(str)`, `WARN(str)`, `ERR(str)` and `FAIL(str)` to output test information. `ERR(str)` and `FAIL(str)` will also set the test failed.
-* Use macro `LOG(varname)` to output a variable. The message will include both the variable's name and its value.
-* These macros can only be used insides tests.
-
-Example:
-
-```C++
-// in a test
-MSG("Hello? This is a message.");
-WARN("Hey! This is a warning.");
-ERR("Opps! An error occurred."); // Output & set the test failed
-FAIL("Oh no! Test failed."); // Output & set the test failed
-int a = 100;
-LOG(a); // Output variable's name and its value at the same time
-``` 
 
 ### Assertion macros
 
@@ -156,7 +121,6 @@ You can write configurations like thus (`CONFIG` functions will be run before te
 // in global scope
 CONFIG(Config1) {
     NO_COLOR();
-    FILTER(WARN_LOWER);
     // To get command line arguments
     // argn & argc pre-defined
     for(; argn > 0; argn--, argc++) std::cout << *argc << std::endl; // Output all args
@@ -164,9 +128,8 @@ CONFIG(Config1) {
 ```
 
 * `NO_COLOR()` makes outputs get no coloring. This is useful when you want to write outputs to a file.
-* `FILTER(level)` will ignore some outputs. For example, `FILTER(MSG_LOWER)` will ignore msg outputs (including `MSG(str)` and `LOG(var)`); `FILTER(WARN_LOWER)` will ignore msg & warn outputs. `ERR_LOWER` is also supported. Default level is `ALL`.
 * `NO_OUTPUT()` forbids the default outputting system to give out the loggings. This is useful when you only want to deal the test data yourself and don't want any default output.
-* You sometimes need to deal with `argn` and `argc` in configuring functions. Just use them as that you use them in main. We pre-define `argn` and `argc` in configuring functions.
+* You sometimes need to use `argn` and `argc` in configuring functions. Just use them as that you use them in main. We pre-define `argn` and `argc` in configuring functions.
 
 ## Future
 
@@ -178,10 +141,9 @@ CONFIG(Config1) {
 * (Maybe) Chai like assertions support as an extension.
 * A stronger data processing tool set as an extension.
 
-## Caution
+## More
 
 * You must add a semicolon after a assertion or outputing macro.
-* Logging macros and assertions macros can only be used in tests. 
 
 If you meet any issues, be free to put forward issues in GitHub!
 (*Please use English*)
