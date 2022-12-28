@@ -8,4 +8,4 @@ file(GLOB SRC_FILES
     "${PROJECT_SOURCE_DIR}/src/*.h"
     "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
-add_executable(${CMAKE_PROJECTNAME} ${SRC_FILES})
+add_executable(${CMAKE_PROJECT_NAME} ${SRC_FILES})
