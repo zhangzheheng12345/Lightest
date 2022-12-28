@@ -1,39 +1,39 @@
-#include <string> // To compare string easily in different platforms
+#include <string>  // To compare string easily in different platforms
 
 #include "lightest.h"
 // #define __FILE__ "test.cpp"
 
-CONFIG(Config1) {
-	for(;argn > 0; argn--, argc++) {
-		if(std::string(*argc) == "--no-color") NO_COLOR();
-		if(std::string(*argc) == "--no-output") NO_OUTPUT();
-	}
-	// NO_COLOR();
-	// NO_OUTPUT();
+CONFIG(Configurations) {
+  for (; argn > 0; argn--, argc++) {
+    if (std::string(*argc) == "--no-color") NO_COLOR();
+    if (std::string(*argc) == "--no-output") NO_OUTPUT();
+  }
+  // NO_COLOR();
+  // NO_OUTPUT();
 }
 
-TEST(TestTimerMacoros) {
-    int i = 0;
-    REQ(TIMER(i++), >=, 0);
-    REQ(AVG_TIMER(i++, 100), >=, 0);
+TEST(TestTimerMacros) {
+  int i = 0;
+  REQ(TIMER(i++), >=, 0);
+  REQ(AVG_TIMER(i++, 100), >=, 0);
 }
 
-TEST(TestAssertionMacors) {
-    int a = 0, b = 0, c = 1;
-	REQ(a, >, b); // Test fail
-    REQ(a, ==, b);
-	REQ(b, !=, c);
-    MUST(REQ(a, ==, c)); // FAIL & stop this test
+TEST(TestAssertionMacros) {
+  int a = 0, b = 0, c = 1;
+  REQ(a, >, b);  // Test fail
+  REQ(a, ==, b);
+  REQ(b, !=, c);
+  MUST(REQ(a, ==, c));  // FAIL & stop this test
 }
 
 // To test DATA
 DATA(GetFailedTests) {
-	std::cout << "Failed tests:" << std::endl;
-	data->IterSons([] (const lightest::Data* item) {
-		const lightest::DataSet* test = static_cast<const lightest::DataSet*>(item);
-		if(test->GetFailed()) {
-			std::cout << " * " << test->name << std::endl;
-		}
-	});
-	std::cout << "-----------------------------" << std::endl;
+  std::cout << "Failed tests:" << std::endl;
+  data->IterSons([](const lightest::Data* item) {
+    const lightest::DataSet* test = static_cast<const lightest::DataSet*>(item);
+    if (test->GetFailed()) {
+      std::cout << " * " << test->name << std::endl;
+    }
+  });
+  std::cout << "-----------------------------" << std::endl;
 }
