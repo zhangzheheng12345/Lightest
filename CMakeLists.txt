@@ -4,4 +4,8 @@ project(Lightest)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(Lightest ./src/test.cpp)
+file(GLOB SRC_FILES
+    "${PROJECT_SOURCE_DIR}/src/*.h"
+    "${PROJECT_SOURCE_DIR}/src/*.cpp")
+
+add_executable(${CMAKE_PROJECTNAME} ${SRC_FILES})
