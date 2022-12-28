@@ -7,7 +7,7 @@
 
 The core library file is `/src/lightest.h`. Extensions will be provided in the future. I promise that I'll keep the core extremely light.
 
-It's header only. If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be a excellent choice.
+It's header only. If you suddenly want to do some small experiments, or decide to write a very light project ( probably like this one ), **Lightest** will be an excellent choice.
 
 Following features are supported:
 
@@ -18,7 +18,7 @@ Following features are supported:
 * Timers.
 * Configurations are supported if you want.
 
-( *Your compiler has to support C++11. Also, the project has only been tested on clang++ in Ubuntu, and MSVC (Visual Studio) in Windows 10* )
+Your compiler has to support C++11. Also, the project has only been tested on clang++ in Ubuntu, and MSVC (Visual Studio) in Windows 10.
 
 Take a quick look at how will Lightest output, similar to below, simple and tidy:
 
@@ -42,7 +42,7 @@ Have a look at `test.cpp`. It simply shows how to use tests, assertion macros, t
 
 Just use CMake to build the project. Then run it. The outputs should be like those given out above, but maybe a bit more, since `test.cpp` adds a user defined data processor to list the failed tests.
 
-(*they should be colorful if your platform is Windows, Linux or Mac*)
+Outputs should be colorful if your platform is Windows, Linux or Mac.
 
 ## Usage
 
@@ -82,7 +82,7 @@ MUST(REQ(1, ==, 2)); // Fail and current test will be stopped
 
 ### Timer macros
 
-* `TIMER(sentence)` runs the sentence provided, and returns how long did the sentence spend running. (*It returns type `clock_t`, ms*)
+* `TIMER(sentence)` runs the sentence provided, and returns how long did the sentence spend running. It returns type `clock_t`, ms.
 * `AVG_TIMER(sentence, times)` runs the sentence provided `times` times, and then returns the average time.
 * The time unit is always minisecond(ms).
 
@@ -123,7 +123,8 @@ CONFIG(Config1) {
     NO_COLOR();
     // To get command line arguments
     // argn & argc pre-defined
-    for(; argn > 0; argn--, argc++) std::cout << *argc << std::endl; // Output all args
+    for(; argn > 0; argn--, argc++)
+        std::cout << *argc << std::endl; // Output all args
 }
 ```
 
@@ -144,6 +145,8 @@ CONFIG(Config1) {
 ## More
 
 * You must add a semicolon after a assertion or outputing macro.
+* v1.3.0 and above versions follow SemVer.
+* C++11 required.
 
 If you meet any issues, be free to put forward issues in GitHub!
 (*Please use English*)
