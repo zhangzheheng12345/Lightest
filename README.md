@@ -20,31 +20,35 @@ Following features are supported:
 
 Your compiler has to support C++11. Also, the project has only been tested on clang++ in Ubuntu, and MSVC (Visual Studio) in Windows 10.
 
-Take a quick look at how will **Lightest** output, similar to below, simple and tidy:
+## Preview
+
+A short piece of test:
+
+```C++
+#include "lightest/lightest.h"
+
+TEST(Test1) {
+    REQ(1, ==, 1); // Pass
+    REQ(1, ==, 2); // Oops! Fail
+    int a = 1, b = 1, c = 2;
+    REQ(a, ==, b); // Pass
+    REQ(a, ==, c); // Oops! Fail again
+}
+```
+
+Outputs simple and tidy:
 
 ```
------------------------------
-Failed tests:
- * TestAssertionMacros
------------------------------
-[Begin ] TestTimerMacros
-[End   ] TestTimerMacros PASS 0.339ms
-[Begin ] TestAssertionMacros
-    [Fail ] test.cpp:23: REQ [a > b] failed
-        + ACTUAL: 0
-        + EXPECTED: > 0
+[Begin ] Test1
+    [Fail ] test.cpp:23: REQ [1 == 2] failed
+        + ACTUAL: 1
+        + EXPECTED: == 2
     [Fail ] test.cpp:26: REQ [a == c] failed
-        + ACTUAL: 0
-        + EXPECTED: == 1
-[End   ] TestAssertionMacros FAIL 0.004ms
-Done. 2.618ms used.
+        + ACTUAL: 1
+        + EXPECTED: == 2
+[End   ] Test1 FAIL 0.004ms
+Done. 1.218ms used.
 ```
-
-## Example
-
-Have a look at `/test/test.cpp`. It simply shows how to use tests, assertion macros, timer macros, and configuring macros.
-
-Just use CMake to build the project. Then run it. The outputs should be like those given out above, but maybe a bit more, since `/test/test.cpp` adds a user defined data processor to list the failed tests.
 
 Outputs should be colorful if your platform is Windows, Linux or Mac.
 
