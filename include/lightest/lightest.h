@@ -32,29 +32,28 @@ using namespace std;
 
 /* ========== Output Color ==========*/
 
-// TODO: use enum class
-enum Color { Reset = 0, Black = 30, Red = 31, Green = 32, Yellow = 33 };
+enum class Color { Reset = 0, Black = 30, Red = 31, Green = 32, Yellow = 33 };
 bool OutputColor = true;
 
 void SetColor(Color color) {
   if (OutputColor) {
 #if defined(_LINUX_) || defined(_MAC_)
-    cout << "\033[" << color << "m";
+    cout << "\033[" << int(color) << "m";
 #elif defined(_WIN_)
     unsigned int winColor;
     switch (color) {
-      case Reset:
+      case Color::Reset:
         winColor = 0x07;
         break;
-      case Black:
+      case Color::Black:
         winColor = 0x00;
-      case Red:
+      case Color::Red:
         winColor = 0x0c;
         break;
-      case Green:
+      case Color::Green:
         winColor = 0x0a;
         break;
-      case Yellow:
+      case Color::Yellow:
         winColor = 0x0e;
         break;
       default:
@@ -96,13 +95,13 @@ class DataSet : public Data {
     PrintSons();
     cout << "[End   ] " << name;
     if (failed) {
-      SetColor(Red);
+      SetColor(Color::Red);
       cout << " FAIL ";
     } else {
-      SetColor(Green);
+      SetColor(Color::Green);
       cout << " PASS ";
     }
-    SetColor(Reset);
+    SetColor(Color::Reset);
     cout << double(duration) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
   }
   DataType Type() const { return DataType::DATA_SET; }
@@ -142,13 +141,13 @@ class DataReq : public Data, public DataUnit {
   }
   void Print() const {
     if (failed) {
-      SetColor(Red);
+      SetColor(Color::Red);
       cout << "    [Fail ] ";
-      SetColor(Reset);
+      SetColor(Color::Reset);
       cout << file << ":" << line << ":"
-           << " REQ [" << expr << "] failed" << endl;
-      cout << "        + ACTUAL: " << actual << endl;
-      cout << "        + EXPECTED: " << operator_ << " " << expected << endl;
+           << " REQ [" << expr << "] failed" << endl
+           << "        + ACTUAL: " << actual << endl
+           << "        + EXPECTED: " << operator_ << " " << expected << endl;
     }
   }
   DataType Type() const { return DataType::DATA_REQ; }
