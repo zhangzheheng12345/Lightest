@@ -69,7 +69,7 @@ void SetColor(Color color) {
 
 bool toOutput = true;  // Use NO_OUTPUT to set to false
 
-enum class DataType { DATA_SET, DATA_REQ };
+enum DataType { DATA_SET, DATA_REQ };
 
 class Data {
  public:
@@ -104,7 +104,7 @@ class DataSet : public Data {
     SetColor(Color::Reset);
     cout << double(duration) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
   }
-  DataType Type() const { return DataType::DATA_SET; }
+  DataType Type() const { return DATA_SET; }
   bool GetFailed() const { return failed; }
   clock_t GetDuration() const { return duration; }
   void IterSons(void (*func)(const Data*)) const {
@@ -150,7 +150,7 @@ class DataReq : public Data, public DataUnit {
            << "        + EXPECTED: " << operator_ << " " << expected << endl;
     }
   }
-  DataType Type() const { return DataType::DATA_REQ; }
+  DataType Type() const { return DATA_REQ; }
   const T actual;
   const U expected;
   const char *operator_, *expr;
