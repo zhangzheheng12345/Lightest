@@ -239,29 +239,29 @@ class Testing {
 
 /* ========== Registing macros ========== */
 
-#define CONFIG(name)                                                        \
-  void name(int argn, char** argc);                                         \
-  void call_##name(lightest::Register::Context& ctx) {                      \
-    name(ctx.argn, ctx.argc);                                               \
-  }                                                                         \
-  lightest::Registering registering_##name(lightest::globalRegisterConfig, #name, \
-                                           call_##name);                 \
+#define CONFIG(name)                                                       \
+  void name(int argn, char** argc);                                        \
+  void call_##name(lightest::Register::Context& ctx) {                     \
+    name(ctx.argn, ctx.argc);                                              \
+  }                                                                        \
+  lightest::Registering registering_##name(lightest::globalRegisterConfig, \
+                                           #name, call_##name);            \
   void name(int argn, char** argc)
-#define TEST(name)                                                          \
-  void name(lightest::Testing& testing);                                    \
-  void call_##name(lightest::Register::Context& ctx) {                      \
-    lightest::Testing testing(#name);                                       \
-    name(testing);                                                          \
-    ctx.testData->Add(testing.GetData());                                   \
-  }                                                                         \
-  lightest::Registering registering_##name(lightest::globalRegisterTest, #name, \
-                                           call_##name);                 \
+#define TEST(name)                                                       \
+  void name(lightest::Testing& testing);                                 \
+  void call_##name(lightest::Register::Context& ctx) {                   \
+    lightest::Testing testing(#name);                                    \
+    name(testing);                                                       \
+    ctx.testData->Add(testing.GetData());                                \
+  }                                                                      \
+  lightest::Registering registering_##name(lightest::globalRegisterTest, \
+                                           #name, call_##name);          \
   void name(lightest::Testing& testing)
 #define DATA(name)                                                           \
   void name(const lightest::DataSet* data);                                  \
   void call_##name(lightest::Register::Context& ctx) { name(ctx.testData); } \
-  lightest::Registering registering_##name(lightest::globalRegisterData, #name,  \
-                                           call_##name);                  \
+  lightest::Registering registering_##name(lightest::globalRegisterData,     \
+                                           #name, call_##name);              \
   void name(const lightest::DataSet* data)
 
 /* ========== Configuration macros ========== */
@@ -289,14 +289,14 @@ int main(int argn, char* argc[]) {
 /* ========= Timer Macros =========== */
 
 // unit: minisecond(ms)
-#define TIMER(sentence)                               \
-  ([&]() -> double {                                            \
-    clock_t start = clock();                          \
-    (sentence);                                       \
+#define TIMER(sentence)                                     \
+  ([&]() -> double {                                        \
+    clock_t start = clock();                                \
+    (sentence);                                             \
     return double(clock() - start) / CLOCKS_PER_SEC * 1000; \
   }())
 #define AVG_TIMER(sentence, times)                          \
-  ([&]() -> double {                                                  \
+  ([&]() -> double {                                        \
     clock_t sum = 0, start;                                 \
     for (unsigned int index = 1; index <= times; index++) { \
       start = clock();                                      \
