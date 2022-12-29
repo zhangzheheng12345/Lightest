@@ -82,7 +82,7 @@ class Data {
 class DataSet : public Data {
  public:
   DataSet(const char* name) { this->name = name, duration = 0; }
-  void Add(Data* son) { sons.push_back(son); }
+  void Add(const Data* son) { sons.push_back(son); }
   void End(bool failed, clock_t duration) {
     this->failed = failed, this->duration = duration;
   }
@@ -103,7 +103,7 @@ class DataSet : public Data {
       cout << " PASS ";
     }
     SetColor(Reset);
-    cout << duration / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+    cout << double(duration) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
   }
   DataType Type() const { return DataType::DATA_SET; }
   bool GetFailed() const { return failed; }
@@ -118,7 +118,7 @@ class DataSet : public Data {
  private:
   bool failed;
   clock_t duration;
-  vector<Data*> sons;
+  vector<const Data*> sons;
 };
 
 class DataUnit {
@@ -158,34 +158,24 @@ class DataReq : public Data, public DataUnit {
   const bool failed;
 };
 
-/* ========== Signer ========== */
+/* ========== Register ========== */
 
 class Register {
  public:
-  Register(const char* name) {
-    testData = new DataSet(name);
-    for (unsigned int i = 0; i < 3; i++)
-      registerList[i] = vector<signedFuncWrapper>(0);
-  }
-  Register() {
-    testData = NULL;
-    for (unsigned int i = 0; i < 3; i++)
-      registerList[i] = vector<signedFuncWrapper>(0);
-  }
+  Register(const char* name) { testData = new DataSet(name); }
+  Register() { testData = NULL; }
   typedef struct {
     DataSet* testData;
     int argn;
     char** argc;
   } Context;
-  void Add(const char* name, void (*callerFunc)(Context&), unsigned int level) {
-    registerList[level].push_back({name, callerFunc});
+  void Add(const char* name, void (*callerFunc)(Context&)) {
+    registerList.push_back({name, callerFunc});
   }
   void RunRegistered() {
     Context ctx = Context{testData, argn, argc};
-    for (unsigned int i = 0; i < 3; i++) {
-      for (const signedFuncWrapper& item : registerList[i]) {
-        (*item.callerFunc)(ctx);
-      }
+    for (const signedFuncWrapper& item : registerList) {
+      (*item.callerFunc)(ctx);
     }
   }
   static void SetArg(int argn, char** argc) {
@@ -198,20 +188,22 @@ class Register {
     const char* name;
     void (*callerFunc)(Register::Context&);
   } signedFuncWrapper;
-  vector<signedFuncWrapper> registerList[3];
+  vector<signedFuncWrapper> registerList;
   static int argn;
   static char** argc;
 };
 int Register::argn = 0;
 char** Register::argc = nullptr;
 
-Register globalRegister("");
+Register globalRegisterConfig("");
+Register globalRegisterTest("");
+Register globalRegisterData("");
 
 class Registering {
  public:
   Registering(Register& reg, const char* name,
-              void (*callerFunc)(Register::Context&), unsigned int level) {
-    reg.Add(name, callerFunc, level);
+              void (*callerFunc)(Register::Context&)) {
+    reg.Add(name, callerFunc);
   }
 };
 
@@ -231,7 +223,7 @@ class Testing {
                                         expr, failed));
     this->failed = failed;
   }
-  DataSet* GetData() { return reg.testData; }
+  const DataSet* GetData() { return reg.testData; }
   ~Testing() {
     reg.RunRegistered();
     reg.testData->End(failed, clock() - start);
@@ -252,8 +244,8 @@ class Testing {
   void call_##name(lightest::Register::Context& ctx) {                      \
     name(ctx.argn, ctx.argc);                                               \
   }                                                                         \
-  lightest::Registering registering_##name(lightest::globalRegister, #name, \
-                                           call_##name, 0);                 \
+  lightest::Registering registering_##name(lightest::globalRegisterConfig, #name, \
+                                           call_##name);                 \
   void name(int argn, char** argc)
 #define TEST(name)                                                          \
   void name(lightest::Testing& testing);                                    \
@@ -262,14 +254,14 @@ class Testing {
     name(testing);                                                          \
     ctx.testData->Add(testing.GetData());                                   \
   }                                                                         \
-  lightest::Registering registering_##name(lightest::globalRegister, #name, \
-                                           call_##name, 1);                 \
+  lightest::Registering registering_##name(lightest::globalRegisterTest, #name, \
+                                           call_##name);                 \
   void name(lightest::Testing& testing)
 #define DATA(name)                                                           \
   void name(const lightest::DataSet* data);                                  \
   void call_##name(lightest::Register::Context& ctx) { name(ctx.testData); } \
-  lightest::Registering registering_##name(lightest::globalRegister, #name,  \
-                                           call_##name, 2);                  \
+  lightest::Registering registering_##name(lightest::globalRegisterData, #name,  \
+                                           call_##name);                  \
   void name(const lightest::DataSet* data)
 
 /* ========== Configuration macros ========== */
@@ -282,11 +274,14 @@ class Testing {
 
 int main(int argn, char* argc[]) {
   lightest::Register::SetArg(argn, argc);
-  lightest::globalRegister.RunRegistered();
+  lightest::globalRegisterConfig.RunRegistered();
+  lightest::globalRegisterTest.RunRegistered();
+  lightest::globalRegisterData.testData = lightest::globalRegisterTest.testData;
+  lightest::globalRegisterData.RunRegistered();
   if (lightest::toOutput) {
-    lightest::globalRegister.testData->PrintSons();
+    lightest::globalRegisterData.testData->PrintSons();
   }
-  std::cout << "Done. " << clock() / CLOCKS_PER_SEC * 1000 << "ms used."
+  std::cout << "Done. " << double(clock()) / CLOCKS_PER_SEC * 1000 << "ms used."
             << std::endl;
   return 0;
 }
@@ -295,13 +290,13 @@ int main(int argn, char* argc[]) {
 
 // unit: minisecond(ms)
 #define TIMER(sentence)                               \
-  ([&]() {                                            \
+  ([&]() -> double {                                            \
     clock_t start = clock();                          \
     (sentence);                                       \
-    return (clock() - start) / CLOCKS_PER_SEC * 1000; \
+    return double(clock() - start) / CLOCKS_PER_SEC * 1000; \
   }())
 #define AVG_TIMER(sentence, times)                          \
-  ([&]() {                                                  \
+  ([&]() -> double {                                                  \
     clock_t sum = 0, start;                                 \
     for (unsigned int index = 1; index <= times; index++) { \
       start = clock();                                      \

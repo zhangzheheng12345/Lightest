@@ -1,6 +1,6 @@
 #include <string>  // To compare string easily in different platforms
 
-#include "lightest.h"
+#include "lightest/lightest.h"
 // #define __FILE__ "test.cpp"
 
 CONFIG(Configurations) {
@@ -28,6 +28,7 @@ TEST(TestAssertionMacros) {
 
 // To test DATA
 DATA(GetFailedTests) {
+  std::cout << "-----------------------------" << std::endl;
   std::cout << "Failed tests:" << std::endl;
   data->IterSons([](const lightest::Data* item) {
     const lightest::DataSet* test = static_cast<const lightest::DataSet*>(item);
