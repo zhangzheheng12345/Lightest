@@ -9,6 +9,7 @@ https://github.com/zhangzheheng12345
 #ifndef _LIGHTEST_H_
 #define _LIGHTEST_H_
 
+// Deal with different OS
 #if defined(__unix__) || defined(__unix) || defined(__linux__)
 #define _LINUX_
 #elif defined(WIN32) || defined(_WIN32) || defined(_WIN64)
@@ -23,6 +24,7 @@ https://github.com/zhangzheheng12345
 #include <iostream>
 #include <vector>
 
+// For coloring on Windows
 #ifdef _WIN_
 #include <Windows.h>
 #endif
@@ -33,13 +35,13 @@ using namespace std;
 /* ========== Output Color ==========*/
 
 enum class Color { Reset = 0, Black = 30, Red = 31, Green = 32, Yellow = 33 };
-bool OutputColor = true;
+bool OutputColor = true; // Use NO_COLOR() to set false
 
 void SetColor(Color color) {
   if (OutputColor) {
-#if defined(_LINUX_) || defined(_MAC_)
+#if defined(_LINUX_) || defined(_MAC_) // Use ASCII color code on Linux and MacOS
     cout << "\033[" << int(color) << "m";
-#elif defined(_WIN_)
+#elif defined(_WIN_) // Use Windows console API on Windows
     unsigned int winColor;
     switch (color) {
       case Color::Reset:
@@ -67,17 +69,22 @@ void SetColor(Color color) {
 
 /* ========== Data ========== */
 
-bool toOutput = true;  // Use NO_OUTPUT to set to false
+bool toOutput = true;  // Use NO_OUTPUT() to set to false
 
 enum DataType { DATA_SET, DATA_REQ };
 
+// All test data classes should extend from Data
 class Data {
  public:
+  // For outputting
   virtual void Print() const = 0;
+  // Offer type to enable transfer Data to exact class of test data
   virtual DataType Type() const = 0;
   virtual ~Data() {}
 };
 
+// Contain test actions on current level and sub tests' data
+// Recursively call Print() to give out all the outpus
 class DataSet : public Data {
  public:
   DataSet(const char* name) { this->name = name, duration = 0; }
@@ -107,6 +114,7 @@ class DataSet : public Data {
   DataType Type() const { return DATA_SET; }
   bool GetFailed() const { return failed; }
   clock_t GetDuration() const { return duration; }
+  // Should offer a callback to iterate test actions and sub tests' data
   void IterSons(void (*func)(const Data*)) const {
     for (const Data* item : sons) {
       func(item);
@@ -120,6 +128,8 @@ class DataSet : public Data {
   vector<const Data*> sons;
 };
 
+// Data classes for test actions should to extend from DataUnit
+// Because loggings should contain file & line information
 class DataUnit {
  public:
   const char* file;
@@ -129,7 +139,8 @@ class DataUnit {
   unsigned int line;
 };
 
-template <class T, class U>
+// Data class of REQ assertions
+template <class T, class U> // Different types for e.g. <int> == <double>
 class DataReq : public Data, public DataUnit {
  public:
   DataReq(const char* file, unsigned int line, const T& actual_,
@@ -139,6 +150,7 @@ class DataReq : public Data, public DataUnit {
     this->file = file, this->line = line, this->operator_ = operator_,
     this->expr = expr;
   }
+  // Print data of REQ if assertion fails
   void Print() const {
     if (failed) {
       SetColor(Color::Red);
@@ -151,6 +163,7 @@ class DataReq : public Data, public DataUnit {
     }
   }
   DataType Type() const { return DATA_REQ; }
+  // Read only while processing data
   const T actual;
   const U expected;
   const char *operator_, *expr;
@@ -171,12 +184,14 @@ class Register {
   void Add(const char* name, void (*callerFunc)(Context&)) {
     registerList.push_back({name, callerFunc});
   }
+  // Run tests registered
   void RunRegistered() {
     Context ctx = Context{testData, argn, argc};
     for (const signedFuncWrapper& item : registerList) {
       (*item.callerFunc)(ctx);
     }
   }
+  // Restore argn & argc for CONFIG
   static void SetArg(int argn, char** argc) {
     Register::argn = argn, Register::argc = argc;
   }
@@ -215,7 +230,8 @@ class Testing {
     failed = false;
     start = clock();
   }
-  template <typename T, typename U>
+  // Add a test data unit of a REQ assertion
+  template <typename T, typename U> // Differnt type for e.g. <int> == <double>
   void Req(const char* file, int line, const T& actual, const U& expected,
            const char* operator_, const char* expr, bool failed) {
     reg.testData->Add(new DataReq<T, U>(file, line, actual, expected, operator_,
@@ -224,7 +240,7 @@ class Testing {
   }
   const DataSet* GetData() { return reg.testData; }
   ~Testing() {
-    reg.RunRegistered();
+    reg.RunRegistered(); // Run sub tests
     reg.testData->End(failed, clock() - start);
   }
 
@@ -246,6 +262,7 @@ class Testing {
   lightest::Registering registering_##name(lightest::globalRegisterConfig, \
                                            #name, call_##name);            \
   void name(int argn, char** argc)
+
 #define TEST(name)                                                       \
   void name(lightest::Testing& testing);                                 \
   void call_##name(lightest::Register::Context& ctx) {                   \
@@ -256,6 +273,7 @@ class Testing {
   lightest::Registering registering_##name(lightest::globalRegisterTest, \
                                            #name, call_##name);          \
   void name(lightest::Testing& testing)
+
 #define DATA(name)                                                           \
   void name(const lightest::DataSet* data);                                  \
   void call_##name(lightest::Register::Context& ctx) { name(ctx.testData); } \
@@ -266,17 +284,22 @@ class Testing {
 /* ========== Configuration macros ========== */
 
 #define NO_COLOR() lightest::OutputColor = false;
-#define FILTER(level) lightest::filtLevel = level;
 #define NO_OUTPUT() lightest::toOutput = false;
 
 /* ========== Main ========== */
 
 int main(int argn, char* argc[]) {
+  // Offer arn & argc for CONFIG
   lightest::Register::SetArg(argn, argc);
+  // 1. Run CONFIG
+  // 2. Run tests (TEST)
+  // 3. Pass test data to DATA registerer
+  // 4. Run DATA
   lightest::globalRegisterConfig.RunRegistered();
   lightest::globalRegisterTest.RunRegistered();
   lightest::globalRegisterData.testData = lightest::globalRegisterTest.testData;
   lightest::globalRegisterData.RunRegistered();
+  // Optionally print the default outputs
   if (lightest::toOutput) {
     lightest::globalRegisterData.testData->PrintSons();
   }
@@ -287,13 +310,17 @@ int main(int argn, char* argc[]) {
 
 /* ========= Timer Macros =========== */
 
-// unit: minisecond(ms)
+// Unit: minisecond (ms)
+
+// Run once and messure the time
 #define TIMER(sentence)                                     \
   ([&]() -> double {                                        \
     clock_t start = clock();                                \
     (sentence);                                             \
     return double(clock() - start) / CLOCKS_PER_SEC * 1000; \
   }())
+
+// Run several times and return the average time
 #define AVG_TIMER(sentence, times)                          \
   ([&]() -> double {                                        \
     clock_t sum = 0, start;                                 \
@@ -307,7 +334,8 @@ int main(int argn, char* argc[]) {
 
 /* ========== Assertion Macros ========== */
 
-// true => pass, false => fail
+// REQ assertion
+// Additionally return a bool: true => pass, false => fail
 #define REQ(actual, operator, expected)                          \
   ([&]() -> bool {                                               \
     bool res = (actual) operator(expected);                      \
@@ -316,7 +344,7 @@ int main(int argn, char* argc[]) {
     return res;                                                  \
   })()
 
-// condition must be true or stop currnet test
+// Condition must be true or stop currnet test
 #define MUST(condition) \
   do {                  \
     if (!(condition)) { \

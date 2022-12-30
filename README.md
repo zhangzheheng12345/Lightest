@@ -18,9 +18,9 @@ Following features are supported:
 * Timers.
 * Configurations are supported if you want.
 
-Your compiler has to support C++11. Also, the project has only been tested on clang++ in Ubuntu, and MSVC (Visual Studio) in Windows 10.
+Your compiler has to support C++11. Also, the project has only been tested on clang++ on Ubuntu, and MSVC (Visual Studio) on Windows 10.
 
-## Preview
+## A quick look
 
 A short piece of test:
 
@@ -84,7 +84,7 @@ All the defined tests will be automatically run because auto registration is sup
 
 ### Assertion macros
 
-Use `REQ(actual, operator, expected)`. It offers a way to compare the actual value and the expected value. If the assertion is failed, it'll output the actual value and the expected value. 
+Use `REQ(actual, operator, expected)` to compare the actual value and the expected value. If the assertion fails, it'll output the actual value and the expected value. 
 
 As for some situations like that you just want the returning value of a function to be true, pray write `REQ(func(), ==, true)` which is more readable and also fit **Lightest**.
 
@@ -94,8 +94,12 @@ Example:
 
 ```C++
 // in a test
-REQ(1, ==, 1); // Pass with no output -- The cleaner, the better.
-REQ(1, ==, 2); // Fail and output actual: 1, expected: ==2
+int a = 1, b = 1, c = 2;
+REQ(a, ==, b); // Pass with no output -- The cleaner, the better.
+REQ(a, ==, c); // Fail and output:
+//    REQ [a == c] failed
+//        + ACTUAL: 1
+//        + EXPECTED: == 2
 MUST(REQ(1, ==, 2)); // Fail and current test will be stopped
 ```
 
@@ -158,16 +162,17 @@ All the loggings and assertions will be recorded so that you can get them while 
 * `SUB(name)` to define sub tests.
 * More assertion macros in a independent file as an extension.
 * Async testing system in a independent file as an extension.
-* Catch uncaught error thrown by tested programs.
+* Catch uncaught error thrown out by tests.
 * (Maybe) Chai like assertions support as an extension.
 * A stronger data processing tool set as an extension.
 * Support installation through CMake.
+* Better document for data processing API, customizing, and contribution.
 
 ## More
 
-* You must add a semicolon after a assertion or outputing macro.
+* You must add a semicolon after a assertion.
+* Again, C++11 required.
 * v1.3.0 and above versions follow SemVer.
-* C++11 required.
 
 If you meet any issues, be free to put forward issues in GitHub!
 (*Please use English*)
