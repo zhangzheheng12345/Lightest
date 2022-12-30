@@ -178,7 +178,7 @@ All the loggings and assertions will be recorded so that you can get them while 
 * v1.3.0 and above versions follow SemVer.
 * Branch `main` will only be updated (merge from `dev` or `fix`) when publishing releases.
 * Branch `fix` will be updated when fixing errors or small updates. It will be merged into `main` when publishing a PATCH version.
-* Branch `dev` will be updated when adding features, refactoring, or doing big changes. It will be merged into `main` when publishing a MAJOR or MINOR version.
+* Branch `dev` will be updated when adding features, big refactoring, or doing big changes. It will be merged into `main` when publishing a MAJOR or MINOR version.
 
 This project will be maintained continuously. Be free to put forward issues in GitHub, and Pull Requests are always welcomed!
 I'll try my best to solve your problem, and make **Lightest** more fantastic together with YOU!
