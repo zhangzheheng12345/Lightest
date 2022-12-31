@@ -35,13 +35,14 @@ using namespace std;
 /* ========== Output Color ==========*/
 
 enum class Color { Reset = 0, Black = 30, Red = 31, Green = 32, Yellow = 33 };
-bool OutputColor = true; // Use NO_COLOR() to set false
+bool OutputColor = true;  // Use NO_COLOR() to set false
 
 void SetColor(Color color) {
   if (OutputColor) {
-#if defined(_LINUX_) || defined(_MAC_) // Use ASCII color code on Linux and MacOS
+#if defined(_LINUX_) || \
+    defined(_MAC_)  // Use ASCII color code on Linux and MacOS
     cout << "\033[" << int(color) << "m";
-#elif defined(_WIN_) // Use Windows console API on Windows
+#elif defined(_WIN_)  // Use Windows console API on Windows
     unsigned int winColor;
     switch (color) {
       case Color::Reset:
@@ -78,9 +79,21 @@ class Data {
  public:
   // For outputting
   virtual void Print() const = 0;
+  void SetTabs(unsigned int tabs) { this->tabs = tabs; }
+  unsigned int GetTabs() {return tabs;}
+  ostream& PrintTabs() const {
+    // Must be 4 spaces a group, for \t may be too wide on some platforms
+    // Must this->tabs - 1 first,
+    // for this->tabs of tests added under the gloabl registerer will be set to 1
+    for (unsigned int tabs = this->tabs - 1; tabs > 0; tabs--) cout << "    ";
+    return cout;
+  }
   // Offer type to enable transfer Data to exact class of test data
   virtual DataType Type() const = 0;
   virtual ~Data() {}
+
+ private:
+  unsigned int tabs;
 };
 
 // Contain test actions on current level and sub tests' data
@@ -88,7 +101,10 @@ class Data {
 class DataSet : public Data {
  public:
   DataSet(const char* name) { this->name = name, duration = 0; }
-  void Add(const Data* son) { sons.push_back(son); }
+  void Add(Data* son) {
+    son->SetTabs(GetTabs()+1);
+    sons.push_back(son);
+  }
   void End(bool failed, clock_t duration) {
     this->failed = failed, this->duration = duration;
   }
@@ -98,9 +114,9 @@ class DataSet : public Data {
     }
   }
   void Print() const {
-    cout << "[Begin ] " << name << endl;
+    PrintTabs() << "[Begin ] " << name << endl;
     PrintSons();
-    cout << "[End   ] " << name;
+    PrintTabs() << "[End   ] " << name;
     if (failed) {
       SetColor(Color::Red);
       cout << " FAIL ";
@@ -140,7 +156,7 @@ class DataUnit {
 };
 
 // Data class of REQ assertions
-template <class T, class U> // Different types for e.g. <int> == <double>
+template <class T, class U>  // Different types for e.g. <int> == <double>
 class DataReq : public Data, public DataUnit {
  public:
   DataReq(const char* file, unsigned int line, const T& actual_,
@@ -154,7 +170,7 @@ class DataReq : public Data, public DataUnit {
   void Print() const {
     if (failed) {
       SetColor(Color::Red);
-      cout << "    [Fail ] ";
+      PrintTabs() << "    [Fail ] ";
       SetColor(Color::Reset);
       cout << file << ":" << line << ":"
            << " REQ [" << expr << "] failed" << endl
@@ -231,16 +247,16 @@ class Testing {
     start = clock();
   }
   // Add a test data unit of a REQ assertion
-  template <typename T, typename U> // Differnt type for e.g. <int> == <double>
+  template <typename T, typename U>  // Differnt type for e.g. <int> == <double>
   void Req(const char* file, int line, const T& actual, const U& expected,
            const char* operator_, const char* expr, bool failed) {
     reg.testData->Add(new DataReq<T, U>(file, line, actual, expected, operator_,
                                         expr, failed));
     this->failed = failed;
   }
-  const DataSet* GetData() { return reg.testData; }
+  DataSet* GetData() { return reg.testData; }
   ~Testing() {
-    reg.RunRegistered(); // Run sub tests
+    reg.RunRegistered();  // Run sub tests
     reg.testData->End(failed, clock() - start);
   }
 
@@ -291,6 +307,8 @@ class Testing {
 int main(int argn, char* argc[]) {
   // Offer arn & argc for CONFIG
   lightest::Register::SetArg(argn, argc);
+  // Only test registerer need this, for test data will only be added in test process
+  lightest::globalRegisterTest.testData->SetTabs(0);
   // 1. Run CONFIG
   // 2. Run tests (TEST)
   // 3. Pass test data to DATA registerer
