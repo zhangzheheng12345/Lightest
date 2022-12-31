@@ -26,6 +26,15 @@ TEST(TestAssertionMacros) {
   MUST(REQ(a, ==, c));  // FAIL & stop this test
 }
 
+TEST(TestSub) {
+  int a = 1;
+  SUB(Sub1) { REQ(a, ==, 1); };
+  SUB(Sub2) {
+    REQ(a, ==, 2);  // Test fail
+  };
+  testing.AddSub("Sub1", call_Sub1);
+}
+
 // To test DATA
 DATA(GetFailedTests) {
   std::cout << "-----------------------------" << std::endl;

@@ -21,6 +21,7 @@ https://github.com/zhangzheheng12345
 #endif
 
 #include <ctime>
+#include <functional>
 #include <iostream>
 #include <vector>
 
@@ -80,11 +81,12 @@ class Data {
   // For outputting
   virtual void Print() const = 0;
   void SetTabs(unsigned int tabs) { this->tabs = tabs; }
-  unsigned int GetTabs() {return tabs;}
+  unsigned int GetTabs() { return tabs; }
   ostream& PrintTabs() const {
     // Must be 4 spaces a group, for \t may be too wide on some platforms
     // Must this->tabs - 1 first,
-    // for this->tabs of tests added under the gloabl registerer will be set to 1
+    // for this->tabs of tests added to the gloabl registerer will be set to
+    // 1
     for (unsigned int tabs = this->tabs - 1; tabs > 0; tabs--) cout << "    ";
     return cout;
   }
@@ -102,7 +104,7 @@ class DataSet : public Data {
  public:
   DataSet(const char* name) { this->name = name, duration = 0; }
   void Add(Data* son) {
-    son->SetTabs(GetTabs()+1);
+    son->SetTabs(GetTabs() + 1);
     sons.push_back(son);
   }
   void End(bool failed, clock_t duration) {
@@ -197,14 +199,14 @@ class Register {
     int argn;
     char** argc;
   } Context;
-  void Add(const char* name, void (*callerFunc)(Context&)) {
+  void Add(const char* name, function<void(Context&)> callerFunc) {
     registerList.push_back({name, callerFunc});
   }
   // Run tests registered
   void RunRegistered() {
     Context ctx = Context{testData, argn, argc};
     for (const signedFuncWrapper& item : registerList) {
-      (*item.callerFunc)(ctx);
+      item.callerFunc(ctx);
     }
   }
   // Restore argn & argc for CONFIG
@@ -216,7 +218,7 @@ class Register {
  private:
   typedef struct {
     const char* name;
-    void (*callerFunc)(Register::Context&);
+    function<void(Register::Context&)> callerFunc;
   } signedFuncWrapper;
   vector<signedFuncWrapper> registerList;
   static int argn;
@@ -254,7 +256,10 @@ class Testing {
                                         expr, failed));
     this->failed = failed;
   }
-  DataSet* GetData() { return reg.testData; }
+  void AddSub(const char* name, function<void(Register::Context&)> callerFunc) {
+    reg.Add(name, callerFunc);
+  }
+  DataSet* GetData() const { return reg.testData; }
   ~Testing() {
     reg.RunRegistered();  // Run sub tests
     reg.testData->End(failed, clock() - start);
@@ -297,6 +302,17 @@ class Testing {
                                            #name, call_##name);              \
   void name(const lightest::DataSet* data)
 
+#define SUB(name)                                                 \
+  std::function<void(lightest::Testing&)> name;                   \
+  std::function<void(lightest::Register::Context&)> call_##name = \
+      [&name](lightest::Register::Context& ctx) {                 \
+        lightest::Testing testing(#name);                         \
+        name(testing);                                            \
+        ctx.testData->Add(testing.GetData());                     \
+      };                                                          \
+  testing.AddSub(#name, call_##name);                             \
+  name = [&](lightest::Testing & testing)
+
 /* ========== Configuration macros ========== */
 
 #define NO_COLOR() lightest::OutputColor = false;
@@ -307,7 +323,8 @@ class Testing {
 int main(int argn, char* argc[]) {
   // Offer arn & argc for CONFIG
   lightest::Register::SetArg(argn, argc);
-  // Only test registerer need this, for test data will only be added in test process
+  // Only test registerer need this, for test data will only be added in test
+  // process
   lightest::globalRegisterTest.testData->SetTabs(0);
   // 1. Run CONFIG
   // 2. Run tests (TEST)
