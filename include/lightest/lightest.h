@@ -95,7 +95,7 @@ class Data {
 class DataSet : public Data {
  public:
   DataSet(const char* name) { this->name = name, duration = 0; }
-  void Add(const Data* son) { sons.push_back(son); }
+  void Add(Data* son) { sons.push_back(son); }
   void End(bool failed, clock_t duration) {
     this->failed = failed, this->duration = duration;
   }
@@ -127,12 +127,17 @@ class DataSet : public Data {
       func(item);
     }
   }
+  ~DataSet() {
+    for(Data* item : sons) {
+      delete item;
+    }
+  }
   const char* name;
 
  private:
   bool failed;
   clock_t duration;
-  vector<const Data*> sons;
+  vector<Data*> sons;
 };
 
 // Data classes for test actions should to extend from DataUnit
@@ -245,7 +250,7 @@ class Testing {
                                         expr, failed));
     this->failed = failed;
   }
-  const DataSet* GetData() { return reg.testData; }
+  DataSet* GetData() { return reg.testData; }
   ~Testing() {
     reg.RunRegistered();  // Run sub tests
     reg.testData->End(failed, clock() - start);
