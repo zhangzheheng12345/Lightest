@@ -19,6 +19,8 @@ TEST(TestTimerMacros) {
 }
 
 TEST(TestAssertionMacros) {
+  REQ(1, ==, 1);
+  REQ(1, ==, 2);  // Test fail
   int a = 0, b = 0, c = 1;
   REQ(a, >, b);  // Test fail
   REQ(a, ==, b);
@@ -28,11 +30,10 @@ TEST(TestAssertionMacros) {
 
 TEST(TestSub) {
   int a = 1;
-  SUB(Sub1) { REQ(a, ==, 1); };
-  SUB(Sub2) {
+  SUB(SubTest1) { REQ(a, ==, 1); };
+  SUB(SubTest2) {
     REQ(a, ==, 2);  // Test fail
   };
-  testing.AddSub("Sub1", call_Sub1);
 }
 
 // To test DATA

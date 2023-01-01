@@ -172,12 +172,12 @@ class DataReq : public Data, public DataUnit {
   void Print() const {
     if (failed) {
       SetColor(Color::Red);
-      PrintTabs() << "    [Fail ] ";
+      PrintTabs() << "[Fail ] ";
       SetColor(Color::Reset);
       cout << file << ":" << line << ":"
-           << " REQ [" << expr << "] failed" << endl
-           << "        + ACTUAL: " << actual << endl
-           << "        + EXPECTED: " << operator_ << " " << expected << endl;
+           << " REQ [" << expr << "] failed" << endl;
+      PrintTabs() << "    + ACTUAL: " << actual << endl;
+      PrintTabs() << "    + EXPECTED: " << operator_ << " " << expected << endl;
     }
   }
   DataType Type() const { return DATA_REQ; }
@@ -243,10 +243,12 @@ class Registering {
 
 class Testing {
  public:
-  Testing(const char* name) {
+  // level_: 1 => global tests, 2 => sub tests, 3 => sub sub tests ...
+  Testing(const char* name, unsigned int level_)
+      : start(clock()), level(level_) {
     reg = Register(name);
+    reg.testData->SetTabs(level);  // Give correct tabs to its sons
     failed = false;
-    start = clock();
   }
   // Add a test data unit of a REQ assertion
   template <typename T, typename U>  // Differnt type for e.g. <int> == <double>
@@ -260,20 +262,22 @@ class Testing {
     reg.Add(name, callerFunc);
   }
   DataSet* GetData() const { return reg.testData; }
+  unsigned int GetLevel() const { return level; }
   ~Testing() {
     reg.RunRegistered();  // Run sub tests
     reg.testData->End(failed, clock() - start);
   }
 
  private:
-  clock_t start;  // No need to report.
+  const unsigned int level;
+  const clock_t start;  // No need to report.
   bool failed;
   Register reg;
 };
 
 }  // namespace lightest
 
-/* ========== Registing macros ========== */
+/* ========== Registing Macros ========== */
 
 #define CONFIG(name)                                                       \
   void name(int argn, char** argc);                                        \
@@ -287,7 +291,7 @@ class Testing {
 #define TEST(name)                                                       \
   void name(lightest::Testing& testing);                                 \
   void call_##name(lightest::Register::Context& ctx) {                   \
-    lightest::Testing testing(#name);                                    \
+    lightest::Testing testing(#name, 1);                                 \
     name(testing);                                                       \
     ctx.testData->Add(testing.GetData());                                \
   }                                                                      \
@@ -302,18 +306,18 @@ class Testing {
                                            #name, call_##name);              \
   void name(const lightest::DataSet* data)
 
-#define SUB(name)                                                 \
-  std::function<void(lightest::Testing&)> name;                   \
-  std::function<void(lightest::Register::Context&)> call_##name = \
-      [&name](lightest::Register::Context& ctx) {                 \
-        lightest::Testing testing(#name);                         \
-        name(testing);                                            \
-        ctx.testData->Add(testing.GetData());                     \
-      };                                                          \
-  testing.AddSub(#name, call_##name);                             \
-  name = [&](lightest::Testing & testing)
+#define SUB(name)                                                  \
+  static std::function<void(lightest::Testing&)> name;             \
+  std::function<void(lightest::Register::Context&)> call_##name =  \
+      [&testing](lightest::Register::Context& ctx) {               \
+        lightest::Testing testing_(#name, testing.GetLevel() + 1); \
+        name(testing_);                                            \
+        ctx.testData->Add(testing_.GetData());                     \
+      };                                                           \
+  testing.AddSub(#name, call_##name);                              \
+  name = [=](lightest::Testing & testing)
 
-/* ========== Configuration macros ========== */
+/* ========== Configuration Macros ========== */
 
 #define NO_COLOR() lightest::OutputColor = false;
 #define NO_OUTPUT() lightest::toOutput = false;
