@@ -1,4 +1,6 @@
-# ![Lightest](./imgs/logo.png)
+![Lightest](./imgs/logo.png)
+
+<h1 align="center">Lightest</h1>
 
 ![build_pass](https://img.shields.io/badge/build-passing-green.svg)
 ![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -185,6 +187,7 @@ All the loggings and assertions will be recorded so that you can get them while 
 * Support installation through CMake.
 * Better document for data processing API, customizing, and contribution.
 * Fixture support (maybe as an extension)
+* Tests in different files will be devided into different block while outputting.
 
 ## Caution
 
