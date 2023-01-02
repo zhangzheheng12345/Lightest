@@ -184,7 +184,7 @@ All the loggings and assertions will be recorded so that you can get them while 
 * A stronger data processing tool set as an extension.
 * Support installation through CMake.
 * Better document for data processing API, customizing, and contribution.
-* Fixture support as an extension
+* Fixture support (maybe as an extension)
 
 ## Caution
 
