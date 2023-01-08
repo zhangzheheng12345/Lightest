@@ -43,7 +43,7 @@ DATA(GetFailedTests) {
   data->IterSons([](const lightest::Data* item) {
     const lightest::DataSet* test = static_cast<const lightest::DataSet*>(item);
     if (test->GetFailed()) {
-      std::cout << " * " << test->name << std::endl;
+      std::cout << " * " << test->GetName() << std::endl;
     }
   });
   std::cout << "-----------------------------" << std::endl;

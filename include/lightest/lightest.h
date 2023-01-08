@@ -132,29 +132,31 @@ class DataSet : public Data {
   DataType Type() const { return DATA_SET; }
   bool GetFailed() const { return failed; }
   clock_t GetDuration() const { return duration; }
+  const char* GetName() const { return name; }
   // Should offer a callback to iterate test actions and sub tests' data
   void IterSons(void (*func)(const Data*)) const {
     for (const Data* item : sons) {
       func(item);
     }
   }
-  const char* name;
 
  private:
   bool failed;
   clock_t duration;
   vector<const Data*> sons;
+  const char* name;
 };
 
 // Data classes for test actions should to extend from DataUnit
 // Because loggings should contain file & line information
 class DataUnit {
  public:
-  const char* file;
   unsigned int GetLine() const { return line; }
+  const char* GetFileName() const { return file; }
 
  protected:
   unsigned int line;
+  const char* file;
 };
 
 // Data class of REQ assertions
@@ -181,7 +183,13 @@ class DataReq : public Data, public DataUnit {
     }
   }
   DataType Type() const { return DATA_REQ; }
-  // Read only while processing data
+  const T GetActual() const { return actual; }
+  const U GetExpected() const { return GetExpected; }
+  const char* GetOperator() const { return operator_; }
+  const char* GetExpr() const { return expr; }
+  const bool GetFailed() const { return failed; }
+
+ private:
   const T actual;
   const U expected;
   const char *operator_, *expr;

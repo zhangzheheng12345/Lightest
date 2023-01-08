@@ -152,7 +152,7 @@ DATA(DataProcessor1) {
 
 You can use method of `Type()` and `static_cast` to transfer data's type and process the data deeply yourself. 
 Better carefully look at `lightest.h` if you want to do this.
-Const values can be got directly while for some other you need to call a getter function.
+You need to call getter functions to get data inside the instances of data classes.
 
 All the loggings and assertions will be recorded so that you can get them while processing test data.
 
