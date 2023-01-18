@@ -34,6 +34,9 @@ TEST(TestSub) {
   SUB(SubTest2) {
     REQ(a, ==, 2);  // Test fail
   };
+  SUB(SubTest3) {
+    SUB(SubInSubTest) { REQ(a, ==, 1); };
+  };
 }
 
 // To test DATA

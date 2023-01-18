@@ -35,7 +35,7 @@ using namespace std;
 
 /* ========== Output Color ==========*/
 
-enum class Color { Reset = 0, Black = 30, Red = 31, Green = 32, Yellow = 33 };
+enum class Color { Reset = 0, Red = 41, Green = 42, Yellow = 43, Blue = 44 };
 bool OutputColor = true;  // Use NO_COLOR() to set false
 
 void SetColor(Color color) {
@@ -49,16 +49,17 @@ void SetColor(Color color) {
       case Color::Reset:
         winColor = 0x07;
         break;
-      case Color::Black:
-        winColor = 0x00;
       case Color::Red:
-        winColor = 0x0c;
+        winColor = 0xc0;
         break;
       case Color::Green:
-        winColor = 0x0a;
+        winColor = 0xa0;
         break;
       case Color::Yellow:
-        winColor = 0x0e;
+        winColor = 0xe0;
+        break;
+      case Color::Blue:
+        winColor = 0x90;
         break;
       default:
         winColor = 0x07;
@@ -87,7 +88,7 @@ class Data {
     // Must this->tabs - 1 first,
     // for this->tabs of tests added to the gloabl registerer will be set to
     // 1
-    for (unsigned int tabs = this->tabs - 1; tabs > 0; tabs--) cout << "    ";
+    for (unsigned int tabs = this->tabs - 1; tabs > 0; tabs--) cout << "  ";
     return cout;
   }
   // Offer type to enable transfer Data to exact class of test data
@@ -116,9 +117,17 @@ class DataSet : public Data {
     }
   }
   void Print() const {
-    PrintTabs() << "[Begin ] " << name << endl;
+    PrintTabs();
+    SetColor(Color::Blue);
+    cout << " BEGIN ";
+    SetColor(Color::Reset);
+    cout << " " << name << endl;
     PrintSons();
-    PrintTabs() << "[End   ] " << name;
+    PrintTabs();
+    SetColor(Color::Blue);
+    cout << " END   ";
+    SetColor(Color::Reset);
+    cout << " " << name << " ";
     if (failed) {
       SetColor(Color::Red);
       cout << " FAIL ";
@@ -127,7 +136,7 @@ class DataSet : public Data {
       cout << " PASS ";
     }
     SetColor(Color::Reset);
-    cout << double(duration) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+    cout << " " << double(duration) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
   }
   DataType Type() const { return DATA_SET; }
   bool GetFailed() const { return failed; }
@@ -173,10 +182,11 @@ class DataReq : public Data, public DataUnit {
   // Print data of REQ if assertion fails
   void Print() const {
     if (failed) {
+      PrintTabs();
       SetColor(Color::Red);
-      PrintTabs() << "[Fail ] ";
+      cout << " FAIL ";
       SetColor(Color::Reset);
-      cout << file << ":" << line << ":"
+      cout << " " << file << ":" << line << ":"
            << " REQ [" << expr << "] failed" << endl;
       PrintTabs() << "    + ACTUAL: " << actual << endl;
       PrintTabs() << "    + EXPECTED: " << operator_ << " " << expected << endl;
