@@ -28,25 +28,25 @@ A short piece of test:
 #include "lightest/lightest.h"
 
 TEST(Test1) {
-    REQ(1, ==, 1); // Pass
-    REQ(1, ==, 2); // Oops! Fail
-    int a = 1, b = 1, c = 2;
-    REQ(a, ==, b); // Pass
-    REQ(a, ==, c); // Oops! Fail again
+  REQ(1, ==, 1); // Pass
+  REQ(1, ==, 2); // Oops! Fail
+  int a = 1, b = 1, c = 2;
+  REQ(a, ==, b); // Pass
+  REQ(a, ==, c); // Oops! Fail again
 }
 ```
 
 Outputs simple and tidy:
 
 ```
-[Begin ] Test1
-    [Fail ] test.cpp:23: REQ [1 == 2] failed
-        + ACTUAL: 1
-        + EXPECTED: == 2
-    [Fail ] test.cpp:26: REQ [a == c] failed
-        + ACTUAL: 1
-        + EXPECTED: == 2
-[End   ] Test1 FAIL 0.004ms
+ Begin  Test1
+   Fail  test.cpp:23: REQ [1 == 2] failed
+      + ACTUAL: 1
+      + EXPECTED: == 2
+   Fail  test.cpp:26: REQ [a == c] failed
+      + ACTUAL: 1
+      + EXPECTED: == 2
+ End    Test1 FAIL 0.004ms
 Done. 1.218ms used.
 ```
 
@@ -76,8 +76,22 @@ Here is an example showing how to add tests:
 ```C++
 // in global scope
 TEST(Test1) {
-    REQ(1, ==, 1); // Pass, of course
+  REQ(1, ==, 1); // Pass, of course
 }
+```
+
+Use macro `SUB(name)` to add sub tests. Sub test in sub test is allowed.
+
+Example:
+
+```C++
+// inside global tests or sub tests
+SUB(SubTest1) {
+  REQ(1, ==, 1); // Pass
+  SUB(SubInSub1) {
+    REQ(1, ==, 1); // Pass
+  }; // semicolon required
+}; // semicolon required
 ```
 
 All the defined tests will be automatically run because auto registration is supported.
@@ -97,9 +111,9 @@ Example:
 int a = 1, b = 1, c = 2;
 REQ(a, ==, b); // Pass with no output -- The cleaner, the better.
 REQ(a, ==, c); // Fail and output:
-//    REQ [a == c] failed
-//        + ACTUAL: 1
-//        + EXPECTED: == 2
+//  REQ [a == c] failed
+//      + ACTUAL: 1
+//      + EXPECTED: == 2
 MUST(REQ(1, ==, 2)); // Fail and current test will be stopped
 ```
 
@@ -123,11 +137,11 @@ You can write configurations like thus (`CONFIG` functions will be run before te
 ```C++
 // in global scope
 CONFIG(Config1) {
-    NO_COLOR();
-    // To get command line arguments
-    // argn & argc pre-defined
-    for(; argn > 0; argn--, argc++)
-        std::cout << *argc << std::endl; // Output all args
+  NO_COLOR();
+  // To get command line arguments
+  // argn & argc pre-defined
+  for(; argn > 0; argn--, argc++)
+    std::cout << *argc << std::endl; // Output all args
 }
 ```
 
@@ -141,10 +155,10 @@ Write thus to process the data yourself:
 
 ```C++
 DATA(DataProcessor1) {
-    data->IterSons( [] (const lightest::Data* item) {
-        // To output all the defined tests' names
-        std::cout << " * " << static_cast<DataSet*>(item)->name << std::endl;
-    }); // Pass a callback function to DataSet.IterSons to iterate all the test data
+  data->IterSons( [] (const lightest::Data* item) {
+    // To output all the defined tests' names
+    std::cout << " * " << static_cast<DataSet*>(item)->name << std::endl;
+  }); // Pass a callback function to DataSet.IterSons to iterate all the test data
 }
 ```
 
@@ -159,7 +173,6 @@ All the loggings and assertions will be recorded so that you can get them while 
 ## Future
 
 * Better data processing & reporting system.
-* `SUB(name)` to define sub tests.
 * More assertion macros in a independent file as an extension.
 * Async testing system in a independent file as an extension.
 * Catch uncaught error thrown out by tests.
@@ -171,6 +184,7 @@ All the loggings and assertions will be recorded so that you can get them while 
 ## Caution
 
 * You must add a semicolon after a assertion.
+* You must add a semicolon after a definition of a sub test.
 * Again, C++11 required.
 
 ## Version control
