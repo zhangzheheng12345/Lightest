@@ -28,7 +28,7 @@ A short piece of test using Lightest:
 ```C++
 #include "lightest/lightest.h"
 
-TEST(Test1) {
+TEST(Test) {
   REQ(1, ==, 1); // Pass
   REQ(1, ==, 2); // Oops! Fail
   int a = 1, b = 1, c = 2;
@@ -40,14 +40,14 @@ TEST(Test1) {
 Outputs simple and tidy:
 
 ```
- Begin  Test1
-   Fail  test.cpp:23: REQ [1 == 2] failed
-      + ACTUAL: 1
+ BEGIN  Test
+   FAIL  test.cpp:23: REQ [1 == 2] failed
+      +   ACTUAL: 1
       + EXPECTED: == 2
-   Fail  test.cpp:26: REQ [a == c] failed
-      + ACTUAL: 1
+   FAIL  test.cpp:26: REQ [a == c] failed
+      +   ACTUAL: 1
       + EXPECTED: == 2
- End    Test1 FAIL 0.004ms
+ FAIL   Test 0.004ms
 Done. 1.218ms used.
 ```
 
@@ -173,12 +173,14 @@ All the loggings and assertions will be recorded so that you can get them while 
 
 ## Future
 
+* Redirect outputs to `ostream&`.
 * Better data processing & reporting system.
 * More assertion macros in a independent file as an extension.
 * Async testing system in a independent file as an extension.
 * Catch uncaught error thrown out by tests.
 * (Maybe) Chai like assertions support as an extension.
 * A stronger data processing tool set as an extension.
+* Benchmark testing (time & speed test) support.
 * Support installation through CMake.
 * Better document for data processing API, customizing, and contribution.
 

@@ -124,19 +124,15 @@ class DataSet : public Data {
     cout << " " << name << endl;
     PrintSons();
     PrintTabs();
-    SetColor(Color::Blue);
-    cout << " END   ";
-    SetColor(Color::Reset);
-    cout << " " << name << " ";
     if (failed) {
       SetColor(Color::Red);
-      cout << " FAIL ";
+      cout << " FAIL  ";
     } else {
       SetColor(Color::Green);
-      cout << " PASS ";
+      cout << " PASS  ";
     }
     SetColor(Color::Reset);
-    cout << " " << double(duration) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+    cout << " " << name << " " << double(duration) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
   }
   DataType Type() const { return DATA_SET; }
   bool GetFailed() const { return failed; }
@@ -188,7 +184,7 @@ class DataReq : public Data, public DataUnit {
       SetColor(Color::Reset);
       cout << " " << file << ":" << line << ":"
            << " REQ [" << expr << "] failed" << endl;
-      PrintTabs() << "    + ACTUAL: " << actual << endl;
+      PrintTabs() << "    +   ACTUAL: " << actual << endl;
       PrintTabs() << "    + EXPECTED: " << operator_ << " " << expected << endl;
     }
   }
