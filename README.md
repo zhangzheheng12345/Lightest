@@ -3,7 +3,8 @@
 ![build_pass](https://img.shields.io/badge/build-passing-green.svg)
 ![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
-**Lightest**, the name of the project, means it provides an extremely light but meanwhile strong C++ unit test framework.
+An extremely light but meanwhile strong C++ unit test framework.
+You should read its name as Ligh-test, with test stressed, which stands for some of its main features.
 It's headed-only, and also quite flexible and customizable.
 
 The core library file is `/include/lightest/lightest.h`. Extensions will be provided in the future.
@@ -22,7 +23,7 @@ Your compiler has to support C++11. Also, the project has only been tested on cl
 
 ## A quick look
 
-A short piece of test:
+A short piece of test using Lightest:
 
 ```C++
 #include "lightest/lightest.h"
