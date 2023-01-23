@@ -22,9 +22,9 @@ TEST(TestAssertionMacros) {
   REQ(1, ==, 1);
   REQ(1, ==, 2);  // Test fail
   int a = 0, b = 0, c = 1;
-  REQ(a, >, b);  // Test fail
   REQ(a, ==, b);
   REQ(b, !=, c);
+  REQ(a, >, b); // Test fail
   MUST(REQ(a, ==, c));  // FAIL & stop this test
 }
 

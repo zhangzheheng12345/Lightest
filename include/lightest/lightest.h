@@ -9,7 +9,6 @@ https://github.com/zhangzheheng12345
 #ifndef _LIGHTEST_H_
 #define _LIGHTEST_H_
 
-// Deal with different OS
 #if defined(__unix__) || defined(__unix) || defined(__linux__)
 #define _LINUX_
 #elif defined(WIN32) || defined(_WIN32) || defined(_WIN64)
@@ -76,6 +75,12 @@ bool toOutput = true;  // Use NO_OUTPUT() to set to false
 
 enum DataType { DATA_SET, DATA_REQ };
 
+// Transfer clock_t to ms,
+// for on Linux clock_t's unit is us, while on Windows it's ms
+inline double TimeToMs(clock_t time) {
+  return double(time) / CLOCKS_PER_SEC * 1000;
+}
+
 // All test data classes should extend from Data
 class Data {
  public:
@@ -100,7 +105,7 @@ class Data {
 };
 
 // Contain test actions on current level and sub tests' data
-// Recursively call Print() to give out all the outpus
+// Recursively call Print() to output
 class DataSet : public Data {
  public:
   DataSet(const char* name) { this->name = name, duration = 0; }
@@ -132,7 +137,7 @@ class DataSet : public Data {
       cout << " PASS  ";
     }
     SetColor(Color::Reset);
-    cout << " " << name << " " << double(duration) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+    cout << TimeToMs(duration) << "ms" << endl;
   }
   DataType Type() const { return DATA_SET; }
   bool GetFailed() const { return failed; }
@@ -144,16 +149,23 @@ class DataSet : public Data {
       func(item);
     }
   }
+  ~DataSet() {
+    for(Data* item : sons) {
+      delete item;
+    }
+  }
+  const char* name;
 
  private:
   bool failed;
   clock_t duration;
+  // Data of test actions and sub tests
   vector<const Data*> sons;
   const char* name;
 };
 
-// Data classes for test actions should to extend from DataUnit
-// Because loggings should contain file & line information
+// Data classes for test actions should to extend from DataUnit,
+// for loggings should contain file & line information
 class DataUnit {
  public:
   unsigned int GetLine() const { return line; }
@@ -213,10 +225,11 @@ class Register {
     int argn;
     char** argc;
   } Context;
+  // Register a CONFIG, TEST, or DATA
   void Add(const char* name, function<void(Context&)> callerFunc) {
+  void Add(const char* name, void (*callerFunc)(Context&)) {
     registerList.push_back({name, callerFunc});
   }
-  // Run tests registered
   void RunRegistered() {
     Context ctx = Context{testData, argn, argc};
     for (const signedFuncWrapper& item : registerList) {
@@ -255,6 +268,7 @@ class Registering {
 
 /* ========== Testing ========== */
 
+// An instance of Testing is for adding test data and adding sub tests
 class Testing {
  public:
   // level_: 1 => global tests, 2 => sub tests, 3 => sub sub tests ...
@@ -291,8 +305,10 @@ class Testing {
 
 }  // namespace lightest
 
-/* ========== Registing Macros ========== */
+/* ========== Registering Macros ========== */
 
+// To define user's configuarations
+// Pre-define argn and argc for user's configurations
 #define CONFIG(name)                                                       \
   void name(int argn, char** argc);                                        \
   void call_##name(lightest::Register::Context& ctx) {                     \
@@ -302,17 +318,20 @@ class Testing {
                                            #name, call_##name);            \
   void name(int argn, char** argc)
 
+// To define a test
 #define TEST(name)                                                       \
   void name(lightest::Testing& testing);                                 \
   void call_##name(lightest::Register::Context& ctx) {                   \
     lightest::Testing testing(#name, 1);                                 \
     name(testing);                                                       \
-    ctx.testData->Add(testing.GetData());                                \
+    ctx.testData->Add(testing.GetData()); /* Colletct data */            \
   }                                                                      \
   lightest::Registering registering_##name(lightest::globalRegisterTest, \
                                            #name, call_##name);          \
   void name(lightest::Testing& testing)
 
+// To define a test data processor
+// Pre-define data to provide a readonly object containing all the test data
 #define DATA(name)                                                           \
   void name(const lightest::DataSet* data);                                  \
   void call_##name(lightest::Register::Context& ctx) { name(ctx.testData); } \
@@ -356,21 +375,26 @@ int main(int argn, char* argc[]) {
   if (lightest::toOutput) {
     lightest::globalRegisterData.testData->PrintSons();
   }
-  std::cout << "Done. " << double(clock()) / CLOCKS_PER_SEC * 1000 << "ms used."
+  std::cout << "Done. " << lightest::TimeToMs(clock()) << "ms used."
             << std::endl;
   return 0;
 }
+
+/* ========== Configuration Macros ========== */
+
+#define NO_COLOR() lightest::OutputColor = false;
+#define NO_OUTPUT() lightest::toOutput = false;
 
 /* ========= Timer Macros =========== */
 
 // Unit: minisecond (ms)
 
 // Run once and messure the time
-#define TIMER(sentence)                                     \
-  ([&]() -> double {                                        \
-    clock_t start = clock();                                \
-    (sentence);                                             \
-    return double(clock() - start) / CLOCKS_PER_SEC * 1000; \
+#define TIMER(sentence)                         \
+  ([&]() -> double {                            \
+    clock_t start = clock();                    \
+    (sentence);                                 \
+    return lightest::TimeToMs(clock() - start); \
   }())
 
 // Run several times and return the average time
@@ -382,7 +406,7 @@ int main(int argn, char* argc[]) {
       (sentence);                                           \
       sum += clock() - start;                               \
     }                                                       \
-    return double(sum) / times / CLOCKS_PER_SEC * 1000;     \
+    return lightest::TimeToMs(sum) / times;                 \
   }())
 
 /* ========== Assertion Macros ========== */
