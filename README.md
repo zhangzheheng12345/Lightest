@@ -36,6 +36,11 @@ TEST(Test) {
   int a = 1, b = 1, c = 2;
   REQ(a, ==, b); // Pass
   REQ(a, ==, c); // Oops! Fail again
+  SUB(SubTest) {
+    SUB(SubSubTest) {
+      REQ(a, ==, b); // Pass
+    };
+  };
 }
 ```
 
@@ -43,14 +48,18 @@ Outputs simple and tidy:
 
 ```
  BEGIN  Test
-   FAIL  test.cpp:23: REQ [1 == 2] failed
+   FAIL  test.cpp:5: REQ [1 == 2] failed
       +   ACTUAL: 1
       + EXPECTED: == 2
-   FAIL  test.cpp:26: REQ [a == c] failed
+   FAIL  test.cpp:8: REQ [a == c] failed
       +   ACTUAL: 1
       + EXPECTED: == 2
- FAIL   Test 0.004ms
-Done. 1.218ms used.
+   BEGIN  SubTest
+     BEGIN  SubSubTest
+     PASS   SubSubTest 0.001ms
+   PASS   SubTest 0.003
+ FAIL   Test 0.109ms
+Done. 1.518ms used.
 ```
 
 Outputs should be colorful if your platform is Windows, Linux or Mac.

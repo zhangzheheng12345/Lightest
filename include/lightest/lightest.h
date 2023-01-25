@@ -150,11 +150,10 @@ class DataSet : public Data {
     }
   }
   ~DataSet() {
-    for(Data* item : sons) {
+    for (const Data* item : sons) {
       delete item;
     }
   }
-  const char* name;
 
  private:
   bool failed;
@@ -227,7 +226,6 @@ class Register {
   } Context;
   // Register a CONFIG, TEST, or DATA
   void Add(const char* name, function<void(Context&)> callerFunc) {
-  void Add(const char* name, void (*callerFunc)(Context&)) {
     registerList.push_back({name, callerFunc});
   }
   void RunRegistered() {
@@ -279,7 +277,8 @@ class Testing {
     failed = false;
   }
   // Add a test data unit of a REQ assertion
-  template <typename T, typename U>  // Differnt type for e.g. <int> == <double>
+  template <typename T,
+            typename U>  // Differnt type for e.g. <int> == <double>
   void Req(const char* file, int line, const T& actual, const U& expected,
            const char* operator_, const char* expr, bool failed) {
     reg.testData->Add(new DataReq<T, U>(file, line, actual, expected, operator_,
@@ -303,7 +302,7 @@ class Testing {
   Register reg;
 };
 
-}  // namespace lightest
+};  // namespace lightest
 
 /* ========== Registering Macros ========== */
 

@@ -1,7 +1,7 @@
 #include <string>  // To compare string easily in different platforms
 
 #include "lightest/lightest.h"
-// #define __FILE__ "test.cpp"
+#define __FILE__ "test.cpp"
 
 CONFIG(Configurations) {
   for (; argn > 0; argn--, argc++) {
