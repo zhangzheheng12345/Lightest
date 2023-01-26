@@ -98,6 +98,7 @@ class Data {
   }
   // Offer type to enable transfer Data to exact class of test data
   virtual DataType Type() const = 0;
+  virtual const bool GetFailed() const = 0;
   virtual ~Data() {}
 
  private:
@@ -111,10 +112,11 @@ class DataSet : public Data {
   DataSet(const char* name) { this->name = name, duration = 0; }
   void Add(Data* son) {
     son->SetTabs(GetTabs() + 1);
+    if(son->GetFailed()) failed = true;
     sons.push_back(son);
   }
   void End(bool failed, clock_t duration) {
-    this->failed = failed;
+    this->failed = failed || this->failed;
     this->duration = duration;
   }
   void PrintSons() const {
@@ -141,7 +143,7 @@ class DataSet : public Data {
     cout << " " << name << " " << TimeToMs(duration) << " ms" << endl;
   }
   DataType Type() const { return DATA_SET; }
-  bool GetFailed() const { return failed; }
+  const bool GetFailed() const { return failed; }
   clock_t GetDuration() const { return duration; }
   const char* GetName() const { return name; }
   // Should offer a callback to iterate test actions and sub tests' data
