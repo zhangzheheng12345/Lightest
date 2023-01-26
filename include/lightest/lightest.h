@@ -112,7 +112,7 @@ class DataSet : public Data {
   DataSet(const char* name) { this->name = name, duration = 0; }
   void Add(Data* son) {
     son->SetTabs(GetTabs() + 1);
-    if(son->GetFailed()) failed = true;
+    if (son->GetFailed()) failed = true;
     sons.push_back(son);
   }
   void End(bool failed, clock_t duration) {
