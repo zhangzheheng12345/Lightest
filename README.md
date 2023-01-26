@@ -5,9 +5,7 @@
 ![build_pass](https://img.shields.io/badge/build-passing-green.svg)
 ![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
-An extremely light but meanwhile strong C++ unit test framework.
-You should read its name as Ligh-test, with test stressed, which stands for some of its main features.
-It's headed-only, and also quite flexible and customizable.
+An extremely light but meanwhile strong C++ unit test framework. You should read its name as Ligh-test, with test stressed. It's headed-only, and also quite flexible and customizable.
 
 The core library file is `/include/lightest/lightest.h`. Extensions will be provided in the future.
 I promise that I'll keep the core extremely light.

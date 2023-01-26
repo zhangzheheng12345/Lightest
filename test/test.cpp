@@ -24,7 +24,7 @@ TEST(TestAssertionMacros) {
   int a = 0, b = 0, c = 1;
   REQ(a, ==, b);
   REQ(b, !=, c);
-  REQ(a, >, b); // Test fail
+  REQ(a, >, b);         // Test fail
   MUST(REQ(a, ==, c));  // FAIL & stop this test
 }
 
@@ -51,5 +51,7 @@ DATA(GetFailedTests) {
       failedTestCount++;
     }
   });
-  std::cout << failedTestCount << " test"<< (failedTestCount>1?"s":"")<< " failed." << std::endl << "-----------------------------" << std::endl;
+  std::cout << failedTestCount << " test" << (failedTestCount > 1 ? "s" : "")
+            << " failed." << std::endl
+            << "-----------------------------" << std::endl;
 }
