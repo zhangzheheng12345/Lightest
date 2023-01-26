@@ -5,9 +5,7 @@
 ![build_pass](https://img.shields.io/badge/build-passing-green.svg)
 ![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
-An extremely light but meanwhile strong C++ unit test framework.
-You should read its name as Ligh-test, with test stressed, which stands for some of its main features.
-It's headed-only, and also quite flexible and customizable.
+An extremely light but meanwhile strong C++ unit test framework. You should read its name as Ligh-test, with test stressed. It's headed-only, and also quite flexible and customizable.
 
 The core library file is `/include/lightest/lightest.h`. Extensions will be provided in the future.
 I promise that I'll keep the core extremely light.
@@ -19,7 +17,7 @@ Following features are supported:
 * Pretty output, include coloring (cross platform supported).
 * Test data collecting.
 * Timers.
-* Configurations are supported if you want.
+* User configurations are supported if you want.
 
 Your compiler has to support C++11. Also, the project has only been tested on clang++ on Ubuntu, and MSVC (Visual Studio) on Windows 10.
 
@@ -56,10 +54,10 @@ Outputs simple and tidy:
       + EXPECTED: == 2
    BEGIN  SubTest
      BEGIN  SubSubTest
-     PASS   SubSubTest 0.001ms
+     PASS   SubSubTest 0.001 ms
    PASS   SubTest 0.003
- FAIL   Test 0.109ms
-Done. 1.518ms used.
+ FAIL   Test 0.109 ms
+Done. 1.518 ms used.
 ```
 
 Outputs should be colorful if your platform is Windows, Linux or Mac.
@@ -67,7 +65,7 @@ Outputs should be colorful if your platform is Windows, Linux or Mac.
 ## Usage
 
 You only need to add `include/lightest/lightest.h` to your project in any form you like.
-**Lightest** just need this file to work. You can use any build system, and we provide a suggested way to integrate **Lightest** with CMake here.
+**Lightest** just need this to work. You can use any build system, and here we provide a suggested way to integrate **Lightest** with CMake.
 
 ### Work with CMake
 
@@ -227,6 +225,15 @@ All the loggings and assertions will be recorded so that you can get them while 
 * Branch `fix` will be updated when fixing errors or small updates. It will be merged into `main` when publishing a PATCH version.
 * Branch `dev` will be updated when adding features, big refactoring, or doing big changes. It will be merged into `main` when publishing a MAJOR or MINOR version.
 
-This project will be maintained continuously. Be free to put forward issues in GitHub, and Pull Requests are always welcomed!
-I'll try my best to solve your problem, and make **Lightest** more fantastic together with YOU!
-(*Please use English*)
+## Contributing
+
+Be free to put forward issues in GitHub, and pull requests are always welcomed. Following rules should be followed.
+
+1. Use English.
+2. Every commit starts with an upper letter, and the first word should be a verb, such as `Fix`, `Add`, `Update`, `Support`, `Complete`, etc.
+3. File names use underline (`_`) to separate words. Extension files have suffix of `_ext`. Use `.cpp` and `.h`. For example, `async_test_ext.h`.
+4. Variable names use lower camel case, while class, structure and function names use upper camel case. Macros are all upper case, and separate words by underline (`_`).
+5. Comment start with an upper letter. Use single line comment. No dots (`.`) after a sentence ends. For example, `// Here is a comment`.
+6. All source files are formatted by clang-format.
+
+This project will be maintained continuously. I'll try my best to solve your problem, and make **Lightest** more fantastic together with YOU!

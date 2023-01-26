@@ -105,6 +105,7 @@ class Data {
   }
   // Offer type to enable transfer Data to exact class of test data
   virtual DataType Type() const = 0;
+  virtual const bool GetFailed() const = 0;
   virtual ~Data() {}
 
  private:
@@ -118,10 +119,12 @@ class DataSet : public Data {
   DataSet(const char* name) { this->name = name, duration = 0; }
   void Add(Data* son) {
     son->SetTabs(GetTabs() + 1);
+    if (son->GetFailed()) failed = true;
     sons.push_back(son);
   }
   void End(bool failed, clock_t duration) {
-    this->failed = failed, this->duration = duration;
+    this->failed = failed || this->failed;
+    this->duration = duration;
   }
   void PrintSons() const {
     for (const Data* item : sons) {
@@ -139,14 +142,14 @@ class DataSet : public Data {
     } else {
       PrintLabel(Color::Green, " PASS  ");
     }
-    cout << TimeToMs(duration) << "ms" << endl;
+    cout << " " << name << " " << TimeToMs(duration) << " ms" << endl;
   }
   DataType Type() const { return DATA_SET; }
-  bool GetFailed() const { return failed; }
+  const bool GetFailed() const { return failed; }
   clock_t GetDuration() const { return duration; }
   const char* GetName() const { return name; }
   // Should offer a callback to iterate test actions and sub tests' data
-  void IterSons(void (*func)(const Data*)) const {
+  void IterSons(function<void(const Data*)> func) const {
     for (const Data* item : sons) {
       func(item);
     }
@@ -415,9 +418,9 @@ int main(int argn, char* argc[]) {
   if (lightest::toOutput) {
     lightest::globalRegisterData.testData->PrintSons();
   }
-  std::cout << "Done. " << lightest::TimeToMs(clock()) << "ms used."
+  std::cout << "Done. " << lightest::TimeToMs(clock()) << " ms used."
             << std::endl;
-  return 0;
+  return lightest::globalRegisterData.testData->GetFailed();
 }
 
 /* ========== Configuration Macros ========== */
