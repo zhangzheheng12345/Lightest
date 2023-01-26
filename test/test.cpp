@@ -41,13 +41,15 @@ TEST(TestSub) {
 
 // To test DATA
 DATA(GetFailedTests) {
+  unsigned int failedTestCount = 0;
   std::cout << "-----------------------------" << std::endl;
   std::cout << "Failed tests:" << std::endl;
-  data->IterSons([](const lightest::Data* item) {
+  data->IterSons([&failedTestCount](const lightest::Data* item) {
     const lightest::DataSet* test = static_cast<const lightest::DataSet*>(item);
     if (test->GetFailed()) {
       std::cout << " * " << test->GetName() << std::endl;
+      failedTestCount++;
     }
   });
-  std::cout << "-----------------------------" << std::endl;
+  std::cout << failedTestCount << " test"<< (failedTestCount>1?"s":"")<< " failed." << std::endl << "-----------------------------" << std::endl;
 }

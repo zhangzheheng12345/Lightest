@@ -147,7 +147,7 @@ class DataSet : public Data {
   clock_t GetDuration() const { return duration; }
   const char* GetName() const { return name; }
   // Should offer a callback to iterate test actions and sub tests' data
-  void IterSons(void (*func)(const Data*)) const {
+  void IterSons(function<void(const Data*)> func) const {
     for (const Data* item : sons) {
       func(item);
     }
@@ -379,7 +379,7 @@ int main(int argn, char* argc[]) {
   }
   std::cout << "Done. " << lightest::TimeToMs(clock()) << " ms used."
             << std::endl;
-  return 0;
+  return lightest::globalRegisterData.testData->GetFailed();
 }
 
 /* ========== Configuration Macros ========== */

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(Lightest)
 
+set(CMAKE_CXX_STANDARD 11) # C++11 required
+
 # Build Lightest to a header-only library
 
 add_library(${PROJECT_NAME} INTERFACE)
