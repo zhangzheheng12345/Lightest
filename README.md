@@ -56,10 +56,10 @@ Outputs simple and tidy:
       + EXPECTED: == 2
    BEGIN  SubTest
      BEGIN  SubSubTest
-     PASS   SubSubTest 0.001ms
+     PASS   SubSubTest 0.001 ms
    PASS   SubTest 0.003
- FAIL   Test 0.109ms
-Done. 1.518ms used.
+ FAIL   Test 0.109 ms
+Done. 1.518 ms used.
 ```
 
 Outputs should be colorful if your platform is Windows, Linux or Mac.
@@ -227,6 +227,13 @@ All the loggings and assertions will be recorded so that you can get them while 
 * Branch `fix` will be updated when fixing errors or small updates. It will be merged into `main` when publishing a PATCH version.
 * Branch `dev` will be updated when adding features, big refactoring, or doing big changes. It will be merged into `main` when publishing a MAJOR or MINOR version.
 
-This project will be maintained continuously. Be free to put forward issues in GitHub, and Pull Requests are always welcomed!
-I'll try my best to solve your problem, and make **Lightest** more fantastic together with YOU!
-(*Please use English*)
+## Contributing
+
+Be free to put forward issues in GitHub, and pull requests are always welcomed. Following rules should be followed.
+
+1. Use English.
+2. Every commit starts with an upper letter, and the first word should be a verb, such as `Fix`, `Add`, `Update`, `Support`, `Complete`, etc.
+3. File names use underline (`_`) to separate words. Extension files have suffix of `_ext`. Use `.cpp` and `.h`. For example, `async_test_ext.h`.
+4. Variable names use lower camel case, while class, structure and function names use upper camel case. Macros are all upper case, and separate words by underline (`_`).
+
+This project will be maintained continuously. I'll try my best to solve your problem, and make **Lightest** more fantastic together with YOU!
