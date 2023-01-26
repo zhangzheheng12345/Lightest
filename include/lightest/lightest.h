@@ -114,7 +114,8 @@ class DataSet : public Data {
     sons.push_back(son);
   }
   void End(bool failed, clock_t duration) {
-    this->failed = failed, this->duration = duration;
+    this->failed = failed;
+    this->duration = duration;
   }
   void PrintSons() const {
     for (const Data* item : sons) {
