@@ -24,7 +24,7 @@ TEST(TestAssertionMacros) {
   int a = 0, b = 0, c = 1;
   REQ(a, ==, b);
   REQ(b, !=, c);
-  REQ(a, >, b); // Test fail
+  REQ(a, >, b);         // Test fail
   MUST(REQ(a, ==, c));  // FAIL & stop this test
 }
 
@@ -37,6 +37,18 @@ TEST(TestSub) {
   SUB(SubTest3) {
     SUB(SubInSubTest) { REQ(a, ==, 1); };
   };
+}
+
+TEST(TestCatchUncaughtError) {
+  SUB(TestString) { throw "Uncaught string error"; };
+  SUB(TestException) {
+    class BasicExceptionError : public std::exception {
+     public:
+      const char* what() const noexcept { return "Uncaught exception error"; }
+    };
+    throw BasicExceptionError();
+  };
+  SUB(TestUnknown) { throw 1; };
 }
 
 // To test DATA

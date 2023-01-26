@@ -20,6 +20,7 @@ https://github.com/zhangzheheng12345
 #endif
 
 #include <ctime>
+#include <exception>
 #include <functional>
 #include <iostream>
 #include <vector>
@@ -35,10 +36,10 @@ using namespace std;
 /* ========== Output Color ==========*/
 
 enum class Color { Reset = 0, Red = 41, Green = 42, Yellow = 43, Blue = 44 };
-bool OutputColor = true;  // Use NO_COLOR() to set false
+bool outputColor = true;  // Use NO_COLOR() to set false
 
 void SetColor(Color color) {
-  if (OutputColor) {
+  if (outputColor) {
 #if defined(_LINUX_) || \
     defined(_MAC_)  // Use ASCII color code on Linux and MacOS
     cout << "\033[" << int(color) << "m";
@@ -73,12 +74,18 @@ void SetColor(Color color) {
 
 bool toOutput = true;  // Use NO_OUTPUT() to set to false
 
-enum DataType { DATA_SET, DATA_REQ };
+enum DataType { DATA_SET, DATA_REQ, DATA_UNCAUGHT_ERROR };
 
 // Transfer clock_t to ms,
 // for on Linux clock_t's unit is us, while on Windows it's ms
 inline double TimeToMs(clock_t time) {
   return double(time) / CLOCKS_PER_SEC * 1000;
+}
+
+inline void PrintLabel(Color color, const char* label) {
+  SetColor(color);
+  cout << label;
+  SetColor(Color::Reset);
 }
 
 // All test data classes should extend from Data
@@ -123,20 +130,15 @@ class DataSet : public Data {
   }
   void Print() const {
     PrintTabs();
-    SetColor(Color::Blue);
-    cout << " BEGIN ";
-    SetColor(Color::Reset);
+    PrintLabel(Color::Blue, " BEGIN ");
     cout << " " << name << endl;
     PrintSons();
     PrintTabs();
     if (failed) {
-      SetColor(Color::Red);
-      cout << " FAIL  ";
+      PrintLabel(Color::Red, " FAIL  ");
     } else {
-      SetColor(Color::Green);
-      cout << " PASS  ";
+      PrintLabel(Color::Green, " PASS  ");
     }
-    SetColor(Color::Reset);
     cout << TimeToMs(duration) << "ms" << endl;
   }
   DataType Type() const { return DATA_SET; }
@@ -190,9 +192,7 @@ class DataReq : public Data, public DataUnit {
   void Print() const {
     if (failed) {
       PrintTabs();
-      SetColor(Color::Red);
-      cout << " FAIL ";
-      SetColor(Color::Reset);
+      PrintLabel(Color::Red, " FAIL  ");
       cout << " " << file << ":" << line << ":"
            << " REQ [" << expr << "] failed" << endl;
       PrintTabs() << "    +   ACTUAL: " << actual << endl;
@@ -211,6 +211,26 @@ class DataReq : public Data, public DataUnit {
   const U expected;
   const char *operator_, *expr;
   const bool failed;
+};
+
+class DataUncaughtError : public Data, public DataUnit {
+ public:
+  DataUncaughtError(const char* file, unsigned int line, const char* errorMsg) {
+    this->line = line;
+    this->file = file;
+    this->errorMsg = errorMsg;
+  }
+  void Print() const {
+    PrintTabs();
+    PrintLabel(Color::Red, " ERROR ");
+    cout << file << ":" << line << ": Uncaught error [" << errorMsg << "]"
+         << endl;
+  }
+  DataType Type() const { return DATA_UNCAUGHT_ERROR; }
+  const bool GetFailed() const { return true; }
+
+ private:
+  const char* errorMsg;
 };
 
 /* ========== Register ========== */
@@ -285,6 +305,11 @@ class Testing {
                                         expr, failed));
     this->failed = failed;
   }
+  void UncaughtError(const char* file, unsigned int line,
+                     const char* errorMsg) {
+    reg.testData->Add(new DataUncaughtError(file, line, errorMsg));
+    this->failed = true;
+  }
   void AddSub(const char* name, function<void(Register::Context&)> callerFunc) {
     reg.Add(name, callerFunc);
   }
@@ -306,6 +331,20 @@ class Testing {
 
 /* ========== Registering Macros ========== */
 
+#define CATCH(sentence)                   \
+  ([&]() -> const char* {                 \
+    try {                                 \
+      sentence;                           \
+    } catch (const char* str) {           \
+      return str;                         \
+    } catch (const std::exception& err) { \
+      return err.what();                  \
+    } catch (...) {                       \
+      return "Unknown type error";        \
+    }                                     \
+    return nullptr;                       \
+  })()
+
 // To define user's configuarations
 // Pre-define argn and argc for user's configurations
 #define CONFIG(name)                                                       \
@@ -322,7 +361,8 @@ class Testing {
   void name(lightest::Testing& testing);                                 \
   void call_##name(lightest::Register::Context& ctx) {                   \
     lightest::Testing testing(#name, 1);                                 \
-    name(testing);                                                       \
+    const char* errorMsg = CATCH(name(testing));                         \
+    if (errorMsg) testing.UncaughtError(__FILE__, __LINE__, errorMsg);   \
     ctx.testData->Add(testing.GetData()); /* Colletct data */            \
   }                                                                      \
   lightest::Registering registering_##name(lightest::globalRegisterTest, \
@@ -338,20 +378,21 @@ class Testing {
                                            #name, call_##name);              \
   void name(const lightest::DataSet* data)
 
-#define SUB(name)                                                  \
-  static std::function<void(lightest::Testing&)> name;             \
-  std::function<void(lightest::Register::Context&)> call_##name =  \
-      [&testing](lightest::Register::Context& ctx) {               \
-        lightest::Testing testing_(#name, testing.GetLevel() + 1); \
-        name(testing_);                                            \
-        ctx.testData->Add(testing_.GetData());                     \
-      };                                                           \
-  testing.AddSub(#name, call_##name);                              \
+#define SUB(name)                                                           \
+  static std::function<void(lightest::Testing&)> name;                      \
+  std::function<void(lightest::Register::Context&)> call_##name =           \
+      [&testing](lightest::Register::Context& ctx) {                        \
+        lightest::Testing testing_(#name, testing.GetLevel() + 1);          \
+        const char* errorMsg = CATCH(name(testing_));                       \
+        if (errorMsg) testing_.UncaughtError(__FILE__, __LINE__, errorMsg); \
+        ctx.testData->Add(testing_.GetData());                              \
+      };                                                                    \
+  testing.AddSub(#name, call_##name);                                       \
   name = [=](lightest::Testing & testing)
 
 /* ========== Configuration Macros ========== */
 
-#define NO_COLOR() lightest::OutputColor = false;
+#define NO_COLOR() lightest::outputColor = false;
 #define NO_OUTPUT() lightest::toOutput = false;
 
 /* ========== Main ========== */
@@ -381,7 +422,7 @@ int main(int argn, char* argc[]) {
 
 /* ========== Configuration Macros ========== */
 
-#define NO_COLOR() lightest::OutputColor = false;
+#define NO_COLOR() lightest::outputColor = false;
 #define NO_OUTPUT() lightest::toOutput = false;
 
 /* ========= Timer Macros =========== */
