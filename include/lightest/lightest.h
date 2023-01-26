@@ -137,7 +137,7 @@ class DataSet : public Data {
       cout << " PASS  ";
     }
     SetColor(Color::Reset);
-    cout << TimeToMs(duration) << "ms" << endl;
+    cout << " " << name << " " << TimeToMs(duration) << " ms" << endl;
   }
   DataType Type() const { return DATA_SET; }
   bool GetFailed() const { return failed; }
@@ -374,7 +374,7 @@ int main(int argn, char* argc[]) {
   if (lightest::toOutput) {
     lightest::globalRegisterData.testData->PrintSons();
   }
-  std::cout << "Done. " << lightest::TimeToMs(clock()) << "ms used."
+  std::cout << "Done. " << lightest::TimeToMs(clock()) << " ms used."
             << std::endl;
   return 0;
 }
