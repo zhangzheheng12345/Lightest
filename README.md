@@ -17,7 +17,7 @@ Following features are supported:
 * Pretty output, include coloring (cross platform supported).
 * Test data collecting.
 * Timers.
-* Configurations are supported if you want.
+* User configurations are supported if you want.
 
 Your compiler has to support C++11. Also, the project has only been tested on clang++ on Ubuntu, and MSVC (Visual Studio) on Windows 10.
 
@@ -65,7 +65,7 @@ Outputs should be colorful if your platform is Windows, Linux or Mac.
 ## Usage
 
 You only need to add `include/lightest/lightest.h` to your project in any form you like.
-**Lightest** just need this file to work. You can use any build system, and we provide a suggested way to integrate **Lightest** with CMake here.
+**Lightest** just need this to work. You can use any build system, and here we provide a suggested way to integrate **Lightest** with CMake.
 
 ### Work with CMake
 
@@ -233,5 +233,7 @@ Be free to put forward issues in GitHub, and pull requests are always welcomed. 
 2. Every commit starts with an upper letter, and the first word should be a verb, such as `Fix`, `Add`, `Update`, `Support`, `Complete`, etc.
 3. File names use underline (`_`) to separate words. Extension files have suffix of `_ext`. Use `.cpp` and `.h`. For example, `async_test_ext.h`.
 4. Variable names use lower camel case, while class, structure and function names use upper camel case. Macros are all upper case, and separate words by underline (`_`).
+5. Comment start with an upper letter. Use single line comment. No dots (`.`) after a sentence ends. For example, `// Here is a comment`.
+6. All source files are formatted by clang-format.
 
 This project will be maintained continuously. I'll try my best to solve your problem, and make **Lightest** more fantastic together with YOU!
