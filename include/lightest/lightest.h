@@ -160,7 +160,12 @@ class DataSet : public Data {
     cout << " " << name << " " << TimeToMs(duration) << " ms" << endl;
   }
   DataType Type() const { return DATA_SET; }
-  const bool GetFailed() const { return failed; }
+  const bool GetFailed() const {
+	#if defined (DEBUG)
+    std::cerr << "GetFailed of '" << name << "' reports: " << (failed?"fail":"okay") << std::endl;
+	#endif
+    return failed;
+  }
   clock_t GetDuration() const { return duration; }
   const char* GetName() const { return name; }
   // Should offer a callback to iterate test actions and sub tests' data
@@ -272,9 +277,9 @@ class Register {
 int Register::argn = 0;
 char** Register::argc = nullptr;
 
-Register globalRegisterConfig("");
-Register globalRegisterTest("");
-Register globalRegisterData("");
+Register globalRegisterConfig("((Config))");
+Register globalRegisterTest("[[Test]]");
+Register globalRegisterData("{{Data}}");
 
 class Registering {
  public:
