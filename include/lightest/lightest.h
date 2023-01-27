@@ -109,7 +109,7 @@ class Data {
 // Recursively call Print() to output
 class DataSet : public Data {
  public:
-  DataSet(const char* name) { this->name = name, duration = 0; }
+  DataSet(const char* name_) : failed(false), name(name_), duration(0) {}
   void Add(Data* son) {
     son->SetTabs(GetTabs() + 1);
     if (son->GetFailed()) failed = true;
