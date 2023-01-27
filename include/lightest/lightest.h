@@ -186,7 +186,13 @@ class DataSet : public Data {
       std::cerr << "  GetFailed of son reports: " << (sub_failed?"fail":"okay") << std::endl;
     }
 	#endif
-    return failed;
+    // >>> likely a dirty hack here, because globalRegisterData.testData should get siblings result from other way, but somehow it comes to late?
+    bool fixup_failed = failed;
+    for (const Data* item : sons) {
+      fixup_failed |= item->GetFailed();
+    }
+    // <<< dirty hack end
+    return fixup_failed;
   }
   clock_t GetDuration() const { return duration; }
   const char* GetName() const { return name; }
