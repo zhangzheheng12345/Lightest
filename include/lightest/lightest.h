@@ -129,7 +129,17 @@ class DataSet : public Data {
   DataSet(const char* name_) : failed(false), name(name_), duration(0) {}
   void Add(Data* son) {
     son->SetTabs(GetTabs() + 1);
+	#if defined (DEBUG)
+	bool old_failed = failed;
+	#endif
     if (son->GetFailed()) failed = true;
+	#if defined (DEBUG)
+    son->PrintTabs();
+    std::cerr << "Add test result to '" << name
+              << "' adds failed=" << (failed?"fail":"okay")
+              << " to this->failed=" << (old_failed?"fail":"okay")
+              << std::endl;
+	#endif
     sons.push_back(son);
   }
   void End(bool failed, clock_t duration) {
