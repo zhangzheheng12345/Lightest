@@ -81,6 +81,23 @@ inline double TimeToMs(clock_t time) {
   return double(time) / CLOCKS_PER_SEC * 1000;
 }
 
+void PrintFinal(bool failed, clock_t duration) {
+  if (lightest::toOutput) {
+    if (failed) {
+      SetColor(Color::Red);
+      cout << " **FAILED** ";
+    } else {
+      SetColor(Color::Green);
+      cout << " ++PASSED++ ";
+    }
+    SetColor(Color::Reset);
+  } else {
+    cout << "finished " << (failed?"with failure,": "successfully,");
+  }
+  cout << " " << TimeToMs(duration) << " ms used." << endl;
+}
+
+
 // All test data classes should extend from Data
 class Data {
  public:
@@ -234,7 +251,7 @@ class Register {
   void RunRegistered() {
     Context ctx = Context{testData, argn, argc};
     for (const signedFuncWrapper& item : registerList) {
-      item.callerFunc(ctx);
+      item.callerFunc(ctx); // would it not be best to have the OK/FAIL return here and keep it in private: bool failed; ?
     }
   }
   // Restore argn & argc for CONFIG
@@ -360,6 +377,7 @@ class Testing {
 /* ========== Main ========== */
 
 int main(int argn, char* argc[]) {
+  bool final_failure(true);
   // Offer arn & argc for CONFIG
   lightest::Register::SetArg(argn, argc);
   // Only test registerer need this, for test data will only be added in test
@@ -377,15 +395,11 @@ int main(int argn, char* argc[]) {
   if (lightest::toOutput) {
     lightest::globalRegisterData.testData->PrintSons();
   }
-  std::cout << "Done. " << lightest::TimeToMs(clock()) << " ms used."
-            << std::endl;
-  return lightest::globalRegisterData.testData->GetFailed();
+  final_failure = lightest::globalRegisterData.testData->GetFailed();
+  lightest::PrintFinal(final_failure, clock());
+  return final_failure ? 1 : 0;
 }
 
-/* ========== Configuration Macros ========== */
-
-#define NO_COLOR() lightest::OutputColor = false;
-#define NO_OUTPUT() lightest::toOutput = false;
 
 /* ========= Timer Macros =========== */
 
