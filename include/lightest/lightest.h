@@ -133,6 +133,12 @@ class DataSet : public Data {
     sons.push_back(son);
   }
   void End(bool failed, clock_t duration) {
+	#if defined (DEBUG)
+    std::cerr << "End of " << ((sons.empty()?"leaf":"node")) << " \"" << name
+              << "\" adds failed=" << (failed?"fail":"okay")
+              << " to this->failed=" << (this->failed?"fail":"okay")
+              << std::endl;
+	#endif
     this->failed = failed || this->failed;
     this->duration = duration;
   }
