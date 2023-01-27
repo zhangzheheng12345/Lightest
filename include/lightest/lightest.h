@@ -129,11 +129,11 @@ class DataSet : public Data {
   DataSet(const char* name_) : failed(false), name(name_), duration(0) {}
   void Add(Data* son) {
     son->SetTabs(GetTabs() + 1);
-	#if defined (DEBUG)
+	#if defined (DEBUG) && (DEBUG & 0x01)
 	bool old_failed = failed;
 	#endif
     if (son->GetFailed()) failed = true;
-	#if defined (DEBUG)
+	#if defined (DEBUG) && (DEBUG & 0x01)
     son->PrintTabs();
     std::cerr << "Add test result to '" << name
               << "' adds failed=" << (failed?"fail":"okay")
@@ -143,7 +143,7 @@ class DataSet : public Data {
     sons.push_back(son);
   }
   void End(bool failed, clock_t duration) {
-	#if defined (DEBUG)
+	#if defined (DEBUG) && (DEBUG & 0x02)
     std::cerr << "End of " << ((sons.empty()?"leaf":"node")) << " \"" << name
               << "\" adds failed=" << (failed?"fail":"okay")
               << " to this->failed=" << (this->failed?"fail":"okay")
@@ -177,8 +177,14 @@ class DataSet : public Data {
   }
   DataType Type() const { return DATA_SET; }
   const bool GetFailed() const {
-	#if defined (DEBUG)
+	#if defined (DEBUG) && (DEBUG & 0x04)
     std::cerr << "GetFailed of '" << name << "' reports: " << (failed?"fail":"okay") << std::endl;
+	#endif
+	#if defined (DEBUG) && (DEBUG & 0x08)
+    for (const Data* item : sons) {
+      bool sub_failed = item->GetFailed();
+      std::cerr << "  GetFailed of son reports: " << (sub_failed?"fail":"okay") << std::endl;
+    }
 	#endif
     return failed;
   }
