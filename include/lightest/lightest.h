@@ -122,8 +122,7 @@ class DataSet : public Data {
     if (son->GetFailed()) failed = true;
     sons.push_back(son);
   }
-  void End(bool failed, clock_t duration) {
-    this->failed = failed || this->failed;
+  void End(clock_t duration) {
     this->duration = duration;
   }
   void PrintSons() const {
@@ -306,12 +305,10 @@ class Testing {
            const char* operator_, const char* expr, bool failed) {
     reg.testData->Add(new DataReq<T, U>(file, line, actual, expected, operator_,
                                         expr, failed));
-    this->failed = failed;
   }
   void UncaughtError(const char* file, unsigned int line,
                      const char* errorMsg) {
     reg.testData->Add(new DataUncaughtError(file, line, errorMsg));
-    this->failed = true;
   }
   void AddSub(const char* name, function<void(Register::Context&)> callerFunc) {
     reg.Add(name, callerFunc);
@@ -320,7 +317,7 @@ class Testing {
   unsigned int GetLevel() const { return level; }
   ~Testing() {
     reg.RunRegistered();  // Run sub tests
-    reg.testData->End(failed, clock() - start);
+    reg.testData->End(clock() - start);
   }
 
  private:

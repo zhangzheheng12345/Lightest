@@ -123,6 +123,8 @@ SUB(SubTest1) {
 
 All the defined tests will be automatically run because auto registration is supported.
 
+Uncaught errors thrown out by test will automically be caught by Lightest, and the current test will be terminated and set to failed. Lightest will also adds an uncaught error to test data. Error details in form of `const char*` and `const std::exception&` can be obtained by Lightest, while for other forms, Lightest will mark them as `Unknown type error`.
+
 ### Assertion macros
 
 Use `REQ(actual, operator, expected)` to compare the actual value and the expected value. If the assertion fails, it'll output the actual value and the expected value. 
@@ -203,7 +205,6 @@ All the loggings and assertions will be recorded so that you can get them while 
 * Better data processing & reporting system.
 * More assertion macros in a independent file as an extension.
 * Async testing system in a independent file as an extension.
-* Catch uncaught error thrown out by tests.
 * (Maybe) Chai like assertions support as an extension.
 * A stronger data processing tool set as an extension.
 * Benchmark testing (time & speed test) support.
