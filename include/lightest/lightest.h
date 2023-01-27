@@ -160,10 +160,10 @@ class DataSet : public Data {
 
  private:
   bool failed;
+  const char* name;
   clock_t duration;
   // Data of test actions and sub tests
   vector<const Data*> sons;
-  const char* name;
 };
 
 // Data classes for test actions should to extend from DataUnit,
@@ -299,8 +299,8 @@ class Testing {
   }
 
  private:
-  const unsigned int level;
   const clock_t start;  // No need to report.
+  const unsigned int level;
   bool failed;
   Register reg;
 };
