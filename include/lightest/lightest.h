@@ -225,7 +225,7 @@ class DataUncaughtError : public Data, public DataUnit {
   void Print() const {
     PrintTabs();
     PrintLabel(Color::Red, " ERROR ");
-    cout << file << ":" << line << ": Uncaught error [" << errorMsg << "]"
+    cout << " " << file << ":" << line << ": Uncaught error [" << errorMsg << "]"
          << endl;
   }
   DataType Type() const { return DATA_UNCAUGHT_ERROR; }
@@ -331,6 +331,7 @@ class Testing {
 
 /* ========== Registering Macros ========== */
 
+#define __FILE_NAME__ __FILE__
 #define CATCH(sentence)                   \
   ([&]() -> const char* {                 \
     try {                                 \
@@ -362,7 +363,7 @@ class Testing {
   void call_##name(lightest::Register::Context& ctx) {                   \
     lightest::Testing testing(#name, 1);                                 \
     const char* errorMsg = CATCH(name(testing));                         \
-    if (errorMsg) testing.UncaughtError(__FILE__, __LINE__, errorMsg);   \
+    if (errorMsg) testing.UncaughtError(__FILE_NAME__, __LINE__, errorMsg);   \
     ctx.testData->Add(testing.GetData()); /* Colletct data */            \
   }                                                                      \
   lightest::Registering registering_##name(lightest::globalRegisterTest, \
@@ -384,7 +385,7 @@ class Testing {
       [&testing](lightest::Register::Context& ctx) {                        \
         lightest::Testing testing_(#name, testing.GetLevel() + 1);          \
         const char* errorMsg = CATCH(name(testing_));                       \
-        if (errorMsg) testing_.UncaughtError(__FILE__, __LINE__, errorMsg); \
+        if (errorMsg) testing_.UncaughtError(__FILE_NAME__, __LINE__, errorMsg); \
         ctx.testData->Add(testing_.GetData());                              \
       };                                                                    \
   testing.AddSub(#name, call_##name);                                       \
@@ -410,11 +411,11 @@ int main(int argn, char* argc[]) {
   lightest::globalRegisterConfig.RunRegistered();
   lightest::globalRegisterTest.RunRegistered();
   lightest::globalRegisterData.testData = lightest::globalRegisterTest.testData;
-  lightest::globalRegisterData.RunRegistered();
   // Optionally print the default outputs
   if (lightest::toOutput) {
     lightest::globalRegisterData.testData->PrintSons();
   }
+  lightest::globalRegisterData.RunRegistered();
   std::cout << "Done. " << lightest::TimeToMs(clock()) << " ms used."
             << std::endl;
   return lightest::globalRegisterData.testData->GetFailed();
@@ -456,7 +457,7 @@ int main(int argn, char* argc[]) {
 #define REQ(actual, operator, expected)                          \
   ([&]() -> bool {                                               \
     bool res = (actual) operator(expected);                      \
-    testing.Req(__FILE__, __LINE__, actual, expected, #operator, \
+    testing.Req(__FILE_NAME__, __LINE__, actual, expected, #operator, \
                 #actual " " #operator" " #expected, !res);       \
     return res;                                                  \
   })()
