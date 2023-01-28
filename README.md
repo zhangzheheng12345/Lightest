@@ -63,15 +63,18 @@ Outputs should be colorful if your platform is Windows, Linux or Mac.
 
 ## Usage
 
-You only need to add `include/lightest/lightest.h` to your project in any form you like.
+You only need to add `include/lightest/lightest.h` to your project in any form you like and then include it in your test files.
 **Lightest** just need this to work. You can use any build system, and here we provide a suggested way to integrate **Lightest** with CMake.
+
+(**Caution:** You must compile test files into different executable files instead of linking them into one. This is because there are definitions of global variables and functions in **Lightest** header files.)
 
 ### Work with CMake
 
 A suggested way:
 
 1. Put **Lightest** (the whole repository) into `test/` of your project.
-2. Create `test/CMakeLists.txt` and add:
+2. Create `test/test.cpp`.
+3. Create `test/CMakeLists.txt` and add:
 
 ```CMake
 # In test/CMakeLists.txt
@@ -79,19 +82,17 @@ cmake_minimum_required(VERSION 3.10) # Change the version if you need to
 
 project(ProjectTest) # Change the name as you like
 
-file(GLOB TEST_FILES
-    "${PROJECT_SOURCE_DIR}/*.cpp") # Get all .cpp files under test/
-
-add_executable(${PROJECT_NAME} ${TEST_FILES})
+# No linking. Each test file -> one executable program
+add_executable(${PROJECT_NAME} test.cpp)
 target_link_libraries(${PROJECT_NAME} lightest::lightest)
 
 # Do not use CTest, for testing outputs should be given out by Lightest
 ```
 
-3. Add `add_subdirectory(${PROJECT_SOURCE_DIR}/test)` to the `CMakeLists.txt` file in the project's root directory.
-4. Use `#include "lightest/lightest.h"` in your test files created under `test/`.
+4. Add `add_subdirectory(${PROJECT_SOURCE_DIR}/test)` to the `CMakeLists.txt` file in the project's root directory.
+5. Use `#include "lightest/lightest.h"` in `test/test.cpp`.
 
-But do not use CTest, for outputs should be given out by **Lightest**, while CTest will 'eat' others' outputs.
+Do not use CTest, for outputs should be given out by **Lightest**, while CTest will 'eat' others' outputs.
 
 ### To add tests
 
