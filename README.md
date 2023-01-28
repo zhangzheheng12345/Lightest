@@ -2,7 +2,7 @@
 
 <h1 align="center">Lightest</h1>
 
-![build_pass](https://img.shields.io/badge/build-passing-green.svg)
+![actions/workflows/c-cpp.yml](../../actions/workflows/c-cpp.yml/badge.svg)
 ![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
 An extremely light but meanwhile strong C++ unit test framework. You should read its name as Ligh-test, with test stressed. It's headed-only, and also quite flexible and customizable.
