@@ -410,7 +410,7 @@ class Testing {
 /* ========== Main ========== */
 
 int main(int argn, char* argc[]) {
-  bool final_failure(true);
+  bool finalFailure(true);
   // Offer arn & argc for CONFIG
   lightest::Register::SetArg(argn, argc);
   // Only test registerer need this, for test data will only be added in test
@@ -428,9 +428,9 @@ int main(int argn, char* argc[]) {
   if (lightest::toOutput) {
     lightest::globalRegisterData.testData->PrintSons();
   }
-  final_failure = lightest::globalRegisterData.testData->GetFailed();
-  lightest::PrintFinal(final_failure, clock());
-  return final_failure ? 1 : 0;
+  finalFailure = lightest::globalRegisterData.testData->GetFailed();
+  lightest::PrintFinal(finalFailure, clock());
+  return finalFailure ? 1 : 0;
 }
 
 
