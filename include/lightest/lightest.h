@@ -1,10 +1,10 @@
-/********************
+/*
 | Lightest |
-This is the core file of this library, which provides a lightest C++ unit test
-framework. MIT licensed. Github Repo:
-https://github.com/zhangzheheng12345/Lightest Author's Github:
-https://github.com/zhangzheheng12345
-********************/
+This is the core file of this library, which provides a lightest C++ unit
+test framework. Licensed under MIT.
+ - Github Repo: https://github.com/zhangzheheng12345/Lightest
+ - Author's Github: https://github.com/zhangzheheng12345
+*/
 
 #ifndef _LIGHTEST_H_
 #define _LIGHTEST_H_
@@ -122,9 +122,7 @@ class DataSet : public Data {
     if (son->GetFailed()) failed = true;
     sons.push_back(son);
   }
-  void End(clock_t duration) {
-    this->duration = duration;
-  }
+  void End(clock_t duration) { this->duration = duration; }
   void PrintSons() const {
     for (const Data* item : sons) {
       item->Print();
@@ -225,8 +223,8 @@ class DataUncaughtError : public Data, public DataUnit {
   void Print() const {
     PrintTabs();
     PrintLabel(Color::Red, " ERROR ");
-    cout << " " << file << ":" << line << ": Uncaught error [" << errorMsg << "]"
-         << endl;
+    cout << " " << file << ":" << line << ": Uncaught error [" << errorMsg
+         << "]" << endl;
   }
   DataType Type() const { return DATA_UNCAUGHT_ERROR; }
   const bool GetFailed() const { return true; }
@@ -358,16 +356,16 @@ class Testing {
   void name(int argn, char** argc)
 
 // To define a test
-#define TEST(name)                                                       \
-  void name(lightest::Testing& testing);                                 \
-  void call_##name(lightest::Register::Context& ctx) {                   \
-    lightest::Testing testing(#name, 1);                                 \
-    const char* errorMsg = CATCH(name(testing));                         \
-    if (errorMsg) testing.UncaughtError(__FILE_NAME__, __LINE__, errorMsg);   \
-    ctx.testData->Add(testing.GetData()); /* Colletct data */            \
-  }                                                                      \
-  lightest::Registering registering_##name(lightest::globalRegisterTest, \
-                                           #name, call_##name);          \
+#define TEST(name)                                                          \
+  void name(lightest::Testing& testing);                                    \
+  void call_##name(lightest::Register::Context& ctx) {                      \
+    lightest::Testing testing(#name, 1);                                    \
+    const char* errorMsg = CATCH(name(testing));                            \
+    if (errorMsg) testing.UncaughtError(__FILE_NAME__, __LINE__, errorMsg); \
+    ctx.testData->Add(testing.GetData()); /* Colletct data */               \
+  }                                                                         \
+  lightest::Registering registering_##name(lightest::globalRegisterTest,    \
+                                           #name, call_##name);             \
   void name(lightest::Testing& testing)
 
 // To define a test data processor
@@ -379,16 +377,17 @@ class Testing {
                                            #name, call_##name);              \
   void name(const lightest::DataSet* data)
 
-#define SUB(name)                                                           \
-  static std::function<void(lightest::Testing&)> name;                      \
-  std::function<void(lightest::Register::Context&)> call_##name =           \
-      [&testing](lightest::Register::Context& ctx) {                        \
-        lightest::Testing testing_(#name, testing.GetLevel() + 1);          \
-        const char* errorMsg = CATCH(name(testing_));                       \
-        if (errorMsg) testing_.UncaughtError(__FILE_NAME__, __LINE__, errorMsg); \
-        ctx.testData->Add(testing_.GetData());                              \
-      };                                                                    \
-  testing.AddSub(#name, call_##name);                                       \
+#define SUB(name)                                                    \
+  static std::function<void(lightest::Testing&)> name;               \
+  std::function<void(lightest::Register::Context&)> call_##name =    \
+      [&testing](lightest::Register::Context& ctx) {                 \
+        lightest::Testing testing_(#name, testing.GetLevel() + 1);   \
+        const char* errorMsg = CATCH(name(testing_));                \
+        if (errorMsg)                                                \
+          testing_.UncaughtError(__FILE_NAME__, __LINE__, errorMsg); \
+        ctx.testData->Add(testing_.GetData());                       \
+      };                                                             \
+  testing.AddSub(#name, call_##name);                                \
   name = [=](lightest::Testing & testing)
 
 /* ========== Configuration Macros ========== */
@@ -454,12 +453,12 @@ int main(int argn, char* argc[]) {
 
 // REQ assertion
 // Additionally return a bool: true => pass, false => fail
-#define REQ(actual, operator, expected)                          \
-  ([&]() -> bool {                                               \
-    bool res = (actual) operator(expected);                      \
+#define REQ(actual, operator, expected)                               \
+  ([&]() -> bool {                                                    \
+    bool res = (actual) operator(expected);                           \
     testing.Req(__FILE_NAME__, __LINE__, actual, expected, #operator, \
-                #actual " " #operator" " #expected, !res);       \
-    return res;                                                  \
+                #actual " " #operator" " #expected, !res);            \
+    return res;                                                       \
   })()
 
 // Condition must be true or stop currnet test

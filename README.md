@@ -11,7 +11,7 @@ I promise that I'll keep the core extremely light.
 
 Following features are supported:
 
-* Automatic registration for testing, configuring and data processing functions.
+* Automatic registration for testing, configuring and data analyzing functions.
 * Assertions.
 * Pretty output, include coloring (cross platform supported).
 * Test data collecting.
@@ -102,7 +102,7 @@ Here is an example showing how to add tests:
 
 ```C++
 // in global scope
-TEST(Test1) {
+TEST(Test) {
   REQ(1, ==, 1); // Pass, of course
 }
 ```
@@ -113,9 +113,9 @@ Example:
 
 ```C++
 // inside global tests or sub tests
-SUB(SubTest1) {
+SUB(SubTest) {
   REQ(1, ==, 1); // Pass
-  SUB(SubInSub1) {
+  SUB(SubInSub) {
     REQ(1, ==, 1); // Pass
   }; // semicolon required
 }; // semicolon required
@@ -123,7 +123,7 @@ SUB(SubTest1) {
 
 All the defined tests will be automatically run because auto registration is supported.
 
-Uncaught errors thrown out by test will automically be caught by Lightest, and the current test will be terminated and set to failed. Lightest will also adds an uncaught error to test data. Error details in form of `const char*` and `const std::exception&` can be obtained by Lightest, while for other forms, Lightest will mark them as `Unknown type error`.
+Uncaught errors thrown out by tests will be caught and recorded, and the current test will be stopped and set to failed. Error details in form of `const char*` and `const std::exception&` can be obtained and included in test data, while other forms will be marked as `Unknown type error`.
 
 ### Assertion macros
 
@@ -165,7 +165,7 @@ You can write configurations thus (`CONFIG` functions will be run before tests):
 
 ```C++
 // in global scope
-CONFIG(Config1) {
+CONFIG(Config) {
   NO_COLOR();
   // To get command line arguments
   // argn & argc pre-defined
@@ -178,12 +178,12 @@ CONFIG(Config1) {
 * `NO_OUTPUT()` forbids the default outputting system to give out the loggings. Useful when you only want to deal the test data yourself and don't want any default output.
 * `argn` and `argc` are pre-defined in configuring functions.
 
-### To process data yourself
+### To analyze yest data yourself
 
-Write thus to process the data yourself:
+Write thus to analyze the data yourself:
 
 ```C++
-DATA(DataProcessor1) {
+DATA(DataProcessor) {
   data->IterSons( [] (const lightest::Data* item) {
     // To output all the defined tests' names
     std::cout << " * " << static_cast<DataSet*>(item)->name << std::endl;
@@ -202,7 +202,7 @@ All the loggings and assertions will be recorded so that you can get them while 
 ## Future
 
 * Redirect outputs to `ostream&`.
-* Better data processing & reporting system.
+* Better data analyzing & reporting system.
 * More assertion macros in a independent file as an extension.
 * Async testing system in a independent file as an extension.
 * (Maybe) Chai like assertions support as an extension.
@@ -232,7 +232,7 @@ Be free to put forward issues in GitHub, and pull requests are always welcomed. 
 
 1. Use English.
 2. Every commit starts with an upper letter, and the first word should be a verb, such as `Fix`, `Add`, `Update`, `Support`, `Complete`, etc.
-3. File names use underline (`_`) to separate words. Extension files have suffix of `_ext`. Use `.cpp` and `.h`. For example, `async_test_ext.h`.
+3. File names use underline (`_`) to separate words. Extension files have suffix of `_ext`. Test files have suffix of `_test`. Use `.cpp` and `.h`. For example, `async_test_ext.h`, `core_test.h`.
 4. Variable names use lower camel case, while class, structure and function names use upper camel case. Macros are all upper case, and separate words by underline (`_`).
 5. Comment start with an upper letter. Use single line comment. No dots (`.`) after a sentence ends. For example, `// Here is a comment`.
 6. All source files are formatted by clang-format.
