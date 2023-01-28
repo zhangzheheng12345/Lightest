@@ -6,3 +6,5 @@ build/
 replit.nix
 LightestTest
 tmp_out.txt
+/test/*.o
+/*.exe
