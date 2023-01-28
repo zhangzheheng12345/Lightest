@@ -29,21 +29,12 @@ TEST( Four_times_okay )
   REQ( 1, !=, 2 );
 }
 
-#if defined(FAIL) && (FAIL>=1)
-TEST( One_okay_one_failed_one_okay )
-{
-  REQ( 1, ==, 1 );
-  REQ( 1, ==, 2 );
-  REQ( 2, ==, 2 );
-}
-#else
 TEST( Three_times_okay )
 {
   REQ( 1, ==, 1 );
   REQ( 2, ==, 2 );
   REQ( 3, ==, 3 );
 }
-#endif
 
 TEST( One_okay )
 {
@@ -53,30 +44,19 @@ TEST( One_okay )
 
 TEST(TestAssertionMacros) {
   REQ(1, ==, 1);
-# if defined(FAIL) && (FAIL>=2)
-  REQ(1, ==, 2);  // Test fail
-# endif
+  REQ(1, <=, 2);
   int a = 0, b = 0, c = 1;
   REQ(a, ==, b);
   REQ(b, !=, c);
-# if defined(FAIL) && (FAIL>=3)
-  REQ(a, >, b);         // Test fail
-  MUST(REQ(a, ==, c));  // FAIL & stop this test
-# else
   REQ(a, >=, b);        // Test passed
   MUST(REQ(a, <=, c));  // PASS & not stop this test
-# endif
 }
 
 TEST(TestSub) {
   int a = 1;
   SUB(SubTest1) { REQ(a, ==, 1); };
   SUB(SubTest2) {
-#   if defined(FAIL) && (FAIL>=4)
-    REQ(a, ==, 2);  // Test fail
-#   else
     REQ(a, <=, 2);  // Test pass
-#   endif
   };
   SUB(SubTest3) {
     SUB(SubInSubTest) { REQ(a, ==, 1); };
