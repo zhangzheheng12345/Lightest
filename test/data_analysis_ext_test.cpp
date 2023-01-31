@@ -1,32 +1,30 @@
-#include <lightest/lightest.h>
 #include <lightest/data_analysis_ext.h>
+#include <lightest/lightest.h>
 
-TEST(Test1) {
-  REQ(1, ==, 1);
-}
-TEST(Test2) {
-  REQ(1, ==, 2);
-}
+#undef __FILE_NAME__
+#define __FILE_NAME__ "data_analysis_ext_test.cpp"
+
+TEST(Test1) { REQ(1, ==, 1); }
+TEST(Test2) { REQ(1, ==, 2); }
 TEST(Test3) {
   SUB(SubTest) {
-    SUB(SubSubTest) {
-      REQ(1, ==, 1);
-    };
+    SUB(SubSubTest) { REQ(1, ==, 2); };
   };
 }
 
-DATA(IterAll) {
+DATA(IterAllTests) {
   unsigned int failureCount = 0;
-  lightest::IterAll(data, [&failureCount](const lightest::Data* item) {
-  if(item->GetFailed()) failureCount++;
-    });
+  lightest::IterAllTests(data, [&failureCount](const lightest::DataSet* item) {
+    if (item->GetFailed()) failureCount++;
+  });
   std::cout << "Failures: " << failureCount << std::endl;
 }
 
-DATA(IterFailed) {
+DATA(IterFailedTests) {
   unsigned int failureCount = 0;
-  lightest::IterFailed(data, [&failureCount](const lightest::Data* item) {
-   failureCount++;
-    });
+  lightest::IterFailedTests(
+      data, [&failureCount](const lightest::DataSet* item) { failureCount++; });
   std::cout << "Failures: " << failureCount << std::endl;
 }
+
+REPORT_FAILED();
