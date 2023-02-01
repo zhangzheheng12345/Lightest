@@ -13,3 +13,7 @@ target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/inclu
 # Do not use CTest, for testing outputs should be given out by Lightest
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/test)
+
+if(benchmark AND benchmark STREQUAL on)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/benchmark)
+endif()
