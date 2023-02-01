@@ -253,27 +253,19 @@ Be free to put forward issues in GitHub, and pull requests are always welcomed. 
 5. Comment start with an upper letter. Use single line comment. No dots (`.`) after a sentence ends. For example, `// Here is a comment`.
 6. All source files are formatted by clang-format.
 
-### Building this project
+### Build & test this project
 
-To build this project on Linux, clone this repo and use following commands:
+To build and test this project on Linux, clone this repo and use the following commands:
 
 ```bash
 mkdir build
 cd build
-cmake .. # cmake .. -Dbenchmark=on to build benchmark test as well (benchmark test requires GTest pre-installed)
+cmake .. -Dtest=on # cmake .. -Dbenchmark=on to build benchmark test (benchmark test requires GTest pre-installed)
 make -s
+ctest --verbose
 ```
 
-Then you'll get these files:
-
-```
-build/test/LightestCoreTest
-build/test/LightestAnalysisExtTest
-build/benchmark/LightestBenchmarkLightest
-build/benchmark/LightestBenchmarkGTest
-```
-
-Run them to see results.
+Attention that basic tests should be failed, beacause failing action of **Lightest** should be tested.
 
 ### 🤝😄🤩
 
