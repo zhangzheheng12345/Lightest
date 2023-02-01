@@ -255,7 +255,7 @@ cmake .. # cmake .. -Dbenchmark=on to build benchmark test as well (benchmark te
 make -s
 ```
 
-Then you'll got these files:
+Then you'll get these files:
 
 ```
 build/test/LightestCoreTest
