@@ -78,7 +78,7 @@ You only need to add `include/lightest/lightest.h` to your project in any form y
 
 A suggested way:
 
-1. Put **Lightest** (the whole repository) into `test/` of your project.
+1. Copy `include` (the whole directory) into `test/` of your project.
 2. Create `test/test.cpp`.
 3. Create `test/CMakeLists.txt` and add:
 
@@ -87,6 +87,11 @@ A suggested way:
 cmake_minimum_required(VERSION 3.10) # Change the version if you need to
 
 project(ProjectTest) # Change the name as you like
+
+# Add Lightest
+add_library(lightest INTERFACE)
+add_library(lightest::lightest ALIAS)
+target_include_directories(lightest INTERFACE ${PROJECT_SOURCE_DIR}/include)
 
 # No linking. Each test file -> one executable program
 add_executable(${PROJECT_NAME} test.cpp)
@@ -97,10 +102,6 @@ add_test(${PROJECT_NAME} ${PROJECT_NAME})
 4. Add following to the `CMakeLists.txt` file in the project's root directory:
 
 ```CMake
-add_library(${PROJECT_NAME} INTERFACE)
-add_library(lightest::lightest ALIAS ${PROJECT_NAME})
-target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/include)
-
 enable_testing()
 add_subdirecty(${PROJECT_SOURCE_DIR}/test)
 ```
