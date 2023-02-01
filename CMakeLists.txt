@@ -17,6 +17,7 @@ if(test AND test STREQUAL on)
   add_subdirectory(${PROJECT_SOURCE_DIR}/test)
 endif()
 
+# Benchmark test
 if(benchmark AND benchmark STREQUAL on)
   message("Building benchmark tests")
   add_subdirectory(${PROJECT_SOURCE_DIR}/benchmark)
