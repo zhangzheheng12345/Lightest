@@ -4,5 +4,6 @@
 main
 build/
 replit.nix
+.ccls_cache
 Lightest*
 tmp_out.txt

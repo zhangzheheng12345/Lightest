@@ -72,7 +72,8 @@ void SetColor(Color color) {
 
 /* ========== Data ========== */
 
-bool toOutput = true;  // Use NO_OUTPUT() to set to false
+bool toOutput = true;              // Use NO_OUTPUT() to set to false
+bool failedReturnNoneZero = true;  // Use F
 
 enum DataType { DATA_SET, DATA_REQ, DATA_UNCAUGHT_ERROR };
 
@@ -94,7 +95,7 @@ class Data {
   // For outputting
   virtual void Print() const = 0;
   void SetTabs(unsigned int tabs) { this->tabs = tabs; }
-  unsigned int GetTabs() { return tabs; }
+  unsigned int GetTabs() const { return tabs; }
   ostream& PrintTabs() const {
     // Must be 4 spaces a group, for \t may be too wide on some platforms
     // Must this->tabs - 1 first,
@@ -145,6 +146,7 @@ class DataSet : public Data {
   const bool GetFailed() const { return failed; }
   clock_t GetDuration() const { return duration; }
   const char* GetName() const { return name; }
+  unsigned int GetSonsNum() const { return sons.size(); }
   // Should offer a callback to iterate test actions and sub tests' data
   void IterSons(function<void(const Data*)> func) const {
     for (const Data* item : sons) {

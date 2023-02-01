@@ -27,4 +27,5 @@ DATA(IterFailedTests) {
   std::cout << "Failures: " << failureCount << std::endl;
 }
 
-REPORT_FAILED();
+REPORT_FAILED_TESTS();
+REPORT_PASS_RATE();

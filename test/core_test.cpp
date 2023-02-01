@@ -1,5 +1,6 @@
 #include <string>  // To compare string easily in different platforms
 
+#include "lightest/data_analysis_ext.h"
 #include "lightest/lightest.h"
 
 #undef __FILE_NAME__
@@ -53,19 +54,4 @@ TEST(TestCatchUncaughtError) {
   SUB(TestUnknown) { throw 1; };
 }
 
-// To test DATA
-DATA(GetFailedTests) {
-  unsigned int failedTestCount = 0;
-  std::cout << "-----------------------------" << std::endl;
-  std::cout << "Failed tests:" << std::endl;
-  data->IterSons([&failedTestCount](const lightest::Data* item) {
-    const lightest::DataSet* test = static_cast<const lightest::DataSet*>(item);
-    if (test->GetFailed()) {
-      std::cout << " * " << test->GetName() << std::endl;
-      failedTestCount++;
-    }
-  });
-  std::cout << failedTestCount << " test" << (failedTestCount > 1 ? "s" : "")
-            << " failed." << std::endl
-            << "-----------------------------" << std::endl;
-}
+REPORT_FAILED_TESTS();
