@@ -14,9 +14,7 @@ find_package(GTest REQUIRED)
 
 add_executable(LightestBenchmarkLightest lightest_test.cpp)
 target_link_libraries(LightestBenchmarkLightest lightest::lightest)
-add_test(LightestBenchmarkLightest LightestBenchmarkLightest)
 
 include_directories(${GTEST_INCLUDE})
 add_executable(LightestBenchmarkGTest gtest_test.cpp)
 target_link_libraries(LightestBenchmarkGTest ${GTEST_BOTH_LIBRARIES} pthread)
-# add_test(LightestBenchmarkGTest LightestBenchmarkGTest)

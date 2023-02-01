@@ -262,7 +262,11 @@ mkdir build
 cd build
 cmake .. -Dtest=on # cmake .. -Dbenchmark=on to build benchmark test (benchmark test requires GTest pre-installed)
 make -s
+# To run basic tests:
 ctest --verbose
+# To run benchmark test:
+cd benchmark
+./LightestBenchmarkLightest && ./LightestBenchmarkGTest
 ```
 
 Attention that basic tests should be failed, beacause failing action of **Lightest** should be tested.
