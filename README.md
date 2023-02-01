@@ -70,11 +70,11 @@ Outputs should be colorful if your platform is Windows, Linux or Mac.
 ## Usage
 
 You only need to add `include/lightest/lightest.h` to your project in any form you like and then include it in your test files.
-**Lightest** just need this to work. You can use any build system, and here we provide a suggested way to integrate **Lightest** with CMake.
+**Lightest** just need this to work. You can use any build system, and here we provide a suggested way to integrate **Lightest** with CMake & CTest.
 
 (**Caution:** You must compile test files into different executable files instead of linking them into one. This is because there are definitions of global variables and functions in **Lightest** header files.)
 
-### Work with CMake
+### Work with CMake & CTest
 
 A suggested way:
 
@@ -106,8 +106,6 @@ add_subdirecty(${PROJECT_SOURCE_DIR}/test)
 ```
 
 5. Use `#include "lightest/lightest.h"` in `test/test.cpp`.
-
-Do not use CTest, for outputs should be given out by **Lightest**, while CTest will 'eat' others' outputs.
 
 ### To add tests
 
