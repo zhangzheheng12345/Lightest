@@ -10,10 +10,14 @@ add_library(${PROJECT_NAME} INTERFACE)
 add_library(lightest::lightest ALIAS ${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/include)
 
-# Do not use CTest, for testing outputs should be given out by Lightest
+enable_testing()
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/test)
+if(test AND test STREQUAL on)
+  message("Building basic tests")
+  add_subdirectory(${PROJECT_SOURCE_DIR}/test)
+endif()
 
 if(benchmark AND benchmark STREQUAL on)
+  message("Building benchmark tests")
   add_subdirectory(${PROJECT_SOURCE_DIR}/benchmark)
 endif()

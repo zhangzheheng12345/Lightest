@@ -85,11 +85,20 @@ project(ProjectTest) # Change the name as you like
 # No linking. Each test file -> one executable program
 add_executable(${PROJECT_NAME} test.cpp)
 target_link_libraries(${PROJECT_NAME} lightest::lightest)
-
-# Do not use CTest, for testing outputs should be given out by Lightest
+add_test(${PROJECT_NAME} ${PROJECT_NAME})
 ```
 
-4. Add `add_subdirectory(${PROJECT_SOURCE_DIR}/test)` to the `CMakeLists.txt` file in the project's root directory.
+4. Add following to the `CMakeLists.txt` file in the project's root directory:
+
+```CMake
+add_library(${PROJECT_NAME} INTERFACE)
+add_library(lightest::lightest ALIAS ${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/include)
+
+enable_testing()
+add_subdirecty(${PROJECT_SOURCE_DIR}/test)
+```
+
 5. Use `#include "lightest/lightest.h"` in `test/test.cpp`.
 
 Do not use CTest, for outputs should be given out by **Lightest**, while CTest will 'eat' others' outputs.
