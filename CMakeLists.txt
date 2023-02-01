@@ -14,6 +14,7 @@ target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/inclu
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/test)
 
+# Benchmark test
 if(benchmark AND benchmark STREQUAL on)
   add_subdirectory(${PROJECT_SOURCE_DIR}/benchmark)
 endif()

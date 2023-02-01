@@ -5,7 +5,7 @@ project(LightestBenchmark)
 # To build benchmark:
 # cmake -Dbenchmark=on
 
-# Compare with GTest, so GTest should be pre-installed
+# Compared with GTest, so GTest should be pre-installed
 find_package(GTest REQUIRED)
 
 # Generate benchmark source files via Python:

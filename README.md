@@ -20,6 +20,12 @@ Following features are supported:
 
 Your compiler has to support C++11. Also, the project has only been tested on clang++ on Ubuntu, and MSVC (Visual Studio) on Windows 10.
 
+## Why Lightest
+
+**Lightest** is extremely light, header-only, yet strong, flexible, and customizable. For its core, basic features for a unit test framework are all provided. And you can use extensions to add more feature.
+
+Besides, powered by its lightweight, **Lightest** is also extremely fast. I did a benchmark test (details under `benchmark/`), in which 1000 simple tests each with one passing assertion are provided for both **Lightest** and GTest. On one of my machine, GTest used around 600 ms to run all the tests, while for **Lightest**, it only took around 15 ms. Amazing, isn't it?
+
 ## A quick look
 
 A short piece of test using Lightest:
@@ -202,11 +208,10 @@ All the loggings and assertions will be recorded so that you can get them while 
 ## Future
 
 * Redirect outputs to `ostream&`.
-* Better data analyzing & reporting system.
+* Better data analyzing & reporting system in extension of `data_analysis_ext.h`.
 * More assertion macros in a independent file as an extension.
 * Async testing system in a independent file as an extension.
 * (Maybe) Chai like assertions support as an extension.
-* A stronger data processing tool set as an extension.
 * Benchmark testing (time & speed test) support.
 * Support installation through CMake.
 * Better document for data processing API, customizing, and contribution.
@@ -226,7 +231,9 @@ All the loggings and assertions will be recorded so that you can get them while 
 * Branch `fix` will be updated when fixing errors or small updates. It will be merged into `main` when publishing a PATCH version.
 * Branch `dev` will be updated when adding features, big refactoring, or doing big changes. It will be merged into `main` when publishing a MAJOR or MINOR version.
 
-## Contributing
+## Contributing guide
+
+### Rules
 
 Be free to put forward issues in GitHub, and pull requests are always welcomed. Following rules should be followed.
 
@@ -236,5 +243,29 @@ Be free to put forward issues in GitHub, and pull requests are always welcomed. 
 4. Variable names use lower camel case, while class, structure and function names use upper camel case. Macros are all upper case, and separate words by underline (`_`).
 5. Comment start with an upper letter. Use single line comment. No dots (`.`) after a sentence ends. For example, `// Here is a comment`.
 6. All source files are formatted by clang-format.
+
+### Building this project
+
+To build this project on Linux, clone this repo and use following commands:
+
+```bash
+mkdir build
+cd build
+cmake .. # cmake .. -Dbenchmark=on to build benchmark test as well (benchmark test requires GTest pre-installed)
+make -s
+```
+
+Then you'll got these files:
+
+```
+build/test/LightestCoreTest
+build/test/LightestAnalysisExtTest
+build/benchmark/LightestBenchmarkLightest
+build/benchmark/LightestBenchmarkGTest
+```
+
+Run them to see results.
+
+### 🤝😄🤩
 
 This project will be maintained continuously. I'll try my best to solve your problem, and make **Lightest** more fantastic together with YOU!
