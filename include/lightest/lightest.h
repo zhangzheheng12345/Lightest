@@ -73,7 +73,7 @@ void SetColor(Color color) {
 /* ========== Data ========== */
 
 bool toOutput = true;              // Use NO_OUTPUT() to set to false
-bool failedReturnNoneZero = true;  // Use F
+bool failedReturnNoneZero = true;  // Use RETURN_ZERO() to set to false
 
 enum DataType { DATA_SET, DATA_REQ, DATA_UNCAUGHT_ERROR };
 
@@ -396,6 +396,7 @@ class Testing {
 
 #define NO_COLOR() lightest::outputColor = false;
 #define NO_OUTPUT() lightest::toOutput = false;
+#define RETURN_ZERO() lightest::failedReturnNoneZero = false;
 
 /* ========== Main ========== */
 
@@ -419,13 +420,8 @@ int main(int argn, char* argc[]) {
   lightest::globalRegisterData.RunRegistered();
   std::cout << "Done. " << lightest::TimeToMs(clock()) << " ms used."
             << std::endl;
-  return lightest::globalRegisterData.testData->GetFailed();
+  return lightest::globalRegisterData.testData->GetFailed() && lightest::failedReturnNoneZero;
 }
-
-/* ========== Configuration Macros ========== */
-
-#define NO_COLOR() lightest::outputColor = false;
-#define NO_OUTPUT() lightest::toOutput = false;
 
 /* ========= Timer Macros =========== */
 

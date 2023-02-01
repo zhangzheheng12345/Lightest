@@ -11,6 +11,7 @@ CONFIG(Configurations) {
     if (std::string(*argc) == "--no-color") NO_COLOR();
     if (std::string(*argc) == "--no-output") NO_OUTPUT();
   }
+  RETURN_ZERO();
   // NO_COLOR();
   // NO_OUTPUT();
 }

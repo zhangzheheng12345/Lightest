@@ -263,7 +263,8 @@ cd build
 cmake .. -Dtest=on # cmake .. -Dbenchmark=on to build benchmark test (benchmark test requires GTest pre-installed)
 make -s
 # To run basic tests:
-ctest --verbose
+cd test
+./LightestCoreTest && ./LightestDataAnalysisExtTest
 # To run benchmark test:
 cd benchmark
 ./LightestBenchmarkLightest && ./LightestBenchmarkGTest

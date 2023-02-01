@@ -4,6 +4,10 @@
 #undef __FILE_NAME__
 #define __FILE_NAME__ "data_analysis_ext_test.cpp"
 
+CONFIG(Configuration) {
+  RETURN_ZERO();
+}
+
 TEST(Test1) { REQ(1, ==, 1); }
 TEST(Test2) { REQ(1, ==, 2); }
 TEST(Test3) {
