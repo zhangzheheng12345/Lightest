@@ -77,12 +77,13 @@ bool failedReturnNoneZero = true;  // Use RETURN_ZERO() to set to false
 
 enum DataType { DATA_SET, DATA_REQ, DATA_UNCAUGHT_ERROR };
 
-// Transfer clock_t to ms,
+// Unitlity for transfering clock_t to ms,
 // for on Linux clock_t's unit is us, while on Windows it's ms
 inline double TimeToMs(clock_t time) {
   return double(time) / CLOCKS_PER_SEC * 1000;
 }
 
+// Untility for print a string with colorful background
 inline void PrintLabel(Color color, const char* label) {
   SetColor(color);
   cout << label;
@@ -331,7 +332,11 @@ class Testing {
 
 /* ========== Registering Macros ========== */
 
+// Avoid undef or redefine buildin macro warning
+// Undef and then define again to have prettier file name
 #define __FILE_NAME__ __FILE__
+
+// Untility for catching an error and return its detail as type const char*
 #define CATCH(sentence)                   \
   ([&]() -> const char* {                 \
     try {                                 \

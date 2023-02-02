@@ -6,6 +6,7 @@
 
 CONFIG(Configuration) { RETURN_ZERO(); }
 
+// Small tests to provide test data
 TEST(Test1) { REQ(1, ==, 1); }
 TEST(Test2) { REQ(1, ==, 2); }
 TEST(Test3) {
@@ -14,6 +15,7 @@ TEST(Test3) {
   };
 }
 
+// Test IterAllTests
 DATA(IterAllTests) {
   unsigned int failureCount = 0;
   lightest::IterAllTests(data, [&failureCount](const lightest::DataSet* item) {
@@ -22,6 +24,7 @@ DATA(IterAllTests) {
   std::cout << "Failures: " << failureCount << std::endl;
 }
 
+// Test IterFailedTests
 DATA(IterFailedTests) {
   unsigned int failureCount = 0;
   lightest::IterFailedTests(
@@ -29,6 +32,7 @@ DATA(IterFailedTests) {
   std::cout << "Failures: " << failureCount << std::endl;
 }
 
+// Test REPORT
 REPORT() {
   REPORT_FAILED_TESTS();
   REPORT_PASS_RATE();

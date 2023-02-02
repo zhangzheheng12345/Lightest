@@ -12,6 +12,7 @@ namespace lightest {
 
 /* ========== Iterating Functions ========== */
 
+// Iterate all the tests (recursively including sub tests)
 void IterAllTests(const DataSet* data, function<void(const DataSet*)> func) {
   std::function<void(const lightest::Data*)> iterFunc =
       [&iterFunc, &func](const lightest::Data* item) {
@@ -23,6 +24,7 @@ void IterAllTests(const DataSet* data, function<void(const DataSet*)> func) {
   data->IterSons(iterFunc);
 }
 
+// Iterate all the failed tests (recursively including sub tests)
 void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
   std::function<void(const lightest::Data*)> iterFunc =
       [&iterFunc, &func](const lightest::Data* item) {
@@ -34,8 +36,9 @@ void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
   data->IterSons(iterFunc);
 }
 
-/* ========== Reporting Functions ========== */
+/* ========== Reporting Macros ========== */
 
+// Wrap box for reporting macros
 #define REPORT()                                                \
   void ReportWrapFunc(const lightest::DataSet* data);           \
   DATA(Report) {                                                \
@@ -46,6 +49,7 @@ void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
   }                                                             \
   void ReportWrapFunc(const lightest::DataSet* data)
 
+// List all the failed tests (recursively including sub tests)
 #define REPORT_FAILED_TESTS()                                 \
   do {                                                        \
     std::cout << "Failed tests:" << std::endl;                \
@@ -55,6 +59,7 @@ void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
     });                                                       \
   } while (0)
 
+// Calculate passing rate and also report the numbers of failed, passed, and total tests
 #define REPORT_PASS_RATE()                                                  \
   do {                                                                      \
     unsigned int failedTestCount = 0;                                       \
@@ -66,7 +71,6 @@ void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
               << "% ";                                                      \
     lightest::SetColor(lightest::Color::Red);                               \
     std::cout << " " << failedTestCount << " failed ";                      \
-    lightest::SetColor(lightest::Color::Reset);                             \
     lightest::SetColor(lightest::Color::Green);                             \
     std::cout << " " << data->GetSonsNum() - failedTestCount << " passed "; \
     lightest::SetColor(lightest::Color::Blue);                              \
