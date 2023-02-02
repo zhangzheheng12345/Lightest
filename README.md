@@ -158,13 +158,15 @@ Example for fixture:
 
 ```C++
 TEST(TestWithFixture) {
-  class Fixture {
+  class Fixture { // Define a fixture class in shared scope
    public:
+    // Shared variables here
     int shared = 0;
   };
   SUB(SubTestFixture) {
-    Fixture fixture;
-    REQ(fixture.shared, ==, 0); // Pass
+    Fixture fixture; // Get an instance in every sub test
+    fixture.shared = 1; // Now changeable
+    REQ(fixture.shared, ==, 1); // Pass
   };
 }
 ```
