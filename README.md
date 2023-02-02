@@ -207,9 +207,25 @@ CONFIG(Config1) {
 * `NO_OUTPUT()` forbids the default outputting system to give out the loggings. Useful when you only want to deal the test data yourself and don't want any default output.
 * `argn` and `argc` are pre-defined in configuring functions.
 
-### To process data yourself
+### To analyze data yourself
 
-Write thus to process the data yourself:
+An extension for convenient data analysis and beautiful total report is provided. Just include `lightest/data_analysis_ext.h` to use it. Here is an example of using this extension:
+
+```C++
+#include "lightest/lightest.h"
+#include "lightest/data_analysis_ext.h"
+
+TEST(TestPass) { REQ(1, ==, 1); }
+TEST(TestFail) { REQ(1, ==, 2); }
+
+REPORT() {
+  // currently provide this 2 option
+  REPORT_FAILED_TESTS();
+  REPORT_PASS_RATE();
+}
+```
+
+For further customization, write thus to process the data yourself:
 
 ```C++
 DATA(DataProcessor1) {
@@ -265,6 +281,6 @@ Be free to put forward issues in GitHub, and pull requests are always welcomed. 
 3. File names use underline (`_`) to separate words. Extension files have suffix of `_ext`. Use `.cpp` and `.h`. For example, `async_test_ext.h`.
 4. Variable names use lower camel case, while class, structure and function names use upper camel case. Macros are all upper case, and separate words by underline (`_`).
 5. Comment start with an upper letter. Use single line comment. No dots (`.`) after a sentence ends. For example, `// Here is a comment`.
-6. All source files are formatted by clang-format.
+6. All source files are formatted by clang-format. Run `./format.sh` to format your source files.
 
 This project will be maintained continuously. I'll try my best to solve your problem, and make **Lightest** more fantastic together with YOU!
