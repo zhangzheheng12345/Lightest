@@ -223,7 +223,11 @@ CONFIG(Config) {
 * `RETURN_ZERO()` makes main always returns 0. No returning 1 when there are failed tests.
 * `argn` and `argc` are pre-defined in configuring functions.
 
-Also an extension for converting command line arguments to **Lightest** configurations is provided. Simply include `lightest/arg_config_ext.h` and add `ARG_CONFIG();` to use it.
+Also an extension for converting command line arguments to **Lightest** configurations is provided. Simply include `lightest/arg_config_ext.h` and add `ARG_CONFIG();` to use it. Following arguments are supported:
+
+* `--no-color` or `-nc` to disable coloring.
+* `--no-output` or `-no` to disable default outputs.
+* `--return-zero`, `--return-0` or `-r0` to disable returning 1 when failing.
 
 ### To analyze data yourself
 
@@ -271,7 +275,6 @@ All the loggings and assertions will be recorded so that you can get them while 
 * Support installation through CMake.
 * Better document for data processing API, customizing, and contribution.
 * Fixture support (maybe as an extension)
-* Tests in different files will be devided into different block while outputting.
 
 ## Caution
 
