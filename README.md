@@ -106,7 +106,7 @@ enable_testing()
 add_subdirecty(${PROJECT_SOURCE_DIR}/test)
 ```
 
-5. Use `#include "lightest/lightest.h"` in `test/test.cpp`.
+5. Use `#include <lightest/lightest.h>` in `test/test.cpp`.
 
 ### To add tests
 
@@ -139,7 +139,7 @@ All the defined tests will be automatically run because auto registration is sup
 
 Uncaught errors thrown out by tests will be caught and recorded, and the current test will be stopped and set to failed. Error details in form of `const char*` and `const std::exception&` can be obtained and included in test data, while other forms will be marked as `Unknown type error`.
 
-Caution that variables outside `SUB` (except global variables) is immutable for code inside `SUB` (all `const`). Read-only capture is used in lambda partially because of life cycle problems and partially because shared variables aren't suggested to change. They should be fixed for all sub tests. For example, such code is unavailable:
+**Caution** that variables outside `SUB` (except global variables) is immutable for code inside `SUB` (all `const`). Read-only capture is used in lambda partially because of life cycle problems and partially because shared variables aren't suggested to change. They should be fixed for all sub tests. For example, such code is unavailable:
 
 ```C++
 // unavailable code
@@ -203,9 +203,9 @@ TIMER(std::cout << "One Hello" << std::endl); // Return how long the sentence sp
 TIMER(std::cout << "Avg Hello" << std::endl, 1000); // Run it 1000 times and return the average time
 ```
 
-### Configuring macros
+### Configuration
 
-You can write configurations thus (`CONFIG` functions will be run before tests):
+You can write configurations thus (`CONFIG` functions are always run before tests):
 
 ```C++
 // in global scope
@@ -220,21 +220,24 @@ CONFIG(Config) {
 
 * `NO_COLOR()` makes outputs get no coloring. Useful when you want to write outputs to a file.
 * `NO_OUTPUT()` forbids the default outputting system to give out the loggings. Useful when you only want to deal the test data yourself and don't want any default output.
+* `RETURN_ZERO()` makes main always returns 0. No returning 1 when there are failed tests.
 * `argn` and `argc` are pre-defined in configuring functions.
+
+Also an extension for converting command line arguments to **Lightest** configurations is provided. Simply include `lightest/arg_config_ext.h` and add `ARG_CONFIG();` to use it.
 
 ### To analyze data yourself
 
 An extension for convenient data analysis and beautiful total report is provided. Just include `lightest/data_analysis_ext.h` to use it. Here is an example of using this extension:
 
 ```C++
-#include "lightest/lightest.h"
-#include "lightest/data_analysis_ext.h"
+#include <lightest/lightest.h>
+#include <lightest/data_analysis_ext.h>
 
 TEST(TestPass) { REQ(1, ==, 1); }
 TEST(TestFail) { REQ(1, ==, 2); }
 
 REPORT() {
-  // currently provide this 2 option
+  // currently provide these 2 options
   REPORT_FAILED_TESTS();
   REPORT_PASS_RATE();
 }
@@ -253,9 +256,7 @@ DATA(DataProcessor) {
 
 `data` is a pre-defined variable; its type is `const lightest::DataSet*`.
 
-You can use method of `Type()` and `static_cast` to transfer data's type and process the data deeply yourself. 
-Better carefully look at `lightest.h` if you want to do this.
-You need to call getter functions to get data inside the instances of data classes.
+You can use method of `Type()` and `static_cast` to transfer data's type and process the data deeply yourself. Better carefully look at `lightest.h` if you want to do this. You need to call getter functions to get data inside the instances of data classes.
 
 All the loggings and assertions will be recorded so that you can get them while processing test data.
 
