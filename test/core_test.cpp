@@ -1,20 +1,13 @@
 #include <string>  // To compare string easily in different platforms
 
-#include "lightest/data_analysis_ext.h"
-#include "lightest/lightest.h"
+#include <lightest/arg_config_ext.h>
+#include <lightest/data_analysis_ext.h>
+#include <lightest/lightest.h>
 
 #undef __FILE_NAME__
 #define __FILE_NAME__ "core_test.cpp"
 
-CONFIG(Configurations) {
-  for (; argn > 0; argn--, argc++) {
-    if (std::string(*argc) == "--no-color") NO_COLOR();
-    if (std::string(*argc) == "--no-output") NO_OUTPUT();
-  }
-  RETURN_ZERO();
-  // NO_COLOR();
-  // NO_OUTPUT();
-}
+ARG_CONFIG();
 
 TEST(TestTimerMacros) {
   int i = 0;

@@ -59,24 +59,24 @@ void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
     });                                                       \
   } while (0)
 
-// Calculate passing rate and also report the numbers of failed, passed, and total tests
-#define REPORT_PASS_RATE()                                                  \
-  do {                                                                      \
-    unsigned int failedTestCount = 0;                                       \
-    data->IterSons([&failedTestCount](const lightest::Data* item) {         \
-      if (item->GetFailed()) failedTestCount++;                             \
-    });                                                                     \
-    std::cout << "Pass rate: "                                              \
-              << (1 - double(failedTestCount) / data->GetSonsNum()) * 100   \
-              << "% ";                                                      \
-    lightest::SetColor(lightest::Color::Red);                               \
-    std::cout << " " << failedTestCount << " failed ";                      \
-    lightest::SetColor(lightest::Color::Green);                             \
-    std::cout << " " << data->GetSonsNum() - failedTestCount << " passed "; \
-    lightest::SetColor(lightest::Color::Blue);                              \
-    std::cout << " " << data->GetSonsNum() << " total ";                    \
-    lightest::SetColor(lightest::Color::Reset);                             \
-    std::cout << std::endl;                                                 \
+// Calculate passing rate and also report the numbers of failed, passed, and
+// total tests
+#define REPORT_PASS_RATE()                                                   \
+  do {                                                                       \
+    unsigned int failedTestCount = 0;                                        \
+    data->IterSons([&failedTestCount](const lightest::Data* item) {          \
+      if (item->GetFailed()) failedTestCount++;                              \
+    });                                                                      \
+    std::cout << "Pass rate: "                                               \
+              << (1 - double(failedTestCount) / data->GetSonsNum()) * 100    \
+              << "% ";                                                       \
+    PRINT_LABEL(lightest::Color::Red, " " << failedTestCount << " failed "); \
+    PRINT_LABEL(lightest::Color::Green,                                      \
+                " " << data->GetSonsNum() - failedTestCount << " passed ");  \
+    PRINT_LABEL(lightest::Color::Blue,                                       \
+                " " << data->GetSonsNum() << " total ");                     \
+    lightest::SetColor(lightest::Color::Reset);                              \
+    std::cout << std::endl;                                                  \
   } while (0)
 
 };  // namespace lightest

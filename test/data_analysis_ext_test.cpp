@@ -1,10 +1,11 @@
+#include <lightest/arg_config_ext.h>
 #include <lightest/data_analysis_ext.h>
 #include <lightest/lightest.h>
 
 #undef __FILE_NAME__
 #define __FILE_NAME__ "data_analysis_ext_test.cpp"
 
-CONFIG(Configuration) { RETURN_ZERO(); }
+ARG_CONFIG();
 
 // Small tests to provide test data
 TEST(Test1) { REQ(1, ==, 1); }

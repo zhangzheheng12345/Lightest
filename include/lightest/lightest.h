@@ -84,11 +84,13 @@ inline double TimeToMs(clock_t time) {
 }
 
 // Untility for print a string with colorful background
-inline void PrintLabel(Color color, const char* label) {
-  SetColor(color);
-  cout << label;
-  SetColor(Color::Reset);
-}
+// e.g. PRINT_LABEL(lightest::Color::Red, 1 << " failed test");
+#define PRINT_LABEL(color, label)               \
+  do {                                          \
+    lightest::SetColor(color);                  \
+    std::cout << label;                         \
+    lightest::SetColor(lightest::Color::Reset); \
+  } while (0)
 
 // All test data classes should extend from Data
 class Data {
@@ -132,14 +134,14 @@ class DataSet : public Data {
   }
   void Print() const {
     PrintTabs();
-    PrintLabel(Color::Blue, " BEGIN ");
+    PRINT_LABEL(Color::Blue, " BEGIN ");
     cout << " " << name << endl;
     PrintSons();
     PrintTabs();
     if (failed) {
-      PrintLabel(Color::Red, " FAIL  ");
+      PRINT_LABEL(Color::Red, " FAIL  ");
     } else {
-      PrintLabel(Color::Green, " PASS  ");
+      PRINT_LABEL(Color::Green, " PASS  ");
     }
     cout << " " << name << " " << TimeToMs(duration) << " ms" << endl;
   }
@@ -195,7 +197,7 @@ class DataReq : public Data, public DataUnit {
   void Print() const {
     if (failed) {
       PrintTabs();
-      PrintLabel(Color::Red, " FAIL  ");
+      PRINT_LABEL(Color::Red, " FAIL  ");
       cout << " " << file << ":" << line << ":"
            << " REQ [" << expr << "] failed" << endl;
       PrintTabs() << "    +   ACTUAL: " << actual << endl;
@@ -225,7 +227,7 @@ class DataUncaughtError : public Data, public DataUnit {
   }
   void Print() const {
     PrintTabs();
-    PrintLabel(Color::Red, " ERROR ");
+    PRINT_LABEL(Color::Red, " ERROR ");
     cout << " " << file << ":" << line << ": Uncaught error [" << errorMsg
          << "]" << endl;
   }
