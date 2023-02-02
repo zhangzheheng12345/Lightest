@@ -36,32 +36,44 @@ void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
 
 /* ========== Reporting Functions ========== */
 
-#define REPORT_FAILED_TESTS()                                                 \
-  DATA(ReportFailedTests) {                                                   \
-    std::cout << "------------------------------" << std::endl                \
-              << "Failed tests:" << std::endl;                                \
-    unsigned int failedTestCount = 0;                                         \
-    IterFailedTests(data, [&failedTestCount](const lightest::DataSet* item) { \
-      item->PrintTabs();                                                      \
-      std::cout << " * " << item->GetName() << std::endl;                     \
-      if (item->GetTabs() == 1)                                               \
-        failedTestCount++; /* Only count global failed tests */               \
-    });                                                                       \
-    std::cout << failedTestCount << " test"                                   \
-              << (failedTestCount > 1 ? "s" : "") << " failed." << std::endl  \
-              << "------------------------------" << std::endl;               \
-  }
+#define REPORT()                                                \
+  void ReportWrapFunc(const lightest::DataSet* data);           \
+  DATA(Report) {                                                \
+    std::cout << "------------------------------" << std::endl  \
+              << "# Final report:" << std::endl;                \
+    ReportWrapFunc(data);                                       \
+    std::cout << "------------------------------" << std::endl; \
+  }                                                             \
+  void ReportWrapFunc(const lightest::DataSet* data)
 
-#define REPORT_PASS_RATE()                                                \
-  DATA(ReportPassRate) {                                                  \
-    unsigned int failedTestCount = 0;                                     \
-    data->IterSons([&failedTestCount](const lightest::Data* item) {       \
-      if (item->GetFailed()) failedTestCount++;                           \
-    });                                                                   \
-    std::cout << "Pass rate: "                                            \
-              << (1 - double(failedTestCount) / data->GetSonsNum()) * 100 \
-              << "%" << std::endl;                                        \
-  }
+#define REPORT_FAILED_TESTS()                                 \
+  do {                                                        \
+    std::cout << "Failed tests:" << std::endl;                \
+    IterFailedTests(data, [](const lightest::DataSet* item) { \
+      item->PrintTabs();                                      \
+      std::cout << " * " << item->GetName() << std::endl;     \
+    });                                                       \
+  } while (0)
+
+#define REPORT_PASS_RATE()                                                  \
+  do {                                                                      \
+    unsigned int failedTestCount = 0;                                       \
+    data->IterSons([&failedTestCount](const lightest::Data* item) {         \
+      if (item->GetFailed()) failedTestCount++;                             \
+    });                                                                     \
+    std::cout << "Pass rate: "                                              \
+              << (1 - double(failedTestCount) / data->GetSonsNum()) * 100   \
+              << "% ";                                                      \
+    lightest::SetColor(lightest::Color::Red);                               \
+    std::cout << " " << failedTestCount << " failed ";                      \
+    lightest::SetColor(lightest::Color::Reset);                             \
+    lightest::SetColor(lightest::Color::Green);                             \
+    std::cout << " " << data->GetSonsNum() - failedTestCount << " passed "; \
+    lightest::SetColor(lightest::Color::Blue);                              \
+    std::cout << " " << data->GetSonsNum() << " total ";                    \
+    lightest::SetColor(lightest::Color::Reset);                             \
+    std::cout << std::endl;                                                 \
+  } while (0)
 
 };  // namespace lightest
 

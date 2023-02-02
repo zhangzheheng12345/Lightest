@@ -420,7 +420,8 @@ int main(int argn, char* argc[]) {
   lightest::globalRegisterData.RunRegistered();
   std::cout << "Done. " << lightest::TimeToMs(clock()) << " ms used."
             << std::endl;
-  return lightest::globalRegisterData.testData->GetFailed() && lightest::failedReturnNoneZero;
+  return lightest::globalRegisterData.testData->GetFailed() &&
+         lightest::failedReturnNoneZero;
 }
 
 /* ========= Timer Macros =========== */

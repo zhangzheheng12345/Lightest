@@ -55,4 +55,7 @@ TEST(TestCatchUncaughtError) {
   SUB(TestUnknown) { throw 1; };
 }
 
-REPORT_FAILED_TESTS();
+REPORT() {
+  REPORT_FAILED_TESTS();
+  REPORT_PASS_RATE();
+}
