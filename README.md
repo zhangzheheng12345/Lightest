@@ -139,6 +139,36 @@ All the defined tests will be automatically run because auto registration is sup
 
 Uncaught errors thrown out by tests will be caught and recorded, and the current test will be stopped and set to failed. Error details in form of `const char*` and `const std::exception&` can be obtained and included in test data, while other forms will be marked as `Unknown type error`.
 
+Caution that variables outside `SUB` (except global variables) is immutable for code inside `SUB` (all `const`). Read-only capture is used in lambda partially because of life cycle problems and partially because shared variables aren't suggested to change. They should be fixed for all sub tests. For example, such code is unavailable:
+
+```C++
+// unavailable code
+TEST(TestChangeShared) {
+  int shared = 0;
+  SUB(SubTestChangeShared) {
+    shared = 1; // compiling error: shared is `const`
+    REQ(a, ==, 1);
+  };
+}
+```
+
+So to accomplish features like fixtures, you should define a class wrapping shared variables and get an instance in every sub test.
+
+Example for fixture:
+
+```C++
+TEST(TestWithFixture) {
+  class Fixture {
+   public:
+    int shared = 0;
+  };
+  SUB(SubTestFixture) {
+    Fixture fixture;
+    REQ(fixture.shared, ==, 0); // Pass
+  };
+}
+```
+
 ### Assertion macros
 
 Use `REQ(actual, operator, expected)` to compare the actual value and the expected value. If the assertion fails, it'll output the actual value and the expected value. 
