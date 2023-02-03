@@ -1,5 +1,3 @@
-#include <string>  // To compare string easily in different platforms
-
 #include <lightest/arg_config_ext.h>
 #include <lightest/data_analysis_ext.h>
 #include <lightest/lightest.h>
