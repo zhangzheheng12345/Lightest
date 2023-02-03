@@ -60,7 +60,7 @@ void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
   } while (0)
 
 // Calculate passing rate and also report the numbers of failed, passed, and
-// total tests
+// total tests (just include global tests)
 #define REPORT_PASS_RATE()                                                   \
   do {                                                                       \
     unsigned int failedTestCount = 0;                                        \
@@ -79,6 +79,7 @@ void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
     std::cout << std::endl;                                                  \
   } while (0)
 
+// Calculate & report the average time of global tests
 #define REPORT_AVG_TIME()                                                    \
   do {                                                                       \
     clock_t timeSum = 0;                                                     \

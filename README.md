@@ -231,7 +231,7 @@ Also an extension for converting command line arguments to **Lightest** configur
 * `--no-output` or `-no` to disable default outputs.
 * `--return-zero`, `--return-0` or `-r0` to disable returning 1 when failing.
 
-### To analyze data yourself
+### Data analysis
 
 An extension for convenient data analysis and beautiful total report is provided. Just include `lightest/data_analysis_ext.h` to use it. Here is an example of using this extension:
 
@@ -243,9 +243,10 @@ TEST(TestPass) { REQ(1, ==, 1); }
 TEST(TestFail) { REQ(1, ==, 2); }
 
 REPORT() {
-  // currently provide these 2 options
-  REPORT_FAILED_TESTS();
-  REPORT_PASS_RATE();
+  // currently provide these 3 options
+  REPORT_FAILED_TESTS(); // List all failed test, sub tests outputted with tabs
+  REPORT_PASS_RATE(); // Calculate the passing rate of global tests
+  REPORT_AVG_TIME(); // Report average time use of global tests
 }
 ```
 
