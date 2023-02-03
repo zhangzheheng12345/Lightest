@@ -120,7 +120,11 @@ class Data {
 // Recursively call Print() to output
 class DataSet : public Data {
  public:
-  DataSet(const char* name) { this->name = name, duration = 0; }
+  DataSet(const char* name) {
+    this->name = name;
+    failed = false;
+    duration = 0;
+  }
   void Add(Data* son) {
     son->SetTabs(GetTabs() + 1);
     if (son->GetFailed()) failed = true;
@@ -187,7 +191,7 @@ template <class T, class U>  // Different types for e.g. <int> == <double>
 class DataReq : public Data, public DataUnit {
  public:
   DataReq(const char* file, unsigned int line, const T& actual_,
-          const T& expected_, const char* operator_, const char* expr,
+          const U& expected_, const char* operator_, const char* expr,
           bool failed_)
       : actual(actual_), expected(expected_), failed(failed_) {
     this->file = file, this->line = line, this->operator_ = operator_,
