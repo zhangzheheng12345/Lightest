@@ -6,3 +6,4 @@ build/
 replit.nix
 .ccls_cache
 tmp_out.txt
+CMakeSettings.json
