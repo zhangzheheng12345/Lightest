@@ -49,4 +49,5 @@ TEST(TestCatchUncaughtError) {
 REPORT() {
   REPORT_FAILED_TESTS();
   REPORT_PASS_RATE();
+  REPORT_AVG_TIME();
 }

@@ -79,6 +79,17 @@ void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
     std::cout << std::endl;                                                  \
   } while (0)
 
+#define REPORT_AVG_TIME()                                                    \
+  do {                                                                       \
+    clock_t timeSum = 0;                                                     \
+    data->IterSons([&timeSum](const lightest::Data* item) {                  \
+      timeSum += static_cast<const lightest::DataSet*>(item)->GetDuration(); \
+    });                                                                      \
+    std::cout << "Average time: "                                            \
+              << lightest::TimeToMs(timeSum) / data->GetSonsNum() << " ms"   \
+              << std::endl;                                                  \
+  } while (0)
+
 };  // namespace lightest
 
 #endif

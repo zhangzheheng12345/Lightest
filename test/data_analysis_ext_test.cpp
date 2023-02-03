@@ -22,7 +22,7 @@ DATA(IterAllTests) {
   lightest::IterAllTests(data, [&failureCount](const lightest::DataSet* item) {
     if (item->GetFailed()) failureCount++;
   });
-  std::cout << "Failures: " << failureCount << std::endl;
+  std::cout << "Test IterAllTests: Failures: " << failureCount << std::endl;
 }
 
 // Test IterFailedTests
@@ -30,11 +30,12 @@ DATA(IterFailedTests) {
   unsigned int failureCount = 0;
   lightest::IterFailedTests(
       data, [&failureCount](const lightest::DataSet* item) { failureCount++; });
-  std::cout << "Failures: " << failureCount << std::endl;
+  std::cout << "Test IterFailedTests: Failures: " << failureCount << std::endl;
 }
 
 // Test REPORT
 REPORT() {
   REPORT_FAILED_TESTS();
   REPORT_PASS_RATE();
+  REPORT_AVG_TIME();
 }
