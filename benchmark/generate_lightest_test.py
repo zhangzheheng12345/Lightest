@@ -9,6 +9,7 @@ lightestTestFile.write("""
 // Provide a better file name info
 #undef __FILE_NAME__
 #define __FILE_NAME__ "lightest_test.cpp"
+
 """)
 
 # Generate 1000 tests
@@ -21,7 +22,6 @@ lightestTestFile.write("""
 REPORT() {
   REPORT_PASS_RATE();
 }
-
 """)
 
 lightestTestFile.close()

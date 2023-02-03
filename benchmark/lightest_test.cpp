@@ -6,6 +6,7 @@
 // Provide a better file name info
 #undef __FILE_NAME__
 #define __FILE_NAME__ "lightest_test.cpp"
+
 TEST(Test1) { REQ(0, ==, 0); }
 TEST(Test2) { REQ(1, ==, 1); }
 TEST(Test3) { REQ(2, ==, 2); }
@@ -1011,4 +1012,3 @@ TEST(Test1000) { REQ(999, ==, 999); }
 REPORT() {
   REPORT_PASS_RATE();
 }
-
