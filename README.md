@@ -2,7 +2,9 @@
 
 <h1 align="center">Lightest</h1>
 
-![MIT_licensed](https://img.shields.io/badge/license-MIT-blue.svg)
+![Basic Tests Status](https://github.com/zhangzheheng12345/Lightest/actions/workflows/basic_tests.yml/badge.svg?branch=main)
+![Benchmark Tests Status](https://github.com/zhangzheheng12345/Lightest/actions/workflows/benchmark_tests.yml/badge.svg)
+![MIT Licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
 An extremely light but meanwhile strong C++ unit test framework. You should read its name as Ligh-test, with test stressed. It's headed-only, and also quite flexible and customizable.
 
@@ -22,7 +24,9 @@ Your compiler has to support C++11. Also, the project has only been tested on cl
 
 ## Why Lightest
 
-**Lightest** is extremely light, header-only, yet strong, flexible, and customizable. For its core, basic features for a unit test framework are all provided. And you can use extensions to add more feature.
+**Lightest** is very light, header-only, yet strong, flexible and customizable.
+
+Basic features for a unit test framework are all provided in the core, enabling you to write beautiful and pithy tests, and there are pre-provided extensions to offer further feature. Write your own extensions is easy as well. These are especially convenient for small and light projects.
 
 Besides, powered by its lightweight, **Lightest** is also extremely fast. I did a benchmark test (details under `benchmark/`), in which 1000 simple tests each with one passing assertion are provided for both **Lightest** and GTest. On one of my machine, GTest used around 600 ms to run all the tests, while for **Lightest**, it only took around 15 ms. Amazing, isn't it?
 
@@ -69,10 +73,9 @@ Outputs should be colorful if your platform is Windows, Linux or Mac.
 
 ## Usage
 
-You only need to add `include/lightest/lightest.h` to your project in any form you like and then include it in your test files.
-**Lightest** just need this to work. You can use any build system, and here we provide a suggested way to integrate **Lightest** with CMake & CTest.
+You only need to add files under `include/lightest/` to your project in any form you like and then include it in your test files. If you just need the core and don't need the extensions, then just add `include/lightest/lightest.h`. You can use any build system, and here we provide a suggested way to integrate **Lightest** with CMake & CTest.
 
-(**Caution:** You must compile test files into different executable files instead of linking them into one. This is because there are definitions of global variables and functions in **Lightest** header files.)
+(**Caution:** You must compile different test files into different executable files instead of linking them into one. This is because there are definitions of global variables and functions in **Lightest** header files. Linking them will cause error.)
 
 ### Work with CMake & CTest
 
