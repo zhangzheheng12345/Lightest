@@ -11,10 +11,10 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -Dbenchmark=on
+          cmake .. -Dbenchmark=on -Dgtest=off
           make
       - name: Run
         run: |
           cd build/benchmark
-          ./LightestBenchmarkLightest && ./LightestBenchmarkGTest
+          ./LightestBenchmarkLightest
       
