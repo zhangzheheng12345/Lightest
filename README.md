@@ -1,9 +1,9 @@
-![Lightest](./imgs/logo.png)
+![Lightest](/imgs/logo.png)
 
 <h1 align="center">Lightest</h1>
 
 ![Basic Tests Status](https://github.com/zhangzheheng12345/Lightest/actions/workflows/basic_tests.yml/badge.svg?branch=main)
-![Benchmark Tests Status](https://github.com/zhangzheheng12345/Lightest/actions/workflows/benchmark_tests.yml/badge.svg)
+![Benchmark Tests Status](https://github.com/zhangzheheng12345/Lightest/actions/workflows/benchmark_tests.yml/badge.svg?branch=main)
 ![MIT Licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
 An extremely light but meanwhile strong C++ unit test framework. You should read its name as Ligh-test, with test stressed. It's headed-only, and also quite flexible and customizable.
