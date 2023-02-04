@@ -1,8 +1,8 @@
 name: Basic Tests
-on: push
+on: [push, pull_request]
 jobs:
   build:
-    name: Build Basic Tests
+    name: Build & Run Basic Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -12,4 +12,8 @@ jobs:
           mkdir build
           cd build
           cmake .. -Dtest=on
-          make   
+          make
+      - name: Run
+        run: |
+          cd build/test
+          ./LightestCoreTsst -r0 && ./LightestDataAnalysisExtTest -r0
