@@ -1,8 +1,8 @@
-name: Basic Tests
+name: Benchmark Tests
 on: push
 jobs:
   build:
-    name: Build Basic Tests
+    name: Build & Run Benchmark Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -12,4 +12,9 @@ jobs:
           mkdir build
           cd build
           cmake .. -Dbenchmark=on
-          make   
+          make
+      - name: Run
+        run: |
+          cd build/benchmark
+          ./LightestBenchmarkLightest && ./LightestBenchmarkGTest
+      
