@@ -273,6 +273,7 @@ All the loggings and assertions will be recorded so that you can get them while 
 ## Future
 
 * Redirect outputs to `ostream&`.
+* Better self testing.
 * Better data analyzing & reporting system in extension of `data_analysis_ext.h`.
 * More assertion macros in a independent file as an extension.
 * Async testing system in a independent file as an extension.
