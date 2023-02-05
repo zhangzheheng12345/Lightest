@@ -120,11 +120,7 @@ class Data {
 // Recursively call Print() to output
 class DataSet : public Data {
  public:
-  DataSet(const char* name) {
-    this->name = name;
-    failed = false;
-    duration = 0;
-  }
+  DataSet(const char* name_) : failed(false), duration(0), name(name_) {}
   void Add(Data* son) {
     son->SetTabs(GetTabs() + 1);
     if (son->GetFailed()) failed = true;
@@ -190,13 +186,11 @@ class DataUnit {
 template <class T, class U>  // Different types for e.g. <int> == <double>
 class DataReq : public Data, public DataUnit {
  public:
-  DataReq(const char* file, unsigned int line, const T& actual_,
-          const U& expected_, const char* operator_, const char* expr,
+  DataReq(const char* file_, unsigned int line_, const T& actual_,
+          const U& expected_, const char* operator__, const char* expr_,
           bool failed_)
-      : actual(actual_), expected(expected_), failed(failed_) {
-    this->file = file, this->line = line, this->operator_ = operator_,
-    this->expr = expr;
-  }
+      : file(file_), line(line_), actual(actual_), expected(expected_),
+        operator_(operator__), expr(expr_), failed(failed_) {}
   // Print data of REQ if assertion fails
   void Print() const {
     if (failed) {
@@ -300,10 +294,8 @@ class Testing {
  public:
   // level_: 1 => global tests, 2 => sub tests, 3 => sub sub tests ...
   Testing(const char* name, unsigned int level_)
-      : start(clock()), level(level_) {
-    reg = Register(name);
+      : level(level_), start(clock()), failed(false), reg(name) {
     reg.testData->SetTabs(level);  // Give correct tabs to its sons
-    failed = false;
   }
   // Add a test data unit of a REQ assertion
   template <typename T,
