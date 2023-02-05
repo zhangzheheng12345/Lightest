@@ -320,7 +320,7 @@ cmake .. -Dtest=on # cmake .. -Dbenchmark=on to build benchmark test (benchmark 
 make -s
 # To run basic tests:
 cd test
-./LightestCoreTest && ./LightestDataAnalysisExtTest
+./LightestCoreTest -r0 && ./LightestDataAnalysisExtTest -r0 # Make test program to return zero and not pause
 # To run benchmark test:
 cd benchmark
 ./LightestBenchmarkLightest && ./LightestBenchmarkGTest
