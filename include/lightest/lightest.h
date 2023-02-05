@@ -174,6 +174,7 @@ class DataSet : public Data {
 // for loggings should contain file & line information
 class DataUnit {
  public:
+  DataUnit(const char* file_, unsigned int line_) : file(file_), line(line_) {}
   unsigned int GetLine() const { return line; }
   const char* GetFileName() const { return file; }
 
@@ -189,8 +190,12 @@ class DataReq : public Data, public DataUnit {
   DataReq(const char* file_, unsigned int line_, const T& actual_,
           const U& expected_, const char* operator__, const char* expr_,
           bool failed_)
-      : file(file_), line(line_), actual(actual_), expected(expected_),
-        operator_(operator__), expr(expr_), failed(failed_) {}
+      : DataUnit(file_, line_),
+        actual(actual_),
+        expected(expected_),
+        operator_(operator__),
+        expr(expr_),
+        failed(failed_) {}
   // Print data of REQ if assertion fails
   void Print() const {
     if (failed) {
@@ -218,11 +223,9 @@ class DataReq : public Data, public DataUnit {
 
 class DataUncaughtError : public Data, public DataUnit {
  public:
-  DataUncaughtError(const char* file, unsigned int line, const char* errorMsg) {
-    this->line = line;
-    this->file = file;
-    this->errorMsg = errorMsg;
-  }
+  DataUncaughtError(const char* file_, unsigned int line_,
+                    const char* errorMsg_)
+      : DataUnit(file_, line_), errorMsg(errorMsg_) {}
   void Print() const {
     PrintTabs();
     PRINT_LABEL(Color::Red, " ERROR ");
