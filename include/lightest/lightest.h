@@ -175,12 +175,13 @@ class DataSet : public Data {
 class DataUnit {
  public:
   DataUnit(const char* file_, unsigned int line_) : file(file_), line(line_) {}
+  virtual ~DataUnit() {}
   unsigned int GetLine() const { return line; }
   const char* GetFileName() const { return file; }
 
  protected:
+  const char* file;  // reordered, because g++ ../lib/Lightest/include/lightest/lightest.h:183:15: warning: 'lightest::DataUnit::file' will be initialized after [-Wreorder]
   unsigned int line;
-  const char* file;
 };
 
 // Data class of REQ assertions
@@ -335,7 +336,9 @@ class Testing {
 
 // Avoid undef or redefine buildin macro warning
 // Undef and then define again to have prettier file name
+#ifndef __FILE_NAME__ // cannot undefine builtin: prevent g++ ../lib/Lightest/include/lightest/lightest.h:338: warning: "__FILE_NAME__" redefined [-Wbuiltin-macro-redefined]
 #define __FILE_NAME__ __FILE__
+#endif
 
 // Untility for catching an error and return its detail as type const char*
 #define CATCH(sentence)                   \
