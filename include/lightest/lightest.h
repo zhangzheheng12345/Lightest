@@ -180,7 +180,7 @@ class DataUnit {
   const char* GetFileName() const { return file; }
 
  protected:
-  const char* file;  // reordered, because g++ ../lib/Lightest/include/lightest/lightest.h:183:15: warning: 'lightest::DataUnit::file' will be initialized after [-Wreorder]
+  const char* file;
   unsigned int line;
 };
 
@@ -336,7 +336,7 @@ class Testing {
 
 // Avoid undef or redefine buildin macro warning
 // Undef and then define again to have prettier file name
-#ifndef __FILE_NAME__ // cannot undefine builtin: prevent g++ ../lib/Lightest/include/lightest/lightest.h:338: warning: "__FILE_NAME__" redefined [-Wbuiltin-macro-redefined]
+#ifndef __FILE_NAME__
 #define __FILE_NAME__ __FILE__
 #endif
 
