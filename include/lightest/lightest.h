@@ -336,8 +336,12 @@ class Testing {
 
 // Avoid undef or redefine buildin macro warning
 // Undef and then define again to have prettier file name
-#ifndef __FILE_NAME__
-#define __FILE_NAME__ __FILE__
+#ifndef TEST_FILE_NAME
+#ifdef __FILE_NAME__
+#define TEST_FILE_NAME __FILE_NAME__
+#else
+#define TEST_FILE_NAME __FILE__
+#endif
 #endif
 
 // Untility for catching an error and return its detail as type const char*
@@ -367,16 +371,16 @@ class Testing {
   void name(int argn, char** argc)
 
 // To define a test
-#define TEST(name)                                                          \
-  void name(lightest::Testing& testing);                                    \
-  void call_##name(lightest::Register::Context& ctx) {                      \
-    lightest::Testing testing(#name, 1);                                    \
-    const char* errorMsg = CATCH(name(testing));                            \
-    if (errorMsg) testing.UncaughtError(__FILE_NAME__, __LINE__, errorMsg); \
-    ctx.testData->Add(testing.GetData()); /* Colletct data */               \
-  }                                                                         \
-  lightest::Registering registering_##name(lightest::globalRegisterTest,    \
-                                           #name, call_##name);             \
+#define TEST(name)                                                           \
+  void name(lightest::Testing& testing);                                     \
+  void call_##name(lightest::Register::Context& ctx) {                       \
+    lightest::Testing testing(#name, 1);                                     \
+    const char* errorMsg = CATCH(name(testing));                             \
+    if (errorMsg) testing.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg); \
+    ctx.testData->Add(testing.GetData()); /* Colletct data */                \
+  }                                                                          \
+  lightest::Registering registering_##name(lightest::globalRegisterTest,     \
+                                           #name, call_##name);              \
   void name(lightest::Testing& testing)
 
 // To define a test data processor
@@ -388,17 +392,17 @@ class Testing {
                                            #name, call_##name);              \
   void name(const lightest::DataSet* data)
 
-#define SUB(name)                                                    \
-  static std::function<void(lightest::Testing&)> name;               \
-  std::function<void(lightest::Register::Context&)> call_##name =    \
-      [&testing](lightest::Register::Context& ctx) {                 \
-        lightest::Testing testing_(#name, testing.GetLevel() + 1);   \
-        const char* errorMsg = CATCH(name(testing_));                \
-        if (errorMsg)                                                \
-          testing_.UncaughtError(__FILE_NAME__, __LINE__, errorMsg); \
-        ctx.testData->Add(testing_.GetData());                       \
-      };                                                             \
-  testing.AddSub(#name, call_##name);                                \
+#define SUB(name)                                                     \
+  static std::function<void(lightest::Testing&)> name;                \
+  std::function<void(lightest::Register::Context&)> call_##name =     \
+      [&testing](lightest::Register::Context& ctx) {                  \
+        lightest::Testing testing_(#name, testing.GetLevel() + 1);    \
+        const char* errorMsg = CATCH(name(testing_));                 \
+        if (errorMsg)                                                 \
+          testing_.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg); \
+        ctx.testData->Add(testing_.GetData());                        \
+      };                                                              \
+  testing.AddSub(#name, call_##name);                                 \
   name = [=](lightest::Testing & testing)
 
 /* ========== Configuration Macros ========== */
@@ -461,12 +465,12 @@ int main(int argn, char* argc[]) {
 
 // REQ assertion
 // Additionally return a bool: true => pass, false => fail
-#define REQ(actual, operator, expected)                               \
-  ([&]() -> bool {                                                    \
-    bool res = (actual) operator(expected);                           \
-    testing.Req(__FILE_NAME__, __LINE__, actual, expected, #operator, \
-                #actual " " #operator" " #expected, !res);            \
-    return res;                                                       \
+#define REQ(actual, operator, expected)                                \
+  ([&]() -> bool {                                                     \
+    bool res = (actual) operator(expected);                            \
+    testing.Req(TEST_FILE_NAME, __LINE__, actual, expected, #operator, \
+                #actual " " #operator" " #expected, !res);             \
+    return res;                                                        \
   })()
 
 // Condition must be true or stop currnet test

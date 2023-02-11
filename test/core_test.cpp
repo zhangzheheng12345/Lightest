@@ -2,8 +2,8 @@
 #include <lightest/data_analysis_ext.h>
 #include <lightest/lightest.h>
 
-#undef __FILE_NAME__
-#define __FILE_NAME__ "core_test.cpp"
+#undef TEST_FILE_NAME
+#define TEST_FILE_NAME "test.cpp"
 
 ARG_CONFIG();
 
