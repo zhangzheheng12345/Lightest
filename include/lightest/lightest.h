@@ -20,6 +20,7 @@ test framework. Licensed under MIT.
 #endif
 
 #include <ctime>
+#include <cstring>
 #include <exception>
 #include <functional>
 #include <iostream>
