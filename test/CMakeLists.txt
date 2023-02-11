@@ -7,3 +7,6 @@ target_link_libraries(LightestCoreTest lightest::lightest)
 
 add_executable(LightestDataAnalysisExtTest data_analysis_ext_test.cpp)
 target_link_libraries(LightestDataAnalysisExtTest lightest::lightest)
+
+add_executable(LightestAsyncTestExtTest async_test_ext_test.cpp)
+target_link_libraries(LightestAsyncTestExtTest lightest::lightest)

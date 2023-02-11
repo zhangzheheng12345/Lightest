@@ -14,25 +14,25 @@ namespace lightest {
 
 // Iterate all the tests (recursively including sub tests)
 void IterAllTests(const DataSet* data, function<void(const DataSet*)> func) {
-  std::function<void(const lightest::Data*)> iterFunc =
-      [&iterFunc, &func](const lightest::Data* item) {
-        if (item->Type() == lightest::DATA_SET) {
-          func(static_cast<const DataSet*>(item));
-          static_cast<const lightest::DataSet*>(item)->IterSons(iterFunc);
-        }
-      };
+  std::function<void(const Data*)> iterFunc = [&iterFunc,
+                                               &func](const Data* item) {
+    if (item->Type() == DATA_SET) {
+      func(static_cast<const DataSet*>(item));
+      static_cast<const DataSet*>(item)->IterSons(iterFunc);
+    }
+  };
   data->IterSons(iterFunc);
 }
 
 // Iterate all the failed tests (recursively including sub tests)
 void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
-  std::function<void(const lightest::Data*)> iterFunc =
-      [&iterFunc, &func](const lightest::Data* item) {
-        if (item->Type() == lightest::DATA_SET && item->GetFailed()) {
-          func(static_cast<const DataSet*>(item));
-          static_cast<const lightest::DataSet*>(item)->IterSons(iterFunc);
-        }
-      };
+  std::function<void(const Data*)> iterFunc = [&iterFunc,
+                                               &func](const Data* item) {
+    if (item->Type() == DATA_SET && item->GetFailed()) {
+      func(static_cast<const DataSet*>(item));
+      static_cast<const DataSet*>(item)->IterSons(iterFunc);
+    }
+  };
   data->IterSons(iterFunc);
 }
 
