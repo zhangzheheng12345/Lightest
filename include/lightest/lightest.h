@@ -20,7 +20,6 @@ test framework. Licensed under MIT.
 #endif
 
 #include <ctime>
-#include <cstring>
 #include <exception>
 #include <functional>
 #include <iostream>
@@ -205,10 +204,8 @@ class DataReq : public Data, public DataUnit {
       PRINT_LABEL(Color::Red, " FAIL  ");
       cout << " " << file << ":" << line << ":"
            << " REQ [" << expr << "] failed" << endl;
-      size_t fill = strlen(operator_); // create a stuffing to align both lines
-      char stuffing_[fill+1]; // with place for termchar
-      memset(stuffing_,' ',fill); stuffing_[fill]='\0';
-      PrintTabs() << "    +   ACTUAL: " << stuffing_ << " " << actual << endl;
+      PrintTabs() << "    +   ACTUAL: " << string(string(operator_).size(), ' ')
+                  << " " << actual << endl;
       PrintTabs() << "    + EXPECTED: " << operator_ << " " << expected << endl;
     }
   }
