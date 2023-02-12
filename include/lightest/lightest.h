@@ -204,9 +204,11 @@ class DataReq : public Data, public DataUnit {
       PRINT_LABEL(Color::Red, " FAIL  ");
       cout << " " << file << ":" << line << ":"
            << " REQ [" << expr << "] failed" << endl;
-      PrintTabs() << "    +   ACTUAL: " << string(string(operator_).size(), ' ')
-                  << " " << actual << endl;
-      PrintTabs() << "    + EXPECTED: " << operator_ << " " << expected << endl;
+      PrintTabs() << "    ├───── ACTUAL: "
+                  << string(string(operator_).size(), ' ') << " " << actual
+                  << endl;
+      PrintTabs() << "    └─── EXPECTED: " << operator_ << " " << expected
+                  << endl;
     }
   }
   DataType Type() const { return DATA_REQ; }
