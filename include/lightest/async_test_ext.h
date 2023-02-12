@@ -58,16 +58,22 @@ class ThreadPool {
   vector<TaskWrapper> tasks;
 };
 
-class AddingAsyncTest {
- public:
-  AddingAsyncTest(ThreadPool& pool, function<void(DataSet*, mutex&)> caller,
-                  DataSet* data, mutex& dataLock) {
-    pool.AddTask(caller, data, dataLock);
-  }
-};
-
 ThreadPool globalRegisterAsyncTest(10);
 bool useAsyncGlobal = false;  // Use USE_ASYNC_GLOBEL() to set to true
+bool useAsyncSub = false;     // Use USE_ASYNC_SUB to set to true
+
+class AddingAsyncTest {
+ public:
+  AddingAsyncTest(const char* name, function<void(DataSet*, mutex&)> caller,
+                  DataSet* data) {
+    if (useAsyncGlobal)
+      globalRegisterAsyncTest.AddTask(caller, data, globalDataLock);
+    else
+      globalRegisterTest.Add(name, [caller](Register::Context& ctx) {
+        caller(ctx.testData, globalDataLock);
+      });
+  }
+};
 
 void UseAsyncGlobal() {
   useAsyncGlobal = true;
@@ -77,6 +83,7 @@ void UseAsyncGlobal() {
 }
 
 #define USE_ASYNC_GLOBAL() lightest::UseAsyncGlobal()
+#define USE_ASYNC_SUB() lightest::useAsyncSub = true
 #define SET_THREAD_NUM(num) lightest::globalRegisterAsyncTest.SetThreadNum(num)
 
 #undef TEST
@@ -84,36 +91,40 @@ void UseAsyncGlobal() {
   void name(lightest::Testing& testing, std::mutex& subDataLock);            \
   void call_##name(lightest::DataSet* data, std::mutex& dataLock) {          \
     lightest::Testing testing(#name, 1);                                     \
-    std::mutex subDataLock;                                                  \
+    static std::mutex subDataLock;                                           \
     const char* errorMsg = CATCH(name(testing, subDataLock));                \
     if (errorMsg) testing.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg); \
     dataLock.lock();                                                         \
     data->Add(testing.GetData());                                            \
-    dataLock.unlock(); /* Colletct data */                                   \
+    dataLock.unlock();                                                       \
   }                                                                          \
   lightest::AddingAsyncTest registering_##name(                              \
-      lightest::globalRegisterAsyncTest, call_##name,                        \
-      lightest::globalRegisterTest.testData, lightest::globalDataLock);      \
+      #name, call_##name, lightest::globalRegisterTest.testData);            \
   void name(lightest::Testing& testing, std::mutex& subDataLock)
 
 #undef SUB
-#define SUB(name)                                                           \
-  static std::function<void(lightest::Testing&, std::mutex&)> name;         \
-  std::function<void(lightest::DataSet*, std::mutex&)> call_##name =        \
-      [testing](lightest::DataSet* data, std::mutex& dataLock) {            \
-        lightest::Testing testing_(#name, testing.GetLevel() + 1);          \
-        std::mutex subDataLock;                                             \
-        const char* errorMsg = CATCH(name(testing_, subDataLock));          \
-        if (errorMsg)                                                       \
-          testing_.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg);       \
-        dataLock.lock();                                                    \
-        data->Add(testing_.GetData());                                      \
-        dataLock.unlock();                                                  \
-      };                                                                    \
-  lightest::globalRegisterAsyncTest.AddTask(call_##name, testing.GetData(), \
-                                            subDataLock);                   \
+#define SUB(name)                                                             \
+  static std::function<void(lightest::Testing&, std::mutex&)> name;           \
+  std::function<void(lightest::DataSet*, std::mutex&)> call_##name =          \
+      [&testing](lightest::DataSet* data, std::mutex& dataLock) {             \
+        lightest::Testing testing_(#name, testing.GetLevel() + 1);            \
+        static std::mutex subDataLock;                                        \
+        const char* errorMsg = CATCH(name(testing_, subDataLock));            \
+        if (errorMsg)                                                         \
+          testing_.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg);         \
+        dataLock.lock();                                                      \
+        data->Add(testing_.GetData());                                        \
+        dataLock.unlock();                                                    \
+      };                                                                      \
+  if (lightest::useAsyncSub)                                                  \
+                                                                              \
+    lightest::globalRegisterAsyncTest.AddTask(call_##name, testing.GetData(), \
+                                              subDataLock);                   \
+  else                                                                        \
+    testing.AddSub(#name, [=](lightest::Register::Context& ctx) {             \
+      call_##name(ctx.testData, lightest::globalDataLock);                    \
+    });                                                                       \
   name = [=](lightest::Testing & testing, std::mutex & subDataLock)
-
 };  // namespace lightest
 
 #endif

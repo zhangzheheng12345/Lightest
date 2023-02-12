@@ -11,6 +11,7 @@ ARG_CONFIG();
 CONFIG(UseAsyncTest) {
   SET_THREAD_NUM(5);
   USE_ASYNC_GLOBAL();
+  USE_ASYNC_SUB();
 }
 
 TEST(Test1) {
