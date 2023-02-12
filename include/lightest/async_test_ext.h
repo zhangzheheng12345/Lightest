@@ -16,6 +16,7 @@ class ThreadPool {
   ThreadPool(unsigned int threadNum_)
       : threadNum(threadNum_),
         tasks(0, [](DataSet* data, mutex& dataLock) {}) {}
+  void SetThreadNum(unsigned int num) { threadNum = num; }
   void AddTask(function<void(DataSet*, mutex&)> func) { tasks.push_back(func); }
   void RunAllTasks(DataSet* data) {
     mutex taskListLock, dataLock;
@@ -51,7 +52,7 @@ class AddingAsyncTest {
   }
 };
 
-ThreadPool globalRegisterAsyncTest(20);
+ThreadPool globalRegisterAsyncTest(10);
 bool useAsyncGlobal = false;  // Use USE_ASYNC_GLOBEL() to set to true
 
 void UseAsyncGlobal() {
@@ -62,6 +63,7 @@ void UseAsyncGlobal() {
 }
 
 #define USE_ASYNC_GLOBAL() lightest::UseAsyncGlobal()
+#define SET_THREAD_NUM(num) lightest::globalRegisterAsyncTest.SetThreadNum(num)
 
 #undef TEST
 #define TEST(name)                                                           \
