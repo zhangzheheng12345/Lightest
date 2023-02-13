@@ -87,19 +87,18 @@ void UseAsyncGlobal() {
 #define SET_THREAD_NUM(num) lightest::globalRegisterAsyncTest.SetThreadNum(num)
 
 #undef TEST
-#define TEST(name)                                                           \
-  void name(lightest::Testing& testing, std::mutex& subDataLock);            \
-  void call_##name(lightest::DataSet* data, std::mutex& dataLock) {          \
-    lightest::Testing testing(#name, 1);                                     \
-    static std::mutex subDataLock;                                           \
-    const char* errorMsg = CATCH(name(testing, subDataLock));                \
-    if (errorMsg) testing.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg); \
-    dataLock.lock();                                                         \
-    data->Add(testing.GetData());                                            \
-    dataLock.unlock();                                                       \
-  }                                                                          \
-  lightest::AddingAsyncTest registering_##name(                              \
-      #name, call_##name, lightest::globalRegisterTest.testData);            \
+#define TEST(name)                                                  \
+  void name(lightest::Testing& testing, std::mutex& subDataLock);   \
+  void call_##name(lightest::DataSet* data, std::mutex& dataLock) { \
+    static lightest::Testing testing(#name, 1);                     \
+    static std::mutex subDataLock;                                  \
+    name(testing, subDataLock);                                     \
+    dataLock.lock();                                                \
+    data->Add(testing.GetData());                                   \
+    dataLock.unlock();                                              \
+  }                                                                 \
+  lightest::AddingAsyncTest registering_##name(                     \
+      #name, call_##name, lightest::globalRegisterTest.testData);   \
   void name(lightest::Testing& testing, std::mutex& subDataLock)
 
 #undef SUB
@@ -107,17 +106,14 @@ void UseAsyncGlobal() {
   static std::function<void(lightest::Testing&, std::mutex&)> name;           \
   std::function<void(lightest::DataSet*, std::mutex&)> call_##name =          \
       [&testing](lightest::DataSet* data, std::mutex& dataLock) {             \
-        lightest::Testing testing_(#name, testing.GetLevel() + 1);            \
+        static lightest::Testing testing_(#name, testing.GetLevel() + 1);     \
         static std::mutex subDataLock;                                        \
-        const char* errorMsg = CATCH(name(testing_, subDataLock));            \
-        if (errorMsg)                                                         \
-          testing_.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg);         \
+        name(testing_, subDataLock);                                          \
         dataLock.lock();                                                      \
         data->Add(testing_.GetData());                                        \
         dataLock.unlock();                                                    \
       };                                                                      \
   if (lightest::useAsyncSub)                                                  \
-                                                                              \
     lightest::globalRegisterAsyncTest.AddTask(call_##name, testing.GetData(), \
                                               subDataLock);                   \
   else                                                                        \
