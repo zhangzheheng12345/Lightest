@@ -8,8 +8,7 @@
 
 An extremely light but meanwhile strong C++ unit test framework. You should read its name as Ligh-test, with test stressed. It's headed-only, and also quite flexible and customizable.
 
-The core library file is `/include/lightest/lightest.h`. Extensions will be provided in the future.
-I promise that I'll keep the core extremely light.
+The core library file is `/include/lightest/lightest.h`, a very light yet strong core. There are optional extensions provided to make **Lightest** much more powerful.
 
 Following features are supported:
 
@@ -19,6 +18,8 @@ Following features are supported:
 * Test data collecting.
 * Timers.
 * User configurations are supported if you want.
+* Beautiful data analysis extension.
+* Command line arguments extension.
 
 Your compiler has to support C++11. Also, the project has only been tested on clang++ on Ubuntu, and MSVC (Visual Studio) on Windows 10.
 
