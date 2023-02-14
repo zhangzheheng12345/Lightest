@@ -434,8 +434,13 @@ int main(int argn, char* argc[]) {
     lightest::globalRegisterData.testData->PrintSons();
   }
   lightest::globalRegisterData.RunRegistered();
-  std::cout << "Done. " << lightest::TimeToMs(clock()) << " ms used."
-            << std::endl;
+  if (lightest::globalRegisterData.testData->GetFailed())
+    PRINT_LABEL(lightest::Color::Red, " ✕ FAILED ✕ ");
+  else
+    PRINT_LABEL(lightest::Color::Green, " ✓ SUCCEEDED ✓ ");
+  PRINT_LABEL(lightest::Color::Blue,
+              " " << lightest::TimeToMs(clock()) << " ms used ");
+  std::cout << std::endl << std::endl;
   return lightest::globalRegisterData.testData->GetFailed() &&
          lightest::failedReturnNoneZero;
 }
