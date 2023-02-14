@@ -321,7 +321,7 @@ class Testing {
   }
   DataSet* GetData() const { return reg.testData; }
   unsigned int GetLevel() const { return level; }
-  ~Testing() {
+  void End() {
     reg.RunRegistered();  // Run sub tests
     reg.testData->End(clock() - start);
   }
@@ -380,6 +380,7 @@ class Testing {
     lightest::Testing testing(#name, 1);                                     \
     const char* errorMsg = CATCH(name(testing));                             \
     if (errorMsg) testing.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg); \
+    testing.End();                                                           \
     ctx.testData->Add(testing.GetData()); /* Colletct data */                \
   }                                                                          \
   lightest::Registering registering_##name(lightest::globalRegisterTest,     \
@@ -403,6 +404,7 @@ class Testing {
         const char* errorMsg = CATCH(name(testing_));                 \
         if (errorMsg)                                                 \
           testing_.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg); \
+        testing_.End();                                               \
         ctx.testData->Add(testing_.GetData());                        \
       };                                                              \
   testing.AddSub(#name, call_##name);                                 \
