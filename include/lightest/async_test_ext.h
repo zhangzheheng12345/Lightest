@@ -92,7 +92,12 @@ void UseAsyncGlobal() {
   void call_##name(lightest::DataSet* data, std::mutex& dataLock) { \
     static lightest::Testing testing(#name, 1);                     \
     static std::mutex subDataLock;                                  \
-    name(testing, subDataLock);                                     \
+    const char* errorMsg = CATCH(name(testing, subDataLock));       \
+    if (errorMsg) {                                                 \
+      subDataLock.lock();                                           \
+      testing.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg);    \
+      subDataLock.unlock();                                         \
+    }                                                               \
     dataLock.lock();                                                \
     data->Add(testing.GetData());                                   \
     dataLock.unlock();                                              \
@@ -108,7 +113,12 @@ void UseAsyncGlobal() {
       [&testing](lightest::DataSet* data, std::mutex& dataLock) {             \
         static lightest::Testing testing_(#name, testing.GetLevel() + 1);     \
         static std::mutex subDataLock;                                        \
-        name(testing_, subDataLock);                                          \
+        const char* errorMsg = CATCH(name(testing_, subDataLock));            \
+        if (errorMsg) {                                                       \
+          subDataLock.lock();                                                 \
+          testing_.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg);         \
+          subDataLock.unlock();                                               \
+        }                                                                     \
         dataLock.lock();                                                      \
         data->Add(testing_.GetData());                                        \
         dataLock.unlock();                                                    \
@@ -117,10 +127,23 @@ void UseAsyncGlobal() {
     lightest::globalRegisterAsyncTest.AddTask(call_##name, testing.GetData(), \
                                               subDataLock);                   \
   else                                                                        \
-    testing.AddSub(#name, [=](lightest::Register::Context& ctx) {             \
-      call_##name(ctx.testData, lightest::globalDataLock);                    \
-    });                                                                       \
+    testing.AddSub(#name,                                                     \
+                   [=, &subDataLock](lightest::Register::Context& ctx) {      \
+                     call_##name(ctx.testData, subDataLock);                  \
+                   });                                                        \
   name = [=](lightest::Testing & testing, std::mutex & subDataLock)
+
+#undef REQ
+#define REQ(actual, operator, expected)                                \
+  ([&]() -> bool {                                                     \
+    bool res = (actual) operator(expected);                            \
+    subDataLock.lock();                                                \
+    testing.Req(TEST_FILE_NAME, __LINE__, actual, expected, #operator, \
+                #actual " " #operator" " #expected, !res);             \
+    subDataLock.unlock();                                              \
+    return res;                                                        \
+  })()
+
 };  // namespace lightest
 
 #endif

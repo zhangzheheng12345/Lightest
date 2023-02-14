@@ -25,11 +25,26 @@ TEST(Test2) {
 }
 TEST(TestSub) {
   SUB(Sub1) { REQ(1, ==, 1); };
+  REQ(1, ==, 2);
   SUB(Sub2) { REQ(1, ==, 2); };
+  REQ(1, ==, 2);
   SUB(TestSubSub) {
     SUB(SubSub1) { REQ(1, ==, 1); };
+    REQ(1, ==, 2);
     SUB(SubSub2) { REQ(1, ==, 2); };
   };
+  REQ(1, ==, 2);
+}
+TEST(TestCatchingUncaughtError) {
+  SUB(TestString) { throw "Uncaught string error"; };
+  SUB(TestException) {
+    class BasicExceptionError : public std::exception {
+     public:
+      const char* what() const noexcept { return "Uncaught exception error"; }
+    };
+    throw BasicExceptionError();
+  };
+  SUB(TestUnknown) { throw 1; };
 }
 
 REPORT() {
