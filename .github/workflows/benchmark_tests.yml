@@ -16,5 +16,5 @@ jobs:
       - name: Run
         run: |
           cd build/benchmark
-          ./LightestBenchmarkLightest
+          ./LightestBenchmarkLightest && ./LightestBenchmarkLightestAsync
       
