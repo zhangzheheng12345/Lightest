@@ -36,7 +36,7 @@ Besides, powered by its lightweight, **Lightest** is also extremely fast. I did 
 A short piece of test using Lightest:
 
 ```C++
-#include "lightest/lightest.h"
+#include <lightest/lightest.h>
 
 TEST(Test) {
   REQ(1, ==, 1); // Pass
@@ -57,20 +57,20 @@ Outputs simple and tidy:
 ```
  BEGIN  Test
    FAIL  test.cpp:5: REQ [1 == 2] failed
-      +   ACTUAL: 1
-      + EXPECTED: == 2
+      ├───── ACTUAL:    1
+      └─── EXPECTED: == 2
    FAIL  test.cpp:8: REQ [a == c] failed
-      +   ACTUAL: 1
-      + EXPECTED: == 2
+      ├───── ACTUAL:    1
+      └─── EXPECTED: == 2
    BEGIN  SubTest
      BEGIN  SubSubTest
      PASS   SubSubTest 0.001 ms
    PASS   SubTest 0.003
  FAIL   Test 0.109 ms
-Done. 1.518 ms used.
+ ✕ FAILED ✕  1.518 ms used
 ```
 
-Outputs should be colorful if your platform is Windows, Linux or Mac.
+Outputs should be quite pretty with coloring if your platform is Windows, Linux or Mac.
 
 ## Usage
 
