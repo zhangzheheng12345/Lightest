@@ -39,34 +39,23 @@ enum class Color { Reset = 0, Red = 41, Green = 42, Yellow = 43, Blue = 44 };
 bool outputColor = true;  // Use NO_COLOR() to set false
 
 void SetColor(Color color) {
+  #ifdef _WIN_
+  // Set output mode to handle virtual terminal sequences
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (hOut == INVALID_HANDLE_VALUE) {
+    return;
+  }
+  DWORD dwMode = 0;
+  if (!GetConsoleMode(hOut, &dwMode)) {
+    return ;
+  }
+  dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+  if (!SetConsoleMode(hOut, dwMode)) {
+    return;
+  }
+  #endif
   if (outputColor) {
-#if defined(_LINUX_) || \
-    defined(_MAC_)  // Use ASCII color code on Linux and MacOS
     cout << "\033[" << int(color) << "m";
-#elif defined(_WIN_)  // Use Windows console API on Windows
-    unsigned int winColor;
-    switch (color) {
-      case Color::Reset:
-        winColor = 0x07;
-        break;
-      case Color::Red:
-        winColor = 0xc0;
-        break;
-      case Color::Green:
-        winColor = 0xa0;
-        break;
-      case Color::Yellow:
-        winColor = 0xe0;
-        break;
-      case Color::Blue:
-        winColor = 0x90;
-        break;
-      default:
-        winColor = 0x07;
-        break;
-    }
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), winColor);
-#endif
   }
 }
 
