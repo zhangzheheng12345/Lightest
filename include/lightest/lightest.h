@@ -39,7 +39,7 @@ enum class Color { Reset = 0, Red = 41, Green = 42, Yellow = 43, Blue = 44 };
 bool outputColor = true;  // Use NO_COLOR() to set false
 
 void SetColor(Color color) {
-  #ifdef _WIN_
+#ifdef _WIN_
   // Set output mode to handle virtual terminal sequences
   HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
   if (hOut == INVALID_HANDLE_VALUE) {
@@ -47,13 +47,13 @@ void SetColor(Color color) {
   }
   DWORD dwMode = 0;
   if (!GetConsoleMode(hOut, &dwMode)) {
-    return ;
+    return;
   }
   dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
   if (!SetConsoleMode(hOut, dwMode)) {
     return;
   }
-  #endif
+#endif
   if (outputColor) {
     cout << "\033[" << int(color) << "m";
   }
@@ -89,11 +89,11 @@ class Data {
   void SetTabs(unsigned int tabs) { this->tabs = tabs; }
   unsigned int GetTabs() const { return tabs; }
   ostream& PrintTabs() const {
-    // Must be 4 spaces a group, for \t may be too wide on some platforms
+    // 3 spaces a group, for ''\t' may be too wide on some platforms
     // Must this->tabs - 1 first,
-    // for this->tabs of tests added to the gloabl registerer will be set to
+    // for this->tabs of global tests will be set to
     // 1
-    for (unsigned int tabs = this->tabs - 1; tabs > 0; tabs--) cout << "  ";
+    for (unsigned int tabs = this->tabs - 1; tabs > 0; tabs--) cout << "   ";
     return cout;
   }
   // Offer type to enable transfer Data to exact class of test data

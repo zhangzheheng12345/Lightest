@@ -56,16 +56,16 @@ Outputs simple and tidy:
 
 ```
  BEGIN  Test
-   FAIL  test.cpp:5: REQ [1 == 2] failed
-      ├───── ACTUAL:    1
-      └─── EXPECTED: == 2
-   FAIL  test.cpp:8: REQ [a == c] failed
-      ├───── ACTUAL:    1
-      └─── EXPECTED: == 2
-   BEGIN  SubTest
-     BEGIN  SubSubTest
-     PASS   SubSubTest 0.001 ms
-   PASS   SubTest 0.003 ms
+    FAIL  test.cpp:5: REQ [1 == 2] failed
+       ├───── ACTUAL:    1
+       └─── EXPECTED: == 2
+    FAIL  test.cpp:8: REQ [a == c] failed
+       ├───── ACTUAL:    1
+       └─── EXPECTED: == 2
+    BEGIN  SubTest
+       BEGIN  SubSubTest
+       PASS   SubSubTest 0.001 ms
+    PASS   SubTest 0.003 ms
  FAIL   Test 0.109 ms
  ✕ FAILED ✕  1.518 ms used
 ```
@@ -244,7 +244,10 @@ An extension for convenient data analysis and beautiful total report is provided
 #include <lightest/data_analysis_ext.h>
 
 TEST(TestPass) { REQ(1, ==, 1); }
-TEST(TestFail) { REQ(1, ==, 2); }
+TEST(TestFail) {
+  SUB(TestSubPass) { REQ(1, ==, 1); };
+  SUB(TestSubFail) { REQ(1, ==, 2); };
+}
 
 REPORT() {
   // Currently provide these 3 options
@@ -252,6 +255,19 @@ REPORT() {
   REPORT_PASS_RATE(); // Calculate the passing rate of global tests
   REPORT_AVG_TIME(); // Report average time use of global tests
 }
+```
+
+The report goes thus:
+
+```
+──────────────────────────────
+# Final report:
+Failed tests:
+ * TestFail
+    * TestSubFail
+Pass rate: 50%  1 failed  1 passed  2 total 
+Average time: 0.001 ms
+──────────────────────────────
 ```
 
 For further customization, write thus to process the data yourself:
