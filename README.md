@@ -6,7 +6,7 @@
 ![Benchmark Tests Status](https://github.com/zhangzheheng12345/Lightest/actions/workflows/benchmark_tests.yml/badge.svg?branch=main)
 ![MIT Licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
-An extremely light but meanwhile strong C++ unit test framework. You should read its name as Ligh-test, with `test` stressed. It's headed-only, and rather flexible & customizable.
+An extremely light but meanwhile strong C++ unit test framework. You should read its name as Ligh-test, with `-test` stressed. It's headed-only.
 
 The core library file is `/include/lightest/lightest.h`, a very light yet strong core. There are optional extensions provided to make **Lightest** much more powerful.
 
@@ -25,7 +25,7 @@ Your compiler has to support C++11. Additionally, the project has only been test
 
 ## Why Lightest
 
-As has been said above, **Lightest** is very light, header-only, yet strong, flexible and customizable.
+Very light, header-only, yet strong, flexible & customizable.
 
 Basic features for a unit test framework are all provided in the core, enabling you to write beautiful and pithy tests, and there are pre-provided extensions to offer further feature. Write your own extensions is easy as well. These are especially convenient for small and light projects.
 
@@ -65,7 +65,7 @@ Outputs simple and tidy:
    BEGIN  SubTest
      BEGIN  SubSubTest
      PASS   SubSubTest 0.001 ms
-   PASS   SubTest 0.003
+   PASS   SubTest 0.003 ms
  FAIL   Test 0.109 ms
  ✕ FAILED ✕  1.518 ms used
 ```
@@ -198,7 +198,7 @@ MUST(REQ(1, ==, 2)); // Fail and the current test will be terminated
 
 ### Timer macros
 
-* `TIMER(sentence)` runs the sentence provided, and returns how long did the sentence spend running. It returns type `clock_t`, ms.
+* `TIMER(sentence)` runs the sentence provided, and returns how long the sentence spends running. It returns type `clock_t`, ms.
 * `AVG_TIMER(sentence, times)` runs the sentence `times` times, and then returns the average time.
 * Always minisecond(ms) as the time unit.
 
