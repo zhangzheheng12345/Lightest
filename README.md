@@ -6,10 +6,9 @@
 ![Benchmark Tests Status](https://github.com/zhangzheheng12345/Lightest/actions/workflows/benchmark_tests.yml/badge.svg?branch=main)
 ![MIT Licensed](https://img.shields.io/badge/license-MIT-blue.svg)
 
-An extremely light but meanwhile strong C++ unit test framework. You should read its name as Ligh-test, with test stressed. It's headed-only, and also quite flexible and customizable.
+An extremely light but meanwhile strong C++ unit test framework. You should read its name as Ligh-test, with `-test` stressed. It's headed-only.
 
-The core library file is `/include/lightest/lightest.h`. Extensions will be provided in the future.
-I promise that I'll keep the core extremely light.
+The core library file is `/include/lightest/lightest.h`, a very light yet strong core. There are optional extensions provided to make **Lightest** much more powerful.
 
 Following features are supported:
 
@@ -19,23 +18,25 @@ Following features are supported:
 * Test data collecting.
 * Timers.
 * User configurations are supported if you want.
+* Beautiful data analysis extension.
+* Command line arguments extension.
 
-Your compiler has to support C++11. Also, the project has only been tested on clang++ on Ubuntu, and MSVC (Visual Studio) on Windows 10.
+Your compiler has to support C++11. Additionally, the project has only been tested on clang++ on Ubuntu, and MSVC (Visual Studio) on Windows 10.
 
 ## Why Lightest
 
-**Lightest** is very light, header-only, yet strong, flexible and customizable.
+Very light, header-only, yet strong, flexible & customizable.
 
 Basic features for a unit test framework are all provided in the core, enabling you to write beautiful and pithy tests, and there are pre-provided extensions to offer further feature. Write your own extensions is easy as well. These are especially convenient for small and light projects.
 
-Besides, powered by its lightweight, **Lightest** is also extremely fast. I did a benchmark test (details under `benchmark/`), in which 1000 simple tests each with one passing assertion are provided for both **Lightest** and GTest. On one of my machine, GTest used around 600 ms to run all the tests, while for **Lightest**, it only took around 15 ms. Amazing, isn't it?
+Besides, **Lightest** is also extremely fast powered by its lightweight. I did a benchmark test (details under `benchmark/`), in which 1000 simple tests each with one passing assertion are provided for both **Lightest** and GTest. On one of my machine, for instance, GTest used around 600 ms to run all the tests, while for **Lightest**, it only took around 15 ms. Amazing, isn't it?
 
 ## A quick look
 
 A short piece of test using Lightest:
 
 ```C++
-#include "lightest/lightest.h"
+#include <lightest/lightest.h>
 
 TEST(Test) {
   REQ(1, ==, 1); // Pass
@@ -55,25 +56,25 @@ Outputs simple and tidy:
 
 ```
  BEGIN  Test
-   FAIL  test.cpp:5: REQ [1 == 2] failed
-      +   ACTUAL: 1
-      + EXPECTED: == 2
-   FAIL  test.cpp:8: REQ [a == c] failed
-      +   ACTUAL: 1
-      + EXPECTED: == 2
-   BEGIN  SubTest
-     BEGIN  SubSubTest
-     PASS   SubSubTest 0.001 ms
-   PASS   SubTest 0.003
+    FAIL  test.cpp:5: REQ [1 == 2] failed
+       ├───── ACTUAL:    1
+       └─── EXPECTED: == 2
+    FAIL  test.cpp:8: REQ [a == c] failed
+       ├───── ACTUAL:    1
+       └─── EXPECTED: == 2
+    BEGIN  SubTest
+       BEGIN  SubSubTest
+       PASS   SubSubTest 0.001 ms
+    PASS   SubTest 0.003 ms
  FAIL   Test 0.109 ms
-Done. 1.518 ms used.
+ ✕ FAILED ✕  1.518 ms used
 ```
 
-Outputs should be colorful if your platform is Windows, Linux or Mac.
+Outputs should be quite pretty with coloring if your platform is Windows, Linux or Mac.
 
 ## Usage
 
-You only need to add files under `include/lightest/` to your project in any form you like and then include it in your test files. If you just need the core and don't need the extensions, then just add `include/lightest/lightest.h`. You can use any build system, and here we provide a suggested way to integrate **Lightest** with CMake & CTest.
+You just need to add files under `include/lightest/` to your project in any form you like and then include it in your test files. If you just need the core and don't need the extensions, then just add `include/lightest/lightest.h`. You can use any build system, and here we provide a suggested way to integrate **Lightest** with CMake & CTest.
 
 (**Caution:** You must compile different test files into different executable files instead of linking them into one. This is because there are definitions of global variables and functions in **Lightest** header files. Linking them will cause error.)
 
@@ -86,8 +87,8 @@ A suggested way:
 3. Create `test/CMakeLists.txt` and add:
 
 ```CMake
-# In test/CMakeLists.txt
-cmake_minimum_required(VERSION 3.10) # Change the version if you need to
+# in test/CMakeLists.txt
+cmake_minimum_required(VERSION 3.10) # Change the version if you need
 
 project(ProjectTest) # Change the name as you like
 
@@ -124,7 +125,7 @@ TEST(Test) {
 }
 ```
 
-Use macro `SUB(name)` to add sub tests. Sub test in sub test is allowed.
+Use macro `SUB(name)` to add sub tests. Nesting is supported.
 
 Example:
 
@@ -134,8 +135,8 @@ SUB(SubTest) {
   REQ(1, ==, 1); // Pass
   SUB(SubInSub) {
     REQ(1, ==, 1); // Pass
-  }; // semicolon required
-}; // semicolon required
+  }; // * semicolon required
+}; // * semicolon required
 ```
 
 All the defined tests will be automatically run because auto registration is supported.
@@ -145,7 +146,7 @@ Uncaught errors thrown out by tests will be caught and recorded, and the current
 **Caution** that variables outside `SUB` (except global variables) is immutable for code inside `SUB` (all `const`). Read-only capture is used in lambda partially because of life cycle problems and partially because shared variables aren't suggested to change. They should be fixed for all sub tests. For example, such code is unavailable:
 
 ```C++
-// unavailable code
+// ! invalid code
 TEST(TestChangeShared) {
   int shared = 0;
   SUB(SubTestChangeShared) {
@@ -180,37 +181,37 @@ Use `REQ(actual, operator, expected)` to compare the actual value and the expect
 
 As for some situations like that you just want the returning value of a function to be true, pray write `REQ(func(), ==, true)` which is more readable and also fit **Lightest**.
 
-We also provide `MUST(condition)`. The current test will be stopped if `condition` is false.
+We also provide `MUST(condition)`. The current test will be terminated if `condition` is false.
 
 Example:
 
 ```C++
 // in a test
 int a = 1, b = 1, c = 2;
-REQ(a, ==, b); // Pass with no output -- The cleaner, the better.
+REQ(a, ==, b); // Pass with no output
 REQ(a, ==, c); // Fail and output:
-//  REQ [a == c] failed
-//      + ACTUAL: 1
-//      + EXPECTED: == 2
-MUST(REQ(1, ==, 2)); // Fail and current test will be stopped
+// REQ [1 == 2] failed
+//    ├───── ACTUAL:    1
+//    └─── EXPECTED: == 2
+MUST(REQ(1, ==, 2)); // Fail and the current test will be terminated
 ```
 
 ### Timer macros
 
-* `TIMER(sentence)` runs the sentence provided, and returns how long did the sentence spend running. It returns type `clock_t`, ms.
+* `TIMER(sentence)` runs the sentence provided, and returns how long the sentence spends running. It returns type `clock_t`, ms.
 * `AVG_TIMER(sentence, times)` runs the sentence `times` times, and then returns the average time.
-* The time unit is always minisecond(ms).
+* Always minisecond(ms) as the time unit.
 
 Example:
 
 ```C++
 TIMER(std::cout << "One Hello" << std::endl); // Return how long the sentence spends running
-TIMER(std::cout << "Avg Hello" << std::endl, 1000); // Run it 1000 times and return the average time
+AVG_TIMER(std::cout << "Avg Hello" << std::endl, 1000); // Run it 1000 times and return the average time
 ```
 
 ### Configuration
 
-You can write configurations thus (`CONFIG` functions are always run before tests):
+You can write configurations like this (`CONFIG` functions are always run before `TEST`s):
 
 ```C++
 // in global scope
@@ -243,14 +244,30 @@ An extension for convenient data analysis and beautiful total report is provided
 #include <lightest/data_analysis_ext.h>
 
 TEST(TestPass) { REQ(1, ==, 1); }
-TEST(TestFail) { REQ(1, ==, 2); }
+TEST(TestFail) {
+  SUB(TestSubPass) { REQ(1, ==, 1); };
+  SUB(TestSubFail) { REQ(1, ==, 2); };
+}
 
 REPORT() {
-  // currently provide these 3 options
+  // Currently provide these 3 options
   REPORT_FAILED_TESTS(); // List all failed test, sub tests outputted with tabs
   REPORT_PASS_RATE(); // Calculate the passing rate of global tests
   REPORT_AVG_TIME(); // Report average time use of global tests
 }
+```
+
+The report goes thus:
+
+```
+──────────────────────────────
+# Final report:
+Failed tests:
+ * TestFail
+    * TestSubFail
+Pass rate: 50%  1 failed  1 passed  2 total 
+Average time: 0.001 ms
+──────────────────────────────
 ```
 
 For further customization, write thus to process the data yourself:
@@ -266,7 +283,7 @@ DATA(DataProcessor) {
 
 `data` is a pre-defined variable; its type is `const lightest::DataSet*`.
 
-You can use method of `Type()` and `static_cast` to transfer data's type and process the data deeply yourself. Better carefully look at `lightest.h` if you want to do this. You need to call getter functions to get data inside the instances of data classes.
+You can use `Type()` (a member function of any class extended from `Data`) and `static_cast` to transfer data's type and process the data in depth yourself. Better carefully look at `lightest.h` if you want to do this. You need to call getter functions to get data inside the instances of data classes.
 
 All the loggings and assertions will be recorded so that you can get them while processing test data.
 
@@ -285,8 +302,8 @@ All the loggings and assertions will be recorded so that you can get them while 
 
 ## Caution
 
-* You must add a semicolon after a assertion.
-* You must add a semicolon after a definition of a sub test.
+* You must add a semicolon after any assertion.
+* You must add a semicolon after any definition of a sub test.
 * Again, C++11 required.
 
 ## Version control

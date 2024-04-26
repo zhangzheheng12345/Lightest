@@ -39,34 +39,23 @@ enum class Color { Reset = 0, Red = 41, Green = 42, Yellow = 43, Blue = 44 };
 bool outputColor = true;  // Use NO_COLOR() to set false
 
 void SetColor(Color color) {
-  if (outputColor) {
-#if defined(_LINUX_) || \
-    defined(_MAC_)  // Use ASCII color code on Linux and MacOS
-    cout << "\033[" << int(color) << "m";
-#elif defined(_WIN_)  // Use Windows console API on Windows
-    unsigned int winColor;
-    switch (color) {
-      case Color::Reset:
-        winColor = 0x07;
-        break;
-      case Color::Red:
-        winColor = 0xc0;
-        break;
-      case Color::Green:
-        winColor = 0xa0;
-        break;
-      case Color::Yellow:
-        winColor = 0xe0;
-        break;
-      case Color::Blue:
-        winColor = 0x90;
-        break;
-      default:
-        winColor = 0x07;
-        break;
-    }
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), winColor);
+#ifdef _WIN_
+  // Set output mode to handle virtual terminal sequences
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (hOut == INVALID_HANDLE_VALUE) {
+    return;
+  }
+  DWORD dwMode = 0;
+  if (!GetConsoleMode(hOut, &dwMode)) {
+    return;
+  }
+  dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+  if (!SetConsoleMode(hOut, dwMode)) {
+    return;
+  }
 #endif
+  if (outputColor) {
+    cout << "\033[" << int(color) << "m";
   }
 }
 
@@ -100,11 +89,11 @@ class Data {
   void SetTabs(unsigned int tabs) { this->tabs = tabs; }
   unsigned int GetTabs() const { return tabs; }
   ostream& PrintTabs() const {
-    // Must be 4 spaces a group, for \t may be too wide on some platforms
+    // 3 spaces a group, for ''\t' may be too wide on some platforms
     // Must this->tabs - 1 first,
-    // for this->tabs of tests added to the gloabl registerer will be set to
+    // for this->tabs of global tests will be set to
     // 1
-    for (unsigned int tabs = this->tabs - 1; tabs > 0; tabs--) cout << "  ";
+    for (unsigned int tabs = this->tabs - 1; tabs > 0; tabs--) cout << "   ";
     return cout;
   }
   // Offer type to enable transfer Data to exact class of test data
@@ -204,8 +193,11 @@ class DataReq : public Data, public DataUnit {
       PRINT_LABEL(Color::Red, " FAIL  ");
       cout << " " << file << ":" << line << ":"
            << " REQ [" << expr << "] failed" << endl;
-      PrintTabs() << "    +   ACTUAL: " << actual << endl;
-      PrintTabs() << "    + EXPECTED: " << operator_ << " " << expected << endl;
+      PrintTabs() << "    ├───── ACTUAL: "
+                  << string(string(operator_).size(), ' ') << " " << actual
+                  << endl;
+      PrintTabs() << "    └─── EXPECTED: " << operator_ << " " << expected
+                  << endl;
     }
   }
   DataType Type() const { return DATA_REQ; }
@@ -318,7 +310,7 @@ class Testing {
   }
   DataSet* GetData() const { return reg.testData; }
   unsigned int GetLevel() const { return level; }
-  ~Testing() {
+  void End() {
     reg.RunRegistered();  // Run sub tests
     reg.testData->End(clock() - start);
   }
@@ -377,6 +369,7 @@ class Testing {
     lightest::Testing testing(#name, 1);                                     \
     const char* errorMsg = CATCH(name(testing));                             \
     if (errorMsg) testing.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg); \
+    testing.End();                                                           \
     ctx.testData->Add(testing.GetData()); /* Colletct data */                \
   }                                                                          \
   lightest::Registering registering_##name(lightest::globalRegisterTest,     \
@@ -400,6 +393,7 @@ class Testing {
         const char* errorMsg = CATCH(name(testing_));                 \
         if (errorMsg)                                                 \
           testing_.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg); \
+        testing_.End();                                               \
         ctx.testData->Add(testing_.GetData());                        \
       };                                                              \
   testing.AddSub(#name, call_##name);                                 \
@@ -431,8 +425,13 @@ int main(int argn, char* argc[]) {
     lightest::globalRegisterData.testData->PrintSons();
   }
   lightest::globalRegisterData.RunRegistered();
-  std::cout << "Done. " << lightest::TimeToMs(clock()) << " ms used."
-            << std::endl;
+  if (lightest::globalRegisterData.testData->GetFailed())
+    PRINT_LABEL(lightest::Color::Red, " ✕ FAILED ✕ ");
+  else
+    PRINT_LABEL(lightest::Color::Green, " ✓ SUCCEEDED ✓ ");
+  PRINT_LABEL(lightest::Color::Blue,
+              " " << lightest::TimeToMs(clock()) << " ms used ");
+  std::cout << std::endl << std::endl;
   return lightest::globalRegisterData.testData->GetFailed() &&
          lightest::failedReturnNoneZero;
 }

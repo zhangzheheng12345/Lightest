@@ -42,10 +42,10 @@ void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
 #define REPORT()                                                \
   void ReportWrapFunc(const lightest::DataSet* data);           \
   DATA(Report) {                                                \
-    std::cout << "------------------------------" << std::endl  \
+    std::cout << "──────────────────────────────" << std::endl  \
               << "# Final report:" << std::endl;                \
     ReportWrapFunc(data);                                       \
-    std::cout << "------------------------------" << std::endl; \
+    std::cout << "──────────────────────────────" << std::endl; \
   }                                                             \
   void ReportWrapFunc(const lightest::DataSet* data)
 
