@@ -72,9 +72,7 @@ enum DataType { DATA_SET, DATA_REQ, DATA_UNCAUGHT_ERROR };
 
 // Unitlity for transfering clock_t to ms,
 // for on Linux clock_t's unit is us, while on Windows it's ms
-inline double TimeToMs(clock_t time) {
-  return double(time) / CLOCKS_PER_SEC * 1000;
-}
+inline double TimeToMs(clock_t time) { return double(time) / CLOCKS_PER_SEC * 1000; }
 template <typename T>
 const string AnyToString(const T value) {
   stringstream ss;
@@ -151,8 +149,7 @@ class DataSet : public Data {
   unsigned int GetSonsNum() const { return sons.size(); }
   // Receive a callback to iterate test actions and sub tests' data
   template <typename... restArgs>
-  void IterSons(function<void(const Data*, restArgs...)> func,
-                restArgs... args) const {
+  void IterSons(function<void(const Data*, restArgs...)> func, restArgs... args) const {
     for (const Data* item : sons) {
       func(item, args...);
     }
@@ -193,9 +190,8 @@ class DataUnit {
 // Data class of REQ assertions
 class DataReq : public Data, public DataUnit {
  public:
-  DataReq(cstr file_, unsigned int line_, const string actual_,
-          const string expected_, cstr aType, cstr eType, cstr operator__,
-          cstr expr_, bool failed_)
+  DataReq(cstr file_, unsigned int line_, const string actual_, const string expected_,
+          cstr aType, cstr eType, cstr operator__, cstr expr_, bool failed_)
       : DataUnit(file_, line_),
         actual(actual_),
         expected(expected_),
@@ -211,11 +207,9 @@ class DataReq : public Data, public DataUnit {
       PRINT_LABEL(Color::Red, " FAIL  ");
       cout << " " << file << ":" << line << ":"
            << " REQ [" << expr << "] failed" << endl;
-      PrintTabs() << "    ├───── ACTUAL: "
-                  << string(string(operator_).size(), ' ') << " " << actual
-                  << endl;
-      PrintTabs() << "    └─── EXPECTED: " << operator_ << " " << expected
-                  << endl;
+      PrintTabs() << "    ├───── ACTUAL: " << string(string(operator_).size(), ' ') << " "
+                  << actual << endl;
+      PrintTabs() << "    └─── EXPECTED: " << operator_ << " " << expected << endl;
     }
   }
   DataType Type() const { return DATA_REQ; }
@@ -240,8 +234,7 @@ class DataUncaughtError : public Data, public DataUnit {
   void Print() const {
     PrintTabs();
     PRINT_LABEL(Color::Red, " ERROR ");
-    cout << " " << file << ":" << line << ": Uncaught error [" << errorMsg
-         << "]" << endl;
+    cout << " " << file << ":" << line << ": Uncaught error [" << errorMsg << "]" << endl;
   }
   DataType Type() const { return DATA_UNCAUGHT_ERROR; }
   const bool GetFailed() const { return true; }
@@ -272,9 +265,7 @@ class Register {
     }
   }
   // Restore argn & argc for CONFIG
-  static void SetArg(int argn, char** argc) {
-    Register::argn = argn, Register::argc = argc;
-  }
+  static void SetArg(int argn, char** argc) { Register::argn = argn, Register::argc = argc; }
   DataSet* testData;
 
  private:
@@ -295,8 +286,7 @@ Register globalRegisterData("");
 
 class Registering {
  public:
-  Registering(Register& reg, cstr name,
-              void (*callerFunc)(Register::Context&)) {
+  Registering(Register& reg, cstr name, void (*callerFunc)(Register::Context&)) {
     reg.Add(name, callerFunc);
   }
 };
@@ -361,53 +351,48 @@ class Testing {
 
 // To define user's configuarations
 // Pre-define argn and argc for user's configurations
-#define CONFIG(name)                                                       \
-  void name(int argn, char** argc);                                        \
-  void call_##name(lightest::Register::Context& ctx) {                     \
-    name(ctx.argn, ctx.argc);                                              \
-  }                                                                        \
-  lightest::Registering registering_##name(lightest::globalRegisterConfig, \
-                                           #name, call_##name);            \
+#define CONFIG(name)                                                               \
+  void name(int argn, char** argc);                                                \
+  void call_##name(lightest::Register::Context& ctx) { name(ctx.argn, ctx.argc); } \
+  lightest::Registering registering_##name(lightest::globalRegisterConfig, #name,  \
+                                           call_##name);                           \
   void name(int argn, char** argc)
 
 // To define a test
-#define TEST(name)                                                          \
-  void name(lightest::Testing& testing);                                    \
-  void call_##name(lightest::Register::Context& ctx) {                      \
-    lightest::Testing testing(#name, 1);                                    \
-    const char* errorMsg = CATCH(name(testing));                            \
-    if (errorMsg)                                                           \
-      testing.AddData(new lightest::DataUncaughtError(TEST_FILE_NAME,       \
-                                                      __LINE__, errorMsg)); \
-    testing.End();                                                          \
-    ctx.testData->Add(testing.GetData()); /* Colletct data */               \
-  }                                                                         \
-  lightest::Registering registering_##name(lightest::globalRegisterTest,    \
-                                           #name, call_##name);             \
+#define TEST(name)                                                                            \
+  void name(lightest::Testing& testing);                                                      \
+  void call_##name(lightest::Register::Context& ctx) {                                        \
+    lightest::Testing testing(#name, 1);                                                      \
+    const char* errorMsg = CATCH(name(testing));                                              \
+    if (errorMsg)                                                                             \
+      testing.AddData(new lightest::DataUncaughtError(TEST_FILE_NAME, __LINE__, errorMsg));   \
+    testing.End();                                                                            \
+    ctx.testData->Add(testing.GetData()); /* Colletct data */                                 \
+  }                                                                                           \
+  lightest::Registering registering_##name(lightest::globalRegisterTest, #name, call_##name); \
   void name(lightest::Testing& testing)
 
 // To define a test data processor
 // Pre-define data to provide a readonly object containing all the test data
-#define DATA(name)                                                           \
-  void name(const lightest::DataSet* data);                                  \
-  void call_##name(lightest::Register::Context& ctx) { name(ctx.testData); } \
-  lightest::Registering registering_##name(lightest::globalRegisterData,     \
-                                           #name, call_##name);              \
+#define DATA(name)                                                                            \
+  void name(const lightest::DataSet* data);                                                   \
+  void call_##name(lightest::Register::Context& ctx) { name(ctx.testData); }                  \
+  lightest::Registering registering_##name(lightest::globalRegisterData, #name, call_##name); \
   void name(const lightest::DataSet* data)
 
-#define SUB(name)                                                  \
-  static std::function<void(lightest::Testing&)> name;             \
-  std::function<void(lightest::Register::Context&)> call_##name =  \
-      [&testing](lightest::Register::Context& ctx) {               \
-        lightest::Testing testing_(#name, testing.GetLevel() + 1); \
-        const char* errorMsg = CATCH(name(testing_));              \
-        if (errorMsg)                                              \
-          testing_.AddData(new lightest::DataUncaughtError(        \
-              TEST_FILE_NAME, __LINE__, errorMsg));                \
-        testing_.End();                                            \
-        ctx.testData->Add(testing_.GetData());                     \
-      };                                                           \
-  testing.AddSub(#name, call_##name);                              \
+#define SUB(name)                                                                   \
+  static std::function<void(lightest::Testing&)> name;                              \
+  std::function<void(lightest::Register::Context&)> call_##name =                   \
+      [&testing](lightest::Register::Context& ctx) {                                \
+        lightest::Testing testing_(#name, testing.GetLevel() + 1);                  \
+        const char* errorMsg = CATCH(name(testing_));                               \
+        if (errorMsg)                                                               \
+          testing_.AddData(                                                         \
+              new lightest::DataUncaughtError(TEST_FILE_NAME, __LINE__, errorMsg)); \
+        testing_.End();                                                             \
+        ctx.testData->Add(testing_.GetData());                                      \
+      };                                                                            \
+  testing.AddSub(#name, call_##name);                                               \
   name = [=](lightest::Testing & testing)
 
 /* ========== Configuration Macros ========== */
@@ -440,11 +425,9 @@ int main(int argn, char* argc[]) {
     PRINT_LABEL(lightest::Color::Red, " ✕ FAILED ✕ ");
   else
     PRINT_LABEL(lightest::Color::Green, " ✓ SUCCEEDED ✓ ");
-  PRINT_LABEL(lightest::Color::Blue,
-              " " << lightest::TimeToMs(clock()) << " ms used ");
+  PRINT_LABEL(lightest::Color::Blue, " " << lightest::TimeToMs(clock()) << " ms used ");
   std::cout << std::endl << std::endl;
-  return lightest::globalRegisterData.testData->GetFailed() &&
-         lightest::failedReturnNoneZero;
+  return lightest::globalRegisterData.testData->GetFailed() && lightest::failedReturnNoneZero;
 }
 
 /* ========= Timer Macros =========== */
@@ -475,17 +458,16 @@ int main(int argn, char* argc[]) {
 
 // REQ assertion
 // Additionally return a bool: true => pass, false => fail
-#define REQ(actual, operator, expected)                           \
-  ([&]() -> bool {                                                \
-    auto actual_ = (actual);                                      \
-    auto expected_ = (expected);                                  \
-    bool res = (actual_) operator(expected_);                     \
-    testing.AddData(new lightest::DataReq(                        \
-        TEST_FILE_NAME, __LINE__, lightest::AnyToString(actual_), \
-        lightest::AnyToString(expected_), typeid(actual_).name(), \
-        typeid(expected_).name(), #operator,                      \
-        #actual " " #operator" " #expected, !res));               \
-    return res;                                                   \
+#define REQ(actual, operator, expected)                                                     \
+  ([&]() -> bool {                                                                          \
+    auto actual_ = (actual);                                                                \
+    auto expected_ = (expected);                                                            \
+    bool res = (actual_) operator(expected_);                                               \
+    testing.AddData(new lightest::DataReq(                                                  \
+        TEST_FILE_NAME, __LINE__, lightest::AnyToString(actual_),                           \
+        lightest::AnyToString(expected_), typeid(actual_).name(), typeid(expected_).name(), \
+        #operator, #actual " " #operator" " #expected, !res));                              \
+    return res;                                                                             \
   })()
 
 // Condition must be true or stop currnet test

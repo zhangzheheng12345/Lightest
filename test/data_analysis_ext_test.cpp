@@ -42,17 +42,14 @@ DATA(TestMatcher) {
         if (item->GetFailed()) failedReqCount++;
       };
   std::function<void(const lightest::DataUncaughtError*)> matchErr =
-      [&uncaughtErrCount](const lightest::DataUncaughtError* item) {
-        uncaughtErrCount++;
-      };
+      [&uncaughtErrCount](const lightest::DataUncaughtError* item) { uncaughtErrCount++; };
   std::function<void(const lightest::DataSet*)> matchDataSet =
       [&matchReq, &matchErr, &matchDataSet](const lightest::DataSet* item) {
         item->IterSons(lightest::Matcher(matchReq, matchErr, matchDataSet));
       };
   data->IterSons(lightest::Matcher(matchReq, matchErr, matchDataSet));
   std::cout << "Test Matcher: FailedReqCount: " << failedReqCount << std::endl
-            << "Test Matcher: UncaughtErrCount: " << uncaughtErrCount
-            << std::endl;
+            << "Test Matcher: UncaughtErrCount: " << uncaughtErrCount << std::endl;
 }
 
 // Test REPORT

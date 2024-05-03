@@ -14,8 +14,7 @@ namespace lightest {
 void MatchArgConfig(std::string arg) {
   if (arg == "--no-color" || arg == "-nc") NO_COLOR();
   if (arg == "--no-output" || arg == "-no") NO_OUTPUT();
-  if (arg == "--return-zero" || arg == "--return-0" || arg == "-r0")
-    RETURN_ZERO();
+  if (arg == "--return-zero" || arg == "--return-0" || arg == "-r0") RETURN_ZERO();
 }
 
 };  // namespace lightest
