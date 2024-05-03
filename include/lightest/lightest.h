@@ -32,7 +32,10 @@ test framework. Licensed under MIT.
 #endif
 
 namespace lightest {
+
 using namespace std;
+
+typedef const char* cstr;
 
 /* ========== Output Color ==========*/
 
@@ -116,7 +119,7 @@ class Data {
 // Recursively call Print() to output
 class DataSet : public Data {
  public:
-  DataSet(const char* name_) : failed(false), duration(0), name(name_) {}
+  DataSet(cstr name_) : failed(false), duration(0), name(name_) {}
   void Add(Data* son) {
     son->SetTabs(GetTabs() + 1);
     if (son->GetFailed()) failed = true;
@@ -144,7 +147,7 @@ class DataSet : public Data {
   DataType Type() const { return DATA_SET; }
   const bool GetFailed() const { return failed; }
   clock_t GetDuration() const { return duration; }
-  const char* GetName() const { return name; }
+  cstr GetName() const { return name; }
   unsigned int GetSonsNum() const { return sons.size(); }
   // Receive a callback to iterate test actions and sub tests' data
   template <typename... restArgs>
@@ -170,29 +173,29 @@ class DataSet : public Data {
   clock_t duration;
   // Data of test actions and sub tests
   vector<const Data*> sons;
-  const char* name;
+  cstr name;
 };
 
 // Data classes for test actions should to extend from DataUnit,
 // for loggings should contain file & line information
 class DataUnit {
  public:
-  DataUnit(const char* file_, unsigned int line_) : file(file_), line(line_) {}
+  DataUnit(cstr file_, unsigned int line_) : file(file_), line(line_) {}
   virtual ~DataUnit() {}
   unsigned int GetLine() const { return line; }
-  const char* GetFileName() const { return file; }
+  cstr GetFileName() const { return file; }
 
  protected:
-  const char* file;
+  cstr file;
   unsigned int line;
 };
 
 // Data class of REQ assertions
 class DataReq : public Data, public DataUnit {
  public:
-  DataReq(const char* file_, unsigned int line_, const string actual_,
-          const string expected_, const char* aType, const char* eType,
-          const char* operator__, const char* expr_, bool failed_)
+  DataReq(cstr file_, unsigned int line_, const string actual_,
+          const string expected_, cstr aType, cstr eType, cstr operator__,
+          cstr expr_, bool failed_)
       : DataUnit(file_, line_),
         actual(actual_),
         expected(expected_),
@@ -218,22 +221,21 @@ class DataReq : public Data, public DataUnit {
   DataType Type() const { return DATA_REQ; }
   const string& GetActual() const { return actual; }
   const string& GetExpected() const { return expected; }
-  const char* GetActualType() const { return actualType; }
-  const char* GetExpectedType() const { return expectedType; }
-  const char* GetOperator() const { return operator_; }
-  const char* GetExpr() const { return expr; }
+  cstr GetActualType() const { return actualType; }
+  cstr GetExpectedType() const { return expectedType; }
+  cstr GetOperator() const { return operator_; }
+  cstr GetExpr() const { return expr; }
   const bool GetFailed() const { return failed; }
 
  private:
   const string actual, expected;
-  const char *actualType, *expectedType, *operator_, *expr;
+  cstr actualType, expectedType, operator_, expr;
   const bool failed;
 };
 
 class DataUncaughtError : public Data, public DataUnit {
  public:
-  DataUncaughtError(const char* file_, unsigned int line_,
-                    const char* errorMsg_)
+  DataUncaughtError(cstr file_, unsigned int line_, cstr errorMsg_)
       : DataUnit(file_, line_), errorMsg(errorMsg_) {}
   void Print() const {
     PrintTabs();
@@ -245,14 +247,14 @@ class DataUncaughtError : public Data, public DataUnit {
   const bool GetFailed() const { return true; }
 
  private:
-  const char* errorMsg;
+  cstr errorMsg;
 };
 
 /* ========== Register ========== */
 
 class Register {
  public:
-  Register(const char* name) { testData = new DataSet(name); }
+  Register(cstr name) { testData = new DataSet(name); }
   Register() { testData = NULL; }
   typedef struct {
     DataSet* testData;
@@ -260,7 +262,7 @@ class Register {
     char** argc;
   } Context;
   // Register a CONFIG, TEST, or DATA
-  void Add(const char* name, function<void(Context&)> callerFunc) {
+  void Add(cstr name, function<void(Context&)> callerFunc) {
     registerList.push_back({name, callerFunc});
   }
   void RunRegistered() {
@@ -277,7 +279,7 @@ class Register {
 
  private:
   typedef struct {
-    const char* name;
+    cstr name;
     function<void(Register::Context&)> callerFunc;
   } signedFuncWrapper;
   vector<signedFuncWrapper> registerList;
@@ -293,7 +295,7 @@ Register globalRegisterData("");
 
 class Registering {
  public:
-  Registering(Register& reg, const char* name,
+  Registering(Register& reg, cstr name,
               void (*callerFunc)(Register::Context&)) {
     reg.Add(name, callerFunc);
   }
@@ -305,11 +307,11 @@ class Registering {
 class Testing {
  public:
   // level_: 1 => global tests, 2 => sub tests, 3 => sub sub tests ...
-  Testing(const char* name, unsigned int level_)
+  Testing(cstr name, unsigned int level_)
       : level(level_), start(clock()), failed(false), reg(name) {
     reg.testData->SetTabs(level);  // Give correct tabs to its sons
   }
-  void AddSub(const char* name, function<void(Register::Context&)> callerFunc) {
+  void AddSub(cstr name, function<void(Register::Context&)> callerFunc) {
     reg.Add(name, callerFunc);
   }
   // To add children data
