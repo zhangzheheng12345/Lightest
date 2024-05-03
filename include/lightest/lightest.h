@@ -23,6 +23,7 @@ test framework. Licensed under MIT.
 #include <exception>
 #include <functional>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 // For coloring on Windows
@@ -70,6 +71,12 @@ enum DataType { DATA_SET, DATA_REQ, DATA_UNCAUGHT_ERROR };
 // for on Linux clock_t's unit is us, while on Windows it's ms
 inline double TimeToMs(clock_t time) {
   return double(time) / CLOCKS_PER_SEC * 1000;
+}
+template <typename T>
+const string AnyToString(const T value) {
+  stringstream ss;
+  ss << value;
+  return ss.str();
 }
 
 // Untility for print a string with colorful background
@@ -139,7 +146,14 @@ class DataSet : public Data {
   clock_t GetDuration() const { return duration; }
   const char* GetName() const { return name; }
   unsigned int GetSonsNum() const { return sons.size(); }
-  // Should offer a callback to iterate test actions and sub tests' data
+  // Receive a callback to iterate test actions and sub tests' data
+  template <typename... restArgs>
+  void IterSons(function<void(const Data*, restArgs...)> func,
+                restArgs... args) const {
+    for (const Data* item : sons) {
+      func(item, args...);
+    }
+  }
   void IterSons(function<void(const Data*)> func) const {
     for (const Data* item : sons) {
       func(item);
@@ -174,15 +188,16 @@ class DataUnit {
 };
 
 // Data class of REQ assertions
-template <class T, class U>  // Different types for e.g. <int> == <double>
 class DataReq : public Data, public DataUnit {
  public:
-  DataReq(const char* file_, unsigned int line_, const T& actual_,
-          const U& expected_, const char* operator__, const char* expr_,
-          bool failed_)
+  DataReq(const char* file_, unsigned int line_, const string actual_,
+          const string expected_, const char* aType, const char* eType,
+          const char* operator__, const char* expr_, bool failed_)
       : DataUnit(file_, line_),
         actual(actual_),
         expected(expected_),
+        actualType(aType),
+        expectedType(eType),
         operator_(operator__),
         expr(expr_),
         failed(failed_) {}
@@ -201,16 +216,17 @@ class DataReq : public Data, public DataUnit {
     }
   }
   DataType Type() const { return DATA_REQ; }
-  const T GetActual() const { return actual; }
-  const U GetExpected() const { return GetExpected; }
+  const string& GetActual() const { return actual; }
+  const string& GetExpected() const { return expected; }
+  const char* GetActualType() const { return actualType; }
+  const char* GetExpectedType() const { return expectedType; }
   const char* GetOperator() const { return operator_; }
   const char* GetExpr() const { return expr; }
   const bool GetFailed() const { return failed; }
 
  private:
-  const T actual;
-  const U expected;
-  const char *operator_, *expr;
+  const string actual, expected;
+  const char *actualType, *expectedType, *operator_, *expr;
   const bool failed;
 };
 
@@ -293,21 +309,11 @@ class Testing {
       : level(level_), start(clock()), failed(false), reg(name) {
     reg.testData->SetTabs(level);  // Give correct tabs to its sons
   }
-  // Add a test data unit of a REQ assertion
-  template <typename T,
-            typename U>  // Differnt type for e.g. <int> == <double>
-  void Req(const char* file, int line, const T& actual, const U& expected,
-           const char* operator_, const char* expr, bool failed) {
-    reg.testData->Add(new DataReq<T, U>(file, line, actual, expected, operator_,
-                                        expr, failed));
-  }
-  void UncaughtError(const char* file, unsigned int line,
-                     const char* errorMsg) {
-    reg.testData->Add(new DataUncaughtError(file, line, errorMsg));
-  }
   void AddSub(const char* name, function<void(Register::Context&)> callerFunc) {
     reg.Add(name, callerFunc);
   }
+  // To add children data
+  void AddData(Data* data) { reg.testData->Add(data); }
   DataSet* GetData() const { return reg.testData; }
   unsigned int GetLevel() const { return level; }
   void End() {
@@ -363,17 +369,19 @@ class Testing {
   void name(int argn, char** argc)
 
 // To define a test
-#define TEST(name)                                                           \
-  void name(lightest::Testing& testing);                                     \
-  void call_##name(lightest::Register::Context& ctx) {                       \
-    lightest::Testing testing(#name, 1);                                     \
-    const char* errorMsg = CATCH(name(testing));                             \
-    if (errorMsg) testing.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg); \
-    testing.End();                                                           \
-    ctx.testData->Add(testing.GetData()); /* Colletct data */                \
-  }                                                                          \
-  lightest::Registering registering_##name(lightest::globalRegisterTest,     \
-                                           #name, call_##name);              \
+#define TEST(name)                                                          \
+  void name(lightest::Testing& testing);                                    \
+  void call_##name(lightest::Register::Context& ctx) {                      \
+    lightest::Testing testing(#name, 1);                                    \
+    const char* errorMsg = CATCH(name(testing));                            \
+    if (errorMsg)                                                           \
+      testing.AddData(new lightest::DataUncaughtError(TEST_FILE_NAME,       \
+                                                      __LINE__, errorMsg)); \
+    testing.End();                                                          \
+    ctx.testData->Add(testing.GetData()); /* Colletct data */               \
+  }                                                                         \
+  lightest::Registering registering_##name(lightest::globalRegisterTest,    \
+                                           #name, call_##name);             \
   void name(lightest::Testing& testing)
 
 // To define a test data processor
@@ -385,18 +393,19 @@ class Testing {
                                            #name, call_##name);              \
   void name(const lightest::DataSet* data)
 
-#define SUB(name)                                                     \
-  static std::function<void(lightest::Testing&)> name;                \
-  std::function<void(lightest::Register::Context&)> call_##name =     \
-      [&testing](lightest::Register::Context& ctx) {                  \
-        lightest::Testing testing_(#name, testing.GetLevel() + 1);    \
-        const char* errorMsg = CATCH(name(testing_));                 \
-        if (errorMsg)                                                 \
-          testing_.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg); \
-        testing_.End();                                               \
-        ctx.testData->Add(testing_.GetData());                        \
-      };                                                              \
-  testing.AddSub(#name, call_##name);                                 \
+#define SUB(name)                                                  \
+  static std::function<void(lightest::Testing&)> name;             \
+  std::function<void(lightest::Register::Context&)> call_##name =  \
+      [&testing](lightest::Register::Context& ctx) {               \
+        lightest::Testing testing_(#name, testing.GetLevel() + 1); \
+        const char* errorMsg = CATCH(name(testing_));              \
+        if (errorMsg)                                              \
+          testing_.AddData(new lightest::DataUncaughtError(        \
+              TEST_FILE_NAME, __LINE__, errorMsg));                \
+        testing_.End();                                            \
+        ctx.testData->Add(testing_.GetData());                     \
+      };                                                           \
+  testing.AddSub(#name, call_##name);                              \
   name = [=](lightest::Testing & testing)
 
 /* ========== Configuration Macros ========== */
@@ -464,12 +473,17 @@ int main(int argn, char* argc[]) {
 
 // REQ assertion
 // Additionally return a bool: true => pass, false => fail
-#define REQ(actual, operator, expected)                                \
-  ([&]() -> bool {                                                     \
-    bool res = (actual) operator(expected);                            \
-    testing.Req(TEST_FILE_NAME, __LINE__, actual, expected, #operator, \
-                #actual " " #operator" " #expected, !res);             \
-    return res;                                                        \
+#define REQ(actual, operator, expected)                           \
+  ([&]() -> bool {                                                \
+    auto actual_ = (actual);                                      \
+    auto expected_ = (expected);                                  \
+    bool res = (actual_) operator(expected_);                     \
+    testing.AddData(new lightest::DataReq(                        \
+        TEST_FILE_NAME, __LINE__, lightest::AnyToString(actual_), \
+        lightest::AnyToString(expected_), typeid(actual_).name(), \
+        typeid(expected_).name(), #operator,                      \
+        #actual " " #operator" " #expected, !res));               \
+    return res;                                                   \
   })()
 
 // Condition must be true or stop currnet test

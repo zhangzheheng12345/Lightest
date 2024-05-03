@@ -10,12 +10,13 @@ data.
 
 namespace lightest {
 
+using std::function;
+
 /* ========== Iterating Functions ========== */
 
 // Iterate all the tests (recursively including sub tests)
 void IterAllTests(const DataSet* data, function<void(const DataSet*)> func) {
-  std::function<void(const Data*)> iterFunc = [&iterFunc,
-                                               &func](const Data* item) {
+  function<void(const Data*)> iterFunc = [&iterFunc, &func](const Data* item) {
     if (item->Type() == DATA_SET) {
       func(static_cast<const DataSet*>(item));
       static_cast<const DataSet*>(item)->IterSons(iterFunc);
@@ -23,17 +24,57 @@ void IterAllTests(const DataSet* data, function<void(const DataSet*)> func) {
   };
   data->IterSons(iterFunc);
 }
+// A reload with depth param (start with 0) for the callback func
+void IterAllTests(const DataSet* data,
+                  function<void(const DataSet*, int)> func) {
+  function<void(const Data*, int)> iterFunc = [&iterFunc, &func](
+                                                  const Data* item, int depth) {
+    if (item->Type() == DATA_SET) {
+      func(static_cast<const DataSet*>(item), depth);
+      static_cast<const DataSet*>(item)->IterSons(iterFunc, depth + 1);
+    }
+  };
+  data->IterSons(iterFunc, 0);  // Depth start with 0
+}
 
 // Iterate all the failed tests (recursively including sub tests)
 void IterFailedTests(const DataSet* data, function<void(const DataSet*)> func) {
-  std::function<void(const Data*)> iterFunc = [&iterFunc,
-                                               &func](const Data* item) {
+  function<void(const Data*)> iterFunc = [&iterFunc, &func](const Data* item) {
     if (item->Type() == DATA_SET && item->GetFailed()) {
       func(static_cast<const DataSet*>(item));
       static_cast<const DataSet*>(item)->IterSons(iterFunc);
     }
   };
   data->IterSons(iterFunc);
+}
+// A reload with depth param (start with 0) for the callback func
+void IterFailedTests(const DataSet* data,
+                     function<void(const DataSet*, int)> func) {
+  function<void(const Data*, int)> iterFunc = [&iterFunc, &func](
+                                                  const Data* item, int depth) {
+    if (item->Type() == DATA_SET && item->GetFailed()) {
+      func(static_cast<const DataSet*>(item), depth);
+      static_cast<const DataSet*>(item)->IterSons(iterFunc, depth + 1);
+    }
+  };
+  data->IterSons(iterFunc, 0);  // Depth start with 0
+}
+
+// A matcher generator
+// Each param is a callback func, matching each type extended from Data
+function<void(const Data*)> Matcher() {
+  return [](const Data* data) { return; };
+}
+template <typename fstDataType, typename... restDataTypes>
+function<void(const Data*)> Matcher(
+    const function<void(const fstDataType*)>& fstFn,
+    const function<void(const restDataTypes*)>&... restFns) {
+  return [=](const Data* data) {
+    if (typeid(*data) == typeid(fstDataType))
+      return fstFn(static_cast<const fstDataType*>(data));
+    else
+      Matcher(restFns...)(data);
+  };
 }
 
 /* ========== Reporting Macros ========== */

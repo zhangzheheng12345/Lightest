@@ -15,9 +15,10 @@ TEST(Test3) {
     SUB(SubSubTest) { REQ(1, ==, 2); };
   };
 }
+TEST(Test4) { throw "Uncaught error"; }
 
 // Test IterAllTests
-DATA(IterAllTests) {
+DATA(TestIterAllTests) {
   unsigned int failureCount = 0;
   lightest::IterAllTests(data, [&failureCount](const lightest::DataSet* item) {
     if (item->GetFailed()) failureCount++;
@@ -26,11 +27,32 @@ DATA(IterAllTests) {
 }
 
 // Test IterFailedTests
-DATA(IterFailedTests) {
+DATA(TestIterFailedTests) {
   unsigned int failureCount = 0;
   lightest::IterFailedTests(
       data, [&failureCount](const lightest::DataSet* item) { failureCount++; });
   std::cout << "Test IterFailedTests: Failures: " << failureCount << std::endl;
+}
+
+DATA(TestMatcher) {
+  unsigned int failedReqCount = 0;
+  unsigned int uncaughtErrCount = 0;
+  std::function<void(const lightest::DataReq*)> matchReq =
+      [&failedReqCount](const lightest::DataReq* item) {
+        if (item->GetFailed()) failedReqCount++;
+      };
+  std::function<void(const lightest::DataUncaughtError*)> matchErr =
+      [&uncaughtErrCount](const lightest::DataUncaughtError* item) {
+        uncaughtErrCount++;
+      };
+  std::function<void(const lightest::DataSet*)> matchDataSet =
+      [&matchReq, &matchErr, &matchDataSet](const lightest::DataSet* item) {
+        item->IterSons(lightest::Matcher(matchReq, matchErr, matchDataSet));
+      };
+  data->IterSons(lightest::Matcher(matchReq, matchErr, matchDataSet));
+  std::cout << "Test Matcher: FailedReqCount: " << failedReqCount << std::endl
+            << "Test Matcher: UncaughtErrCount: " << uncaughtErrCount
+            << std::endl;
 }
 
 // Test REPORT

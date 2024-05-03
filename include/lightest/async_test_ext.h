@@ -102,23 +102,24 @@ void UseAsyncGlobal() {
 /* =========== Redefined Macros for Async Testing ========== */
 
 #undef TEST
-#define TEST(name)                                                      \
-  void name(lightest::Testing& testing, std::mutex& subDataLock);       \
-  void call_##name(lightest::DataSet* data, std::mutex& dataLock) {     \
-    static lightest::Testing testing(#name, 1);                         \
-    static std::mutex subDataLock; /* The lock for current test data */ \
-    const char* errorMsg = CATCH(name(testing, subDataLock));           \
-    if (errorMsg) {                                                     \
-      subDataLock.lock(); /* Safely add uncaught error data */          \
-      testing.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg);        \
-      subDataLock.unlock();                                             \
-    }                                                                   \
-    dataLock.lock(); /* Safely add data to parent */                    \
-    data->Add(testing.GetData());                                       \
-    dataLock.unlock();                                                  \
-  }                                                                     \
-  lightest::AddingAsyncTest registering_##name(                         \
-      #name, call_##name, lightest::globalRegisterTest.testData);       \
+#define TEST(name)                                                          \
+  void name(lightest::Testing& testing, std::mutex& subDataLock);           \
+  void call_##name(lightest::DataSet* data, std::mutex& dataLock) {         \
+    static lightest::Testing testing(#name, 1);                             \
+    static std::mutex subDataLock; /* The lock for current test data */     \
+    const char* errorMsg = CATCH(name(testing, subDataLock));               \
+    if (errorMsg) {                                                         \
+      subDataLock.lock(); /* Safely add uncaught error data */              \
+      testing.AddData(new lightest::DataUncaughtError(TEST_FILE_NAME,       \
+                                                      __LINE__, errorMsg)); \
+      subDataLock.unlock();                                                 \
+    }                                                                       \
+    dataLock.lock(); /* Safely add data to parent */                        \
+    data->Add(testing.GetData());                                           \
+    dataLock.unlock();                                                      \
+  }                                                                         \
+  lightest::AddingAsyncTest registering_##name(                             \
+      #name, call_##name, lightest::globalRegisterTest.testData);           \
   void name(lightest::Testing& testing, std::mutex& subDataLock)
 
 #undef SUB
@@ -131,7 +132,8 @@ void UseAsyncGlobal() {
         const char* errorMsg = CATCH(name(testing_, subDataLock));          \
         if (errorMsg) {                                                     \
           subDataLock.lock(); /* Safely add uncaught error data */          \
-          testing_.UncaughtError(TEST_FILE_NAME, __LINE__, errorMsg);       \
+          testing_.AddData(new lightest::DataUncaughtError(                 \
+              TEST_FILE_NAME, __LINE__, errorMsg));                         \
           subDataLock.unlock();                                             \
         }                                                                   \
         dataLock.lock(); /* Safely add data to parent */                    \
@@ -149,14 +151,19 @@ void UseAsyncGlobal() {
   name = [=](lightest::Testing & testing, std::mutex & subDataLock)
 
 #undef REQ
-#define REQ(actual, operator, expected)                                \
-  ([&]() -> bool {                                                     \
-    bool res = (actual) operator(expected);                            \
-    subDataLock.lock(); /* Safely add assertion data to parent */      \
-    testing.Req(TEST_FILE_NAME, __LINE__, actual, expected, #operator, \
-                #actual " " #operator" " #expected, !res);             \
-    subDataLock.unlock();                                              \
-    return res;                                                        \
+#define REQ(actual, operator, expected)                           \
+  ([&]() -> bool {                                                \
+    auto actual_ = (actual);                                      \
+    auto expected_ = (expected);                                  \
+    bool res = (actual_) operator(expected_);                     \
+    subDataLock.lock(); /* Safely add assertion data to parent */ \
+    testing.AddData(new lightest::DataReq(                        \
+        TEST_FILE_NAME, __LINE__, lightest::AnyToString(actual_), \
+        lightest::AnyToString(expected_), typeid(actual_).name(), \
+        typeid(expected_).name(), #operator,                      \
+        #actual " " #operator" " #expected, !res));               \
+    subDataLock.unlock();                                         \
+    return res;                                                   \
   })()
 
 };  // namespace lightest
