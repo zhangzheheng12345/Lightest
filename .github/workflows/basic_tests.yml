@@ -16,4 +16,4 @@ jobs:
       - name: Run
         run: |
           cd build/test
-          ./LightestCoreTest -r0 && ./LightestDataAnalysisExtTest -r0 && ./LightestAsyncTestExtTest
+          ./LightestCoreTest -r0 && ./LightestDataAnalysisExtTest -r0 && ./LightestAsyncTestExtTest -r0
