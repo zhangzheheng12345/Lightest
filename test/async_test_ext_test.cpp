@@ -8,11 +8,7 @@
 
 ARG_CONFIG();
 
-CONFIG(UseAsyncTest) {
-  SET_THREAD_NUM(5);
-  USE_ASYNC_GLOBAL();
-  USE_ASYNC_SUB();
-}
+CONFIG(UseAsyncTest) { USE_ASYNC(); }
 
 TEST(Test1) {
   REQ(1, ==, 1);
@@ -45,6 +41,14 @@ TEST(TestCatchingUncaughtError) {
     throw BasicExceptionError();
   };
   SUB(TestUnknown) { throw 1; };
+}
+TEST(TestAwaiting) {
+  REQ(1, ==, 1);
+  // TODO: why the total time (reported at the end of the program) << 150ms ? (around 10ms for
+  // instace)
+  std::this_thread::sleep_for(std::chrono::milliseconds(150));
+  REQ(1, ==, 2);
+  std::cout << "awaited yes!" << std::endl;
 }
 
 REPORT() {

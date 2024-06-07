@@ -10,8 +10,6 @@ data.
 
 namespace lightest {
 
-using std::function;
-
 /* ========== Iterating Functions ========== */
 
 // Iterate all the tests (recursively including sub tests)

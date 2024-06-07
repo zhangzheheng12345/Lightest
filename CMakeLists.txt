@@ -4,7 +4,7 @@ project(Lightest)
 
 set(CMAKE_CXX_STANDARD 11) # C++11 required
 
-message("** Building Lightest Tests **")
+message("** Building Lightest tests **")
 
 # Build Lightest to a header-only library
 

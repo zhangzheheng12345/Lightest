@@ -23,7 +23,7 @@ DATA(TestIterAllTests) {
   lightest::IterAllTests(data, [&failureCount](const lightest::DataSet* item) {
     if (item->GetFailed()) failureCount++;
   });
-  std::cout << "Test IterAllTests: Failures: " << failureCount << std::endl;
+  std::cout << "** Test IterAllTests: Failures: " << failureCount << std::endl;
 }
 
 // Test IterFailedTests
@@ -31,7 +31,7 @@ DATA(TestIterFailedTests) {
   unsigned int failureCount = 0;
   lightest::IterFailedTests(
       data, [&failureCount](const lightest::DataSet* item) { failureCount++; });
-  std::cout << "Test IterFailedTests: Failures: " << failureCount << std::endl;
+  std::cout << "** Test IterFailedTests: Failures: " << failureCount << std::endl;
 }
 
 DATA(TestMatcher) {
@@ -48,8 +48,8 @@ DATA(TestMatcher) {
         item->IterSons(lightest::Matcher(matchReq, matchErr, matchDataSet));
       };
   data->IterSons(lightest::Matcher(matchReq, matchErr, matchDataSet));
-  std::cout << "Test Matcher: FailedReqCount: " << failedReqCount << std::endl
-            << "Test Matcher: UncaughtErrCount: " << uncaughtErrCount << std::endl;
+  std::cout << "** Test Matcher: FailedReqCount: " << failedReqCount << std::endl
+            << "** Test Matcher: UncaughtErrCount: " << uncaughtErrCount << std::endl;
 }
 
 // Test REPORT

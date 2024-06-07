@@ -5,6 +5,8 @@ This is a Lightest extension, which provides a async testing system
 #ifndef _ASYNC_TEST_H_
 #define _ASYNC_TEST_H_
 
+#include <atomic>
+#include <chrono>
 #include <mutex>
 #include <thread>
 #include "lightest.h"
@@ -15,17 +17,43 @@ namespace lightest {
 
 mutex globalDataLock;
 
+// To ensure all tests to be run
+class TestTree {
+ public:
+  TestTree(TestTree* parent_) {
+    parent = parent_;
+    if (parent) parent->AddUndoneSon();
+    thisDone = false;
+    undoneSonNum = 0;
+  }
+  bool GetDone() const { return thisDone && !(undoneSonNum.load()); }
+  void AddUndoneSon() { undoneSonNum.fetch_add(1); }
+  void AddDoneSon() { undoneSonNum.fetch_add(-1); }
+  void SetThisDone() {
+    thisDone = true;
+    if (parent) parent->AddDoneSon();
+  }
+
+ private:
+  atomic<bool> thisDone;
+  atomic<unsigned int> undoneSonNum;
+  TestTree* parent;
+};
+
 // A simple thread pool to run any tests
 class ThreadPool {
  public:
-  ThreadPool(unsigned int threadNum_)
-      : threadNum(threadNum_),
-        tasks(0, TaskWrapper{globalRegisterTest.testData, globalDataLock,
-                             [](DataSet* data, mutex& dataLock) {}}) {}
+  ThreadPool(unsigned int threadNum_) {
+    threadNum = threadNum_;
+    tasks = vector<TaskWrapper>();
+    testTreeRoot = new TestTree(nullptr);
+    testTreeRoot->SetThisDone();
+  }
   void SetThreadNum(unsigned int num) { threadNum = num; }
-  void AddTask(function<void(DataSet*, mutex&)> func, DataSet* data, mutex& dataLock) {
+  void AddTask(function<void(DataSet*, mutex&, TestTree*)> func, DataSet* data,
+               mutex& dataLock, TestTree* node) {
     taskListLock.lock();  // Safely add new tasks while running
-    tasks.push_back(TaskWrapper{data, dataLock, func});
+    tasks.push_back(TaskWrapper{data, dataLock, func, node});
     taskListLock.unlock();
   }
   // Keep running tasks until the task list is empty
@@ -34,7 +62,7 @@ class ThreadPool {
     vector<thread> threads(threadNum);
     for (thread& item : threads)
       item = thread([&]() {
-        while (1) {
+        while (true) {
           taskListLock.lock();
           if (tasks.size() <= index) {
             taskListLock.unlock();
@@ -43,12 +71,19 @@ class ThreadPool {
           TaskWrapper task = tasks.at(index);
           index++;
           taskListLock.unlock();
-          task.func(task.data, task.dataLock);
+          task.func(task.data, task.dataLock, task.node);
         }
         return;
       });
-    for (thread& item : threads) item.join();
+    unsigned int baseNum = tasks.size();
+    for (thread& item : threads) item.detach();
+    // Check done before return
+    while (!testTreeRoot->GetDone()) {
+      const unsigned int checkGapTime = 50;
+      this_thread::sleep_for(chrono::milliseconds(checkGapTime));
+    }
   }
+  TestTree* GetTestTreeRoot() const { return testTreeRoot; }  // No const -- must be changable
 
  private:
   mutex taskListLock;
@@ -56,92 +91,83 @@ class ThreadPool {
   typedef struct {
     DataSet* data;    // Parent data object
     mutex& dataLock;  // The lock for the data object above
-    function<void(DataSet*, mutex&)> func;
+    function<void(DataSet*, mutex&, TestTree*)> func;
+    TestTree* node;  // for THIS test instead of the parent
   } TaskWrapper;
   vector<TaskWrapper> tasks;
+  TestTree* testTreeRoot;
 };
 
-ThreadPool asyncTestRunner(10);  // Default 10 threads
-bool useAsyncGlobal = false;     // Use USE_ASYNC_GLOBEL() to set to true
-bool useAsyncSub = false;        // Use USE_ASYNC_SUB to set to true
+const unsigned int defaultThreadNum = 10;
+ThreadPool asyncTestRunner(defaultThreadNum);
 
 class AddingAsyncTest {
  public:
-  AddingAsyncTest(const char* name, function<void(DataSet*, mutex&)> caller, DataSet* data) {
-    if (useAsyncGlobal)
-      asyncTestRunner.AddTask(caller, data, globalDataLock);
-    else
-      globalRegisterTest.Add(
-          name, [caller](Register::Context& ctx) { caller(ctx.testData, globalDataLock); });
+  AddingAsyncTest(const char* name, function<void(DataSet*, mutex&, TestTree*)> caller,
+                  DataSet* data) {
+    asyncTestRunner.AddTask(caller, data, globalDataLock,
+                            new TestTree(asyncTestRunner.GetTestTreeRoot()));
   }
 };
 
 /* ========== Configuartions for Async Testing ========== */
 
-void UseAsyncGlobal() {
-  useAsyncGlobal = true;
+void UseAsync() {
   // Inject a 'global test' which launches the async testing engine at the time
   // when sync testing is started
   globalRegisterTest.Add("RunAsyncTests",
                          [](Register::Context& ctx) { asyncTestRunner.RunAllTasks(); });
 }
 
-// Enable async testing only for  global tests
-#define USE_ASYNC_GLOBAL() lightest::UseAsyncGlobal()
-
-// Enable async testing for sub tests
-#define USE_ASYNC_SUB() lightest::useAsyncSub = true
-
 // Change the number of threads
 #define SET_THREAD_NUM(num) lightest::asyncTestRunner.SetThreadNum(num)
+#define USE_ASYNC() lightest::UseAsync()
 
 /* =========== Redefined Macros for Async Testing ========== */
 
 #undef TEST
-#define TEST(name)                                                                          \
-  void name(lightest::Testing& testing, std::mutex& subDataLock);                           \
-  void call_##name(lightest::DataSet* data, std::mutex& dataLock) {                         \
-    static lightest::Testing testing(#name, 1);                                             \
-    static std::mutex subDataLock; /* The lock for current test data */                     \
-    const char* errorMsg = CATCH(name(testing, subDataLock));                               \
-    if (errorMsg) {                                                                         \
-      subDataLock.lock(); /* Safely add uncaught error data */                              \
-      testing.AddData(new lightest::DataUncaughtError(TEST_FILE_NAME, __LINE__, errorMsg)); \
-      subDataLock.unlock();                                                                 \
-    }                                                                                       \
-    dataLock.lock(); /* Safely add data to parent */                                        \
-    data->Add(testing.GetData());                                                           \
-    dataLock.unlock();                                                                      \
-  }                                                                                         \
-  lightest::AddingAsyncTest registering_##name(#name, call_##name,                          \
-                                               lightest::globalRegisterTest.testData);      \
-  void name(lightest::Testing& testing, std::mutex& subDataLock)
+#define TEST(name)                                                                            \
+  void name(lightest::Testing& testing, std::mutex& subDataLock, lightest::TestTree* node);   \
+  void call_##name(lightest::DataSet* data, std::mutex& dataLock, lightest::TestTree* node) { \
+    static lightest::Testing testing(#name, 1);                                               \
+    static std::mutex subDataLock; /* The lock for current test data */                       \
+    const char* errorMsg = CATCH(name(testing, subDataLock, node));                           \
+    node->SetThisDone();                                                                      \
+    if (errorMsg) {                                                                           \
+      subDataLock.lock(); /* Safely add uncaught error data */                                \
+      testing.AddData(new lightest::DataUncaughtError(TEST_FILE_NAME, __LINE__, errorMsg));   \
+      subDataLock.unlock();                                                                   \
+    }                                                                                         \
+    dataLock.lock(); /* Safely add data to parent */                                          \
+    data->Add(testing.GetData());                                                             \
+    dataLock.unlock();                                                                        \
+  }                                                                                           \
+  lightest::AddingAsyncTest registering_##name(#name, call_##name,                            \
+                                               lightest::globalRegisterTest.testData);        \
+  void name(lightest::Testing& testing, std::mutex& subDataLock, lightest::TestTree* node)
 
 #undef SUB
-#define SUB(name)                                                                   \
-  static std::function<void(lightest::Testing&, std::mutex&)> name;                 \
-  std::function<void(lightest::DataSet*, std::mutex&)> call_##name =                \
-      [&testing](lightest::DataSet* data, std::mutex& dataLock) {                   \
-        static lightest::Testing testing_(#name, testing.GetLevel() + 1);           \
-        static std::mutex subDataLock; /* The lock for current test data */         \
-        const char* errorMsg = CATCH(name(testing_, subDataLock));                  \
-        if (errorMsg) {                                                             \
-          subDataLock.lock(); /* Safely add uncaught error data */                  \
-          testing_.AddData(                                                         \
-              new lightest::DataUncaughtError(TEST_FILE_NAME, __LINE__, errorMsg)); \
-          subDataLock.unlock();                                                     \
-        }                                                                           \
-        dataLock.lock(); /* Safely add data to parent */                            \
-        data->Add(testing_.GetData());                                              \
-        dataLock.unlock();                                                          \
-      };                                                                            \
-  if (lightest::useAsyncSub) /* Async sub testing */                                \
-    lightest::asyncTestRunner.AddTask(call_##name, testing.GetData(), subDataLock); \
-  else /* Sync sub testing */                                                       \
-    testing.AddSub(#name, [=, &subDataLock](lightest::Register::Context& ctx) {     \
-      call_##name(ctx.testData, subDataLock);                                       \
-    }); /* A lambda wrapping to fit input */                                        \
-  name = [=](lightest::Testing & testing, std::mutex & subDataLock)
+#define SUB(name)                                                                           \
+  static std::function<void(lightest::Testing&, std::mutex&, lightest::TestTree*)> name;    \
+  std::function<void(lightest::DataSet*, std::mutex&, lightest::TestTree*)> call_##name =   \
+      [&testing](lightest::DataSet* data, std::mutex& dataLock, lightest::TestTree* node) { \
+        static lightest::Testing testing_(#name, testing.GetLevel() + 1);                   \
+        static std::mutex subDataLock; /* The lock for current test data */                 \
+        const char* errorMsg = CATCH(name(testing_, subDataLock, node));                    \
+        node->SetThisDone();                                                                \
+        if (errorMsg) {                                                                     \
+          subDataLock.lock(); /* Safely add uncaught error data */                          \
+          testing_.AddData(                                                                 \
+              new lightest::DataUncaughtError(TEST_FILE_NAME, __LINE__, errorMsg));         \
+          subDataLock.unlock();                                                             \
+        }                                                                                   \
+        dataLock.lock(); /* Safely add data to parent */                                    \
+        data->Add(testing_.GetData());                                                      \
+        dataLock.unlock();                                                                  \
+      };                                                                                    \
+  lightest::asyncTestRunner.AddTask(call_##name, testing.GetData(), subDataLock,            \
+                                    new lightest::TestTree(node));                          \
+  name = [=](lightest::Testing & testing, std::mutex & subDataLock, lightest::TestTree * node)
 
 #undef REQ
 #define REQ(actual, operator, expected)                                                     \

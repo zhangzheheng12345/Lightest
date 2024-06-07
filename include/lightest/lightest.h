@@ -404,30 +404,32 @@ class Testing {
 /* ========== Main ========== */
 
 int main(int argn, char* argc[]) {
+  using namespace lightest;
+  using namespace std;
   // Offer arn & argc for CONFIG
-  lightest::Register::SetArg(argn, argc);
+  Register::SetArg(argn, argc);
   // Only test registerer need this, for test data will only be added in test
   // process
-  lightest::globalRegisterTest.testData->SetTabs(0);
+  globalRegisterTest.testData->SetTabs(0);
   // 1. Run CONFIG
   // 2. Run tests (TEST)
   // 3. Pass test data to DATA registerer
   // 4. Run DATA
-  lightest::globalRegisterConfig.RunRegistered();
-  lightest::globalRegisterTest.RunRegistered();
-  lightest::globalRegisterData.testData = lightest::globalRegisterTest.testData;
+  globalRegisterConfig.RunRegistered();
+  globalRegisterTest.RunRegistered();
+  globalRegisterData.testData = globalRegisterTest.testData;
   // Optionally print the default outputs
-  if (lightest::toOutput) {
-    lightest::globalRegisterData.testData->PrintSons();
+  if (toOutput) {
+    globalRegisterData.testData->PrintSons();
   }
-  lightest::globalRegisterData.RunRegistered();
-  if (lightest::globalRegisterData.testData->GetFailed())
-    PRINT_LABEL(lightest::Color::Red, " ✕ FAILED ✕ ");
+  globalRegisterData.RunRegistered();
+  if (globalRegisterData.testData->GetFailed())
+    PRINT_LABEL(Color::Red, " ✕ FAILED ✕ ");
   else
-    PRINT_LABEL(lightest::Color::Green, " ✓ SUCCEEDED ✓ ");
-  PRINT_LABEL(lightest::Color::Blue, " " << lightest::TimeToMs(clock()) << " ms used ");
-  std::cout << std::endl << std::endl;
-  return lightest::globalRegisterData.testData->GetFailed() && lightest::failedReturnNoneZero;
+    PRINT_LABEL(Color::Green, " ✓ SUCCEEDED ✓ ");
+  PRINT_LABEL(Color::Blue, " " << TimeToMs(clock()) << " ms used ");
+  cout << endl << endl;
+  return globalRegisterData.testData->GetFailed() && failedReturnNoneZero;
 }
 
 /* ========= Timer Macros =========== */
